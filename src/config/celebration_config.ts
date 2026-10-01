@@ -29,13 +29,13 @@ export const CELEBRATION_DURATION_MS = CHOREOGRAPHY.reduce((total, s) => total +
 export const FRAMES_PER_MOVEMENT = 6;
 
 /** Ancho del escenario en píxeles lógicos (16:9). */
-export const STAGE_WIDTH = 213;
+export const STAGE_WIDTH = 160;
 
 /** Alto del escenario en píxeles lógicos. */
-export const STAGE_HEIGHT = 120;
+export const STAGE_HEIGHT = 90;
 
 /** Fila del suelo del escenario (donde apoyan los pies). */
-export const STAGE_GROUND_Y = 104;
+export const STAGE_GROUND_Y = 80;
 
 /** Grosor de la franja del suelo (px lógicos). */
 export const STAGE_FLOOR_THICKNESS = 2;
@@ -44,10 +44,10 @@ export const STAGE_FLOOR_THICKNESS = 2;
 export const ENTER_START_X = -24;
 
 /** Posición horizontal donde baila el personaje. */
-export const DANCE_CENTER_X = 106;
+export const DANCE_CENTER_X = 80;
 
 /** Posición horizontal de salida (fuera del escenario por la derecha). */
-export const EXIT_END_X = 240;
+export const EXIT_END_X = 184;
 
 /** Altura del salto en cada fotograma del movimiento `jump` (px lógicos). */
 export const JUMP_HEIGHTS: readonly number[] = [0, 8, 18, 24, 16, 0];
