@@ -20,6 +20,10 @@ export interface AudioEngine {
   readonly playMusic: (song: Song) => void;
   /** Detiene la música. */
   readonly stopMusic: () => void;
+  /** Detiene la música recordando por dónde iba, para reanudarla con `resumeMusic`. */
+  readonly pauseMusic: () => void;
+  /** Reanuda la última música pausada desde donde se quedó. */
+  readonly resumeMusic: () => void;
   /** Cambia la velocidad de la música (1 = tempo original). */
   readonly setTempoMultiplier: (multiplier: number) => void;
   /** Activa o desactiva solo la música (opción MÚSICA del menú). */
@@ -28,6 +32,12 @@ export interface AudioEngine {
   readonly setMuted: (muted: boolean) => void;
   /** Indica si todo el audio está silenciado. */
   readonly isMuted: () => boolean;
+}
+
+/** Canción pausada y paso por el que iba. */
+interface PausedMusic {
+  readonly song: Song;
+  readonly step: number;
 }
 
 /** Nodos y reproductor que existen una vez desbloqueado el audio. */
@@ -52,6 +62,7 @@ export function createAudioEngine(
   let muted = false;
   let musicEnabled = true;
   let pendingSong: Song | null = null;
+  let pausedMusic: PausedMusic | null = null;
   let tempoMultiplier = 1;
 
   const applyMasterVolume = (): void => {
@@ -60,9 +71,9 @@ export function createAudioEngine(
     }
   };
 
-  const startPendingMusic = (): void => {
+  const startPendingMusic = (startStep = 0): void => {
     if (graph !== null && musicEnabled && pendingSong !== null) {
-      graph.music.play(pendingSong);
+      graph.music.play(pendingSong, startStep);
       graph.music.setTempoMultiplier(tempoMultiplier);
     }
   };
@@ -109,7 +120,26 @@ export function createAudioEngine(
     },
     stopMusic: () => {
       pendingSong = null;
+      pausedMusic = null;
       graph?.music.stop();
+    },
+    pauseMusic: () => {
+      const playing = graph?.music.getCurrentSong() ?? null;
+      if (playing !== null && graph !== null) {
+        pausedMusic = { song: playing, step: graph.music.getCurrentStep() };
+        graph.music.stop();
+      } else {
+        pausedMusic = pendingSong === null ? null : { song: pendingSong, step: 0 };
+      }
+    },
+    resumeMusic: () => {
+      if (pausedMusic === null) {
+        return;
+      }
+      pendingSong = pausedMusic.song;
+      graph?.music.stop();
+      startPendingMusic(pausedMusic.step);
+      pausedMusic = null;
     },
     setTempoMultiplier: (multiplier) => {
       tempoMultiplier = multiplier;

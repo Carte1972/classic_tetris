@@ -7,9 +7,6 @@ export const A4_MIDI_NUMBER = 69;
 /** Semitonos por octava. */
 export const SEMITONES_PER_OCTAVE = 12;
 
-/** Pasos del secuenciador por negra (1 paso = 1 corchea). */
-export const STEPS_PER_BEAT = 2;
-
 /** Fracción de la duración de cada nota que suena (el resto separa notas repetidas). */
 export const NOTE_GATE = 0.85;
 

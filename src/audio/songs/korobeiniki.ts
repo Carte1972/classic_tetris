@@ -44,6 +44,7 @@ const EIGHT_BARS_REST = '-:64';
  */
 export const KOROBEINIKI: Song = {
   bpm: 144,
+  stepsPerBeat: 2,
   tracks: [
     { waveform: 'square', volume: 0.2, notes: parseTrack(MELODY + MELODY) },
     { waveform: 'square', volume: 0.1, notes: parseTrack(EIGHT_BARS_REST + HARMONY) },

@@ -1,9 +1,4 @@
-import {
-  NOTE_GATE,
-  SCHEDULER_INTERVAL_MS,
-  SCHEDULER_LOOKAHEAD_S,
-  STEPS_PER_BEAT,
-} from '../config/audio_config';
+import { NOTE_GATE, SCHEDULER_INTERVAL_MS, SCHEDULER_LOOKAHEAD_S } from '../config/audio_config';
 import type { AudioContextLike, AudioNodeLike, IntervalScheduler } from './audio_types';
 import { collectNotesInWindow } from './sequencer';
 import type { Song } from './song';
@@ -14,14 +9,16 @@ const SECONDS_PER_MINUTE = 60;
 
 /** Reproductor de música en bucle con tempo variable. */
 export interface MusicPlayer {
-  /** Empieza a tocar una canción desde el principio (sustituye a la actual). */
-  readonly play: (song: Song) => void;
+  /** Empieza a tocar una canción (sustituye a la actual), por defecto desde el principio. */
+  readonly play: (song: Song, startStep?: number) => void;
   /** Detiene la música (las notas ya programadas terminan solas en milisegundos). */
   readonly stop: () => void;
   /** Cambia la velocidad de la canción (1 = tempo original). */
   readonly setTempoMultiplier: (multiplier: number) => void;
   /** Canción que está sonando, o `null`. */
   readonly getCurrentSong: () => Song | null;
+  /** Paso de la canción que está sonando ahora (0 si no suena nada). */
+  readonly getCurrentStep: () => number;
 }
 
 /**
@@ -59,7 +56,7 @@ export function createMusicPlayer(
   let scheduledUntilStep = 0;
 
   const stepDuration = (current: Song): number =>
-    SECONDS_PER_MINUTE / (current.bpm * STEPS_PER_BEAT * tempoMultiplier);
+    SECONDS_PER_MINUTE / (current.bpm * current.stepsPerBeat * tempoMultiplier);
 
   const stepAt = (current: Song, time: number): number =>
     anchorStep + (time - anchorTime) / stepDuration(current);
@@ -95,12 +92,12 @@ export function createMusicPlayer(
   };
 
   return {
-    play: (next) => {
+    play: (next, startStep = 0) => {
       stop();
       song = next;
-      anchorStep = 0;
+      anchorStep = startStep;
       anchorTime = context.currentTime;
-      scheduledUntilStep = 0;
+      scheduledUntilStep = startStep;
       scheduleAhead();
       cancelTimer = interval(scheduleAhead, SCHEDULER_INTERVAL_MS);
     },
@@ -116,5 +113,6 @@ export function createMusicPlayer(
       tempoMultiplier = multiplier;
     },
     getCurrentSong: () => song,
+    getCurrentStep: () => (song === null ? 0 : stepAt(song, context.currentTime)),
   };
 }

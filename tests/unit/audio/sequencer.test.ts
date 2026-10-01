@@ -4,6 +4,7 @@ import { parseTrack, type Song } from '../../../src/audio/song';
 
 const SONG: Song = {
   bpm: 120,
+  stepsPerBeat: 2,
   tracks: [
     { waveform: 'square', volume: 0.5, notes: parseTrack('A4:2 -:1 C5:1') },
     { waveform: 'triangle', volume: 0.3, notes: [] },

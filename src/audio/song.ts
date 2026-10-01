@@ -5,7 +5,7 @@ import { noteToFrequency } from './notes';
 export interface SongNote {
   /** Frecuencia en Hz, o `null` si es un silencio. */
   readonly frequency: number | null;
-  /** Duración en pasos (corcheas). */
+  /** Duración en pasos (ver `Song.stepsPerBeat`). */
   readonly steps: number;
 }
 
@@ -21,6 +21,8 @@ export interface SongTrack {
 export interface Song {
   /** Tempo en negras por minuto. */
   readonly bpm: number;
+  /** Pasos por negra: 2 si el paso es una corchea, 4 si es una semicorchea. */
+  readonly stepsPerBeat: number;
   readonly tracks: readonly SongTrack[];
 }
 

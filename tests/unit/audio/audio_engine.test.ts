@@ -7,13 +7,14 @@ import { createManualInterval, FakeAudioContext } from './fake_audio';
 
 const SONG: Song = {
   bpm: 120,
+  stepsPerBeat: 2,
   tracks: [{ waveform: 'square', volume: 0.2, notes: parseTrack('A4:1 -:1') }],
 };
 
 /** Crea un motor con un contexto falso y devuelve ambos. */
 function setup() {
   const contexts: FakeAudioContext[] = [];
-  const { interval, active } = createManualInterval();
+  const { interval, active, tick } = createManualInterval();
   const engine = createAudioEngine(() => {
     const context = new FakeAudioContext();
     contexts.push(context);
@@ -26,7 +27,7 @@ function setup() {
     }
     return created;
   };
-  return { engine, contexts, context, activeTimers: active };
+  return { engine, contexts, context, activeTimers: active, tick };
 }
 
 /** Ganancia general (la primera que crea el motor). */
@@ -105,6 +106,43 @@ describe('createAudioEngine', () => {
     engine.setTempoMultiplier(1.5);
     engine.setMusicEnabled(false);
     engine.setMusicEnabled(true);
+    expect(activeTimers()).toBe(0);
+  });
+
+  it('pausa la música y la reanuda por donde iba', () => {
+    const { engine, context, activeTimers, tick } = setup();
+    engine.unlock();
+    engine.playMusic(SONG);
+    // A 120 negras/min y 2 pasos por negra, cada paso dura 0,25 s: en 0,25 s va por el paso 1.
+    context().currentTime = 0.25;
+    engine.pauseMusic();
+    expect(activeTimers()).toBe(0);
+    engine.playMusic({ ...SONG, bpm: 240 });
+    context().currentTime = 10;
+    engine.resumeMusic();
+    expect(activeTimers()).toBe(1);
+    context().currentTime = 10.2;
+    tick();
+    // La siguiente nota (paso 2) llega un paso después de reanudar, no al reiniciar la canción.
+    expect(context().oscillators.at(-1)?.startTime).toBeCloseTo(10.25);
+    engine.resumeMusic();
+    expect(activeTimers()).toBe(1);
+  });
+
+  it('pausar antes de desbloquear recuerda la canción pendiente', () => {
+    const { engine, activeTimers } = setup();
+    engine.playMusic(SONG);
+    engine.pauseMusic();
+    engine.unlock();
+    engine.resumeMusic();
+    expect(activeTimers()).toBe(1);
+  });
+
+  it('pausar sin música no deja nada que reanudar', () => {
+    const { engine, activeTimers } = setup();
+    engine.unlock();
+    engine.pauseMusic();
+    engine.resumeMusic();
     expect(activeTimers()).toBe(0);
   });
 });

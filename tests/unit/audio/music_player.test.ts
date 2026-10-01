@@ -1,15 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { createMusicPlayer } from '../../../src/audio/music_player';
 import { parseTrack, type Song } from '../../../src/audio/song';
-import { SCHEDULER_LOOKAHEAD_S, STEPS_PER_BEAT } from '../../../src/config/audio_config';
+import { SCHEDULER_LOOKAHEAD_S } from '../../../src/config/audio_config';
 import { createManualInterval, FakeAudioContext, FakeNode } from './fake_audio';
 
 /** Canción de prueba: una corchea por paso a 60 negras/min = 0,5 s por paso. */
 const SONG: Song = {
   bpm: 60,
+  stepsPerBeat: 2,
   tracks: [{ waveform: 'square', volume: 0.2, notes: parseTrack('A4:1 B4:1 C5:1 D5:1') }],
 };
-const STEP_S = 60 / (SONG.bpm * STEPS_PER_BEAT);
+const STEP_S = 60 / (SONG.bpm * SONG.stepsPerBeat);
 
 /** Instantes de inicio de las notas programadas. */
 function startTimes(context: FakeAudioContext): (number | null)[] {
@@ -84,5 +85,16 @@ describe('createMusicPlayer', () => {
     context.currentTime = STEP_S / 2;
     tick();
     expect(startTimes(context)).toEqual([0, STEP_S / 2]);
+  });
+
+  it('puede empezar desde un paso intermedio e informa del paso actual', () => {
+    const context = new FakeAudioContext();
+    const { interval } = createManualInterval();
+    const player = createMusicPlayer(context, new FakeNode(), interval);
+    expect(player.getCurrentStep()).toBe(0);
+    player.play(SONG, 2);
+    expect(context.oscillators[0]?.frequency.events[0]?.value).toBeCloseTo(523.25, 1);
+    context.currentTime = STEP_S;
+    expect(player.getCurrentStep()).toBeCloseTo(3);
   });
 });
