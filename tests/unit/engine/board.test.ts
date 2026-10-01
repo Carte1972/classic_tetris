@@ -4,6 +4,7 @@ import {
   createEmptyBoard,
   findFullRows,
   getCell,
+  getStackHeight,
   isInsideBoard,
   isRowFull,
   lockPiece,
@@ -71,5 +72,13 @@ describe('board', () => {
     const cleared = removeRows(board, findFullRows(board));
     expect(cleared[TOTAL_ROWS - 1]).toEqual(middle);
     expect(findFullRows(cleared)).toEqual([]);
+  });
+
+  it('mide la altura de la pila en filas visibles', () => {
+    expect(getStackHeight(createEmptyBoard())).toBe(0);
+    expect(getStackHeight(boardWithBottomRows([filledRow([1, 2])]))).toBe(1);
+    expect(getStackHeight(boardWithBottomRows([filledRow([0]), filledRow(), filledRow()]))).toBe(3);
+    const toTheTop = boardWithBottomRows(Array.from({ length: TOTAL_ROWS }, () => filledRow([0])));
+    expect(getStackHeight(toTheTop)).toBe(20);
   });
 });

@@ -1,4 +1,4 @@
-import { BOARD_COLUMNS, TOTAL_ROWS } from '../config/board_config';
+import { BOARD_COLUMNS, TOTAL_ROWS, VISIBLE_ROWS } from '../config/board_config';
 import { getPieceCells } from './tetrominoes';
 import type { ActivePiece, Board, BoardRow, Cell } from './types';
 
@@ -80,4 +80,18 @@ export function removeRows(board: Board, rows: readonly number[]): Board {
   const remaining = board.filter((_, y) => !rows.includes(y));
   const emptyRows = Array.from({ length: board.length - remaining.length }, createEmptyRow);
   return [...emptyRows, ...remaining];
+}
+
+/**
+ * Altura de la pila en filas visibles: distancia desde el fondo hasta la fila más alta
+ * con algún bloque (0 si el tablero está vacío).
+ * @param board Tablero.
+ * @returns Altura de la pila.
+ */
+export function getStackHeight(board: Board): number {
+  const highestRow = board.findIndex((row) => row.some((cell) => cell !== null));
+  if (highestRow === -1) {
+    return 0;
+  }
+  return Math.min(board.length - highestRow, VISIBLE_ROWS);
 }
