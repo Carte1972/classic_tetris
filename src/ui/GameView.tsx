@@ -1,9 +1,10 @@
 import { useEffect, useRef, type CSSProperties } from 'react';
 import { createGameLoop } from '../app/game_loop';
+import { createGameSession } from '../app/game_session';
 import { createRandomSeed } from '../app/seed';
 import { RENDER_SCALE } from '../config/render_config';
-import { createInitialState } from '../engine/game_state';
-import { EMPTY_INPUT, step } from '../engine/step';
+import { attachKeyboard } from '../input/keyboard_listener';
+import { createKeyboardState } from '../input/keyboard_state';
 import { drawBoard } from '../render/board_renderer';
 import { getBoardCanvasSize, getPreviewCanvasSize } from '../render/layout';
 import { drawNextPiece } from '../render/next_piece_renderer';
@@ -23,7 +24,8 @@ function pixelCanvasStyle(size: CanvasSize): CSSProperties {
 }
 
 /**
- * Vista de la partida: pozo y siguiente pieza, animados por el bucle de juego.
+ * Vista de la partida: pozo y siguiente pieza, animados por el bucle de juego y
+ * controlados con el teclado.
  * @returns Los canvas del juego.
  */
 export function GameView(): React.JSX.Element {
@@ -38,18 +40,24 @@ export function GameView(): React.JSX.Element {
     if (!boardContext || !previewContext) {
       return undefined;
     }
-    let state = createInitialState({ seed: createRandomSeed(), startLevel: 0 });
+    const keyboard = createKeyboardState();
+    const detachKeyboard = attachKeyboard(window, keyboard);
+    const session = createGameSession({ seed: createRandomSeed(), startLevel: 0 }, keyboard);
     const loop = createGameLoop({
       update: (dtMs) => {
-        state = step(state, EMPTY_INPUT, dtMs).state;
+        session.advance(dtMs);
       },
       render: () => {
+        const state = session.getState();
         drawBoard(boardContext, state, { hidden: false });
         drawNextPiece(previewContext, state.nextPiece);
       },
     });
     loop.start();
-    return () => loop.stop();
+    return () => {
+      loop.stop();
+      detachKeyboard();
+    };
   }, []);
 
   return (
