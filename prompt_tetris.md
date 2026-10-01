@@ -237,7 +237,7 @@ Decisiones tomadas con el autor antes de empezar el desarrollo (1 de octubre de 
 - **Carpetas adicionales:** `src/config/` (constantes), `src/app/` (bucle de juego y conexión entre módulos), `src/storage/` (localStorage), `tests/unit/` (tests unitarios) y `launchers/`. Las capturas se generan con un proyecto específico de Playwright.
 
 ### Repositorio y licencia
-- **Repositorio:** `classic_tetris` (público), en la cuenta Carte1972.
+- **Repositorio:** `classic_tetris` (público), en la cuenta Carte1972, con la descripción "Juego de bloques clásico estilo NES hecho con TypeScript y React, jugable en el navegador".
 - **Licencia MIT** a nombre de Carte1972.
 - **Commits:** Conventional Commits con el tipo en inglés y la descripción en español (p. ej. `feat(engine): añade detección de colisiones`).
 - `prompt_tetris.md` se sube al repositorio; `CLAUDE.md` no (está en `.gitignore`).
