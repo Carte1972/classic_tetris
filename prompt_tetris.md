@@ -214,6 +214,8 @@ Decisiones tomadas con el autor antes de empezar el desarrollo (1 de octubre de 
 - **Soft drop:** una fila cada 2 frames; +1 punto por celda.
 - **DAS:** 16 frames de espera inicial y 6 de repetición, configurable solo en archivo de configuración (no en el menú).
 - **Filas ocultas:** no se dibujan; la única condición de game over es que la pieza nueva no quepa al aparecer.
+- **Aparición:** las piezas aparecen en las dos primeras filas visibles, como en NES; las 2 filas ocultas de encima dejan sitio para rotar a las orientaciones verticales recién aparecida la pieza.
+- **Soft drop por pieza:** tras fijarse una pieza, mantener ↓ no afecta a la siguiente; hay que soltar la tecla y volver a pulsarla, como en NES.
 
 ### Audio y celebraciones
 - **Selección de personaje:** `(level − 1) % número_de_personajes`, para que el primer bailarín (nivel 1) sea el cosaco.
