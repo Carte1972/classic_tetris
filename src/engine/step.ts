@@ -89,22 +89,25 @@ function tickFalling(state: GameState, input: FrameInput): StepResult {
     events.push({ type: 'pieceRotated' });
   }
 
+  const softDropReleaseRequired = state.softDropReleaseRequired && input.softDrop;
+  const softDropActive = input.softDrop && !softDropReleaseRequired;
   const gravityFrames = state.gravityFrames + 1;
-  const softDropFrames = input.softDrop ? state.softDropFrames + 1 : 0;
+  const softDropFrames = softDropActive ? state.softDropFrames + 1 : 0;
   const gravityDue = gravityFrames >= getGravityFrames(state.level);
-  const softDropDue = input.softDrop && softDropFrames >= SOFT_DROP_FRAMES_PER_ROW;
+  const softDropDue = softDropActive && softDropFrames >= SOFT_DROP_FRAMES_PER_ROW;
+  const updated: GameState = { ...state, softDropReleaseRequired };
 
   if (!gravityDue && !softDropDue) {
-    return { state: { ...state, activePiece: piece, gravityFrames, softDropFrames }, events };
+    return { state: { ...updated, activePiece: piece, gravityFrames, softDropFrames }, events };
   }
 
   const dropped = tryMove(state.board, piece, 0, 1);
   if (dropped === null) {
-    return lockActivePiece(state, piece, events);
+    return lockActivePiece(updated, piece, events);
   }
   return {
     state: {
-      ...state,
+      ...updated,
       activePiece: dropped,
       gravityFrames: 0,
       softDropFrames: 0,
@@ -167,6 +170,7 @@ function lockActivePiece(
     activePiece: null,
     gravityFrames: 0,
     softDropFrames: 0,
+    softDropReleaseRequired: true,
     entryDelayFrames,
   };
   const lockEvents: GameEvent[] = [...events, { type: 'pieceLocked' }];

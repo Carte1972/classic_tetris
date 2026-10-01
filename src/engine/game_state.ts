@@ -34,6 +34,7 @@ export function createInitialState(options: NewGameOptions): GameState {
     score: 0,
     gravityFrames: 0,
     softDropFrames: 0,
+    softDropReleaseRequired: false,
     phaseFramesRemaining: 0,
     phaseFramesTotal: 0,
     clearingRows: [],

@@ -158,6 +158,22 @@ describe('tick: gravedad y soft drop', () => {
     expect(tick(half, EMPTY_INPUT).state.softDropFrames).toBe(0);
   });
 
+  it('mantener abajo no afecta a la pieza siguiente: hay que volver a pulsarlo (NES)', () => {
+    const state = stateWith({ activePiece: { type: 'O', rotation: 0, x: 5, y: 20 } });
+    const locked = runUntilPhaseChanges(state, SOFT_DROP);
+    expect(locked.state.softDropReleaseRequired).toBe(true);
+    const spawned = runUntilPhaseChanges(locked.state, SOFT_DROP);
+    const startRow = spawned.state.activePiece?.y ?? 0;
+    const held = runTicks(spawned.state, SOFT_DROP_FRAMES_PER_ROW * 5, SOFT_DROP);
+    expect(held.state.activePiece?.y).toBe(startRow);
+    expect(held.state.score).toBe(spawned.state.score);
+
+    const released = tick(held.state, EMPTY_INPUT).state;
+    expect(released.softDropReleaseRequired).toBe(false);
+    const pressedAgain = runTicks(released, SOFT_DROP_FRAMES_PER_ROW * 3, SOFT_DROP);
+    expect(pressedAgain.state.activePiece?.y).toBe(startRow + 3);
+  });
+
   it('el soft drop no suma puntos cuando la pieza ya no puede bajar', () => {
     const state = stateWith({ activePiece: { type: 'O', rotation: 0, x: 5, y: 20 } });
     const result = runTicks(state, SOFT_DROP_FRAMES_PER_ROW, SOFT_DROP);

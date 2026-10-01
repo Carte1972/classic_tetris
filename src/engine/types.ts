@@ -59,6 +59,11 @@ export interface GameState {
   readonly gravityFrames: number;
   /** Frames acumulados desde la última caída por soft drop. */
   readonly softDropFrames: number;
+  /**
+   * Si el soft drop está bloqueado hasta que se suelte la tecla: como en NES, mantener
+   * pulsado abajo no afecta a la pieza siguiente; hay que volver a pulsarlo.
+   */
+  readonly softDropReleaseRequired: boolean;
   /** Frames que quedan de la fase `lineClear` o `entryDelay`. */
   readonly phaseFramesRemaining: number;
   /** Frames totales de la fase en curso (para calcular el progreso de animaciones). */
