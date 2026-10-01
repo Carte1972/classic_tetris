@@ -42,4 +42,13 @@ describe('sampleFrameInput', () => {
     const first = sampleFrameInput(keyboard, INITIAL_DAS_STATE);
     expect(sampleFrameInput(keyboard, first.das).input.softDrop).toBe(true);
   });
+
+  it('una pulsación lateral más breve que un frame también desplaza', () => {
+    const keyboard = createKeyboardState();
+    keyboard.keyDown('ArrowLeft', false);
+    keyboard.keyUp('ArrowLeft');
+    const sample = sampleFrameInput(keyboard, INITIAL_DAS_STATE);
+    expect(sample.input.moveLeft).toBe(true);
+    expect(sampleFrameInput(keyboard, sample.das).input.moveLeft).toBe(false);
+  });
 });

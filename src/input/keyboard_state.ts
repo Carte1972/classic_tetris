@@ -10,8 +10,10 @@ export interface KeyboardState {
   readonly releaseAll: () => void;
   /** Indica si alguna tecla de la acción está mantenida. */
   readonly isHeld: (action: GameAction) => boolean;
-  /** Devuelve si la acción se ha pulsado desde la última consulta y la marca como consumida. */
+  /** Consume una pulsación pendiente de la acción; devuelve `false` si no había ninguna. */
   readonly consumePressed: (action: GameAction) => boolean;
+  /** Indica si se ha pulsado cualquier tecla desde la última consulta y olvida las pulsaciones. */
+  readonly consumeAnyPressed: () => boolean;
   /** Olvida las pulsaciones pendientes sin soltar las teclas mantenidas. */
   readonly clearPressed: () => void;
 }
@@ -31,12 +33,13 @@ export function isBoundKey(code: string): boolean {
  */
 export function createKeyboardState(): KeyboardState {
   const heldCodes = new Set<string>();
-  const pressedCodes = new Set<string>();
+  /** Pulsaciones pendientes de consumir por tecla (varias si se pulsa rápido entre frames). */
+  const pressedCounts = new Map<string, number>();
 
   return {
     keyDown: (code, isRepeat) => {
       if (!isRepeat && !heldCodes.has(code)) {
-        pressedCodes.add(code);
+        pressedCounts.set(code, (pressedCounts.get(code) ?? 0) + 1);
       }
       heldCodes.add(code);
     },
@@ -45,16 +48,29 @@ export function createKeyboardState(): KeyboardState {
     },
     releaseAll: () => {
       heldCodes.clear();
-      pressedCodes.clear();
+      pressedCounts.clear();
     },
     isHeld: (action) => KEY_BINDINGS[action].some((code) => heldCodes.has(code)),
     consumePressed: (action) => {
-      const codes = KEY_BINDINGS[action].filter((code) => pressedCodes.has(code));
-      codes.forEach((code) => pressedCodes.delete(code));
-      return codes.length > 0;
+      const code = KEY_BINDINGS[action].find((candidate) => pressedCounts.has(candidate));
+      if (code === undefined) {
+        return false;
+      }
+      const remaining = (pressedCounts.get(code) ?? 0) - 1;
+      if (remaining > 0) {
+        pressedCounts.set(code, remaining);
+      } else {
+        pressedCounts.delete(code);
+      }
+      return true;
+    },
+    consumeAnyPressed: () => {
+      const any = pressedCounts.size > 0;
+      pressedCounts.clear();
+      return any;
     },
     clearPressed: () => {
-      pressedCodes.clear();
+      pressedCounts.clear();
     },
   };
 }

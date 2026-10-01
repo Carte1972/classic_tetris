@@ -12,7 +12,8 @@ export interface FrameInputSample {
 
 /**
  * Convierte el estado del teclado en la entrada de un frame del motor: desplazamiento
- * lateral con DAS, rotaciones por pulsación (sin autorrepetición) y soft drop mantenido.
+ * lateral con DAS (también para pulsaciones más breves que un frame), rotaciones por
+ * pulsación (sin autorrepetición) y soft drop mantenido.
  * @param keyboard Registro de teclado (se consumen las pulsaciones de rotación).
  * @param das Estado del DAS del frame anterior.
  * @param config Tiempos del DAS.
@@ -23,10 +24,13 @@ export function sampleFrameInput(
   das: DasState,
   config: DasConfig = DEFAULT_DAS_CONFIG,
 ): FrameInputSample {
+  // Una pulsación muy breve (soltada antes del frame) también cuenta como dirección.
+  const leftPressed = keyboard.consumePressed('moveLeft');
+  const rightPressed = keyboard.consumePressed('moveRight');
   const dasResult = updateDas(
     das,
-    keyboard.isHeld('moveLeft'),
-    keyboard.isHeld('moveRight'),
+    leftPressed || keyboard.isHeld('moveLeft'),
+    rightPressed || keyboard.isHeld('moveRight'),
     config,
   );
   return {

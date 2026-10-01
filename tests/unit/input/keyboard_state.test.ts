@@ -46,6 +46,26 @@ describe('createKeyboardState', () => {
     expect(keyboard.consumePressed('confirm')).toBe(true);
   });
 
+  it('dos pulsaciones rápidas entre frames cuentan como dos', () => {
+    const keyboard = createKeyboardState();
+    keyboard.keyDown('ArrowRight', false);
+    keyboard.keyUp('ArrowRight');
+    keyboard.keyDown('ArrowRight', false);
+    keyboard.keyUp('ArrowRight');
+    expect(keyboard.consumePressed('moveRight')).toBe(true);
+    expect(keyboard.consumePressed('moveRight')).toBe(true);
+    expect(keyboard.consumePressed('moveRight')).toBe(false);
+  });
+
+  it('consumeAnyPressed detecta cualquier tecla, incluso sin acción asociada', () => {
+    const keyboard = createKeyboardState();
+    expect(keyboard.consumeAnyPressed()).toBe(false);
+    keyboard.keyDown('KeyQ', false);
+    keyboard.keyDown('ArrowLeft', false);
+    expect(keyboard.consumeAnyPressed()).toBe(true);
+    expect(keyboard.consumePressed('moveLeft')).toBe(false);
+  });
+
   it('releaseAll suelta todo y olvida las pulsaciones pendientes', () => {
     const keyboard = createKeyboardState();
     keyboard.keyDown('ArrowDown', false);
