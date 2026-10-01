@@ -39,4 +39,11 @@ describe('createGameSession', () => {
     const events = session.advance(FRAME_DURATION_MS * 5);
     expect(events.filter((e) => e.type === 'pieceRotated')).toHaveLength(1);
   });
+
+  it('replaceState sustituye el estado del motor (modo test)', () => {
+    const session = createGameSession(OPTIONS, createKeyboardState());
+    const replaced = { ...session.getState(), score: 999 };
+    session.replaceState(replaced);
+    expect(session.getState()).toBe(replaced);
+  });
 });

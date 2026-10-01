@@ -16,6 +16,8 @@ export interface GameSession {
    * @returns Los eventos producidos.
    */
   readonly advance: (dtMs: number) => readonly GameEvent[];
+  /** Sustituye el estado del motor (solo para el modo test). */
+  readonly replaceState: (next: GameState) => void;
 }
 
 /**
@@ -43,6 +45,9 @@ export function createGameSession(options: NewGameOptions, keyboard: KeyboardSta
         events.push(...result.events);
       }
       return events;
+    },
+    replaceState: (next) => {
+      state = next;
     },
   };
 }
