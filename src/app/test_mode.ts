@@ -53,14 +53,28 @@ export function boardFromRows(rows: readonly string[]): Board {
 }
 
 /**
- * Aplica un parche del modo test a un estado del motor.
+ * Aplica un parche del modo test a un estado del motor. Si se fija una pieza activa, la
+ * partida pasa a la fase de caída (aunque estuviera en el retardo de entrada o limpiando
+ * líneas) para que esa pieza no se sustituya.
  * @param state Estado actual.
  * @param patch Cambios a aplicar.
  * @returns Nuevo estado.
  */
 export function applyTestPatch(state: GameState, patch: TestGamePatch): GameState {
+  const falling: Partial<GameState> =
+    patch.activePiece === undefined || patch.activePiece === null
+      ? {}
+      : {
+          phase: 'falling',
+          clearingRows: [],
+          phaseFramesRemaining: 0,
+          phaseFramesTotal: 0,
+          gravityFrames: 0,
+          softDropFrames: 0,
+        };
   return {
     ...state,
+    ...falling,
     ...(patch.boardRows === undefined ? {} : { board: boardFromRows(patch.boardRows) }),
     ...(patch.activePiece === undefined ? {} : { activePiece: patch.activePiece }),
     ...(patch.nextPiece === undefined ? {} : { nextPiece: patch.nextPiece }),

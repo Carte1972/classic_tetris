@@ -49,7 +49,12 @@ export function createAppRuntime(): AppRuntime {
       const loop = createGameLoop({
         update: controller.update,
         render: () =>
-          renderGame(targets, controller.getSnapshot().screen, controller.getGameState()),
+          renderGame(
+            targets,
+            controller.getSnapshot().screen,
+            controller.getGameState(),
+            controller.getCelebration(),
+          ),
       });
       loop.start();
       if (options.testApi) {

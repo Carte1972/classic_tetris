@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createAppController, type AppDependencies } from '../../../src/app/app_controller';
+import { KALINKA } from '../../../src/audio/songs/kalinka';
 import { KOROBEINIKI } from '../../../src/audio/songs/korobeiniki';
+import { CELEBRATION_DURATION_MS } from '../../../src/config/celebration_config';
 import { MENU_ITEMS } from '../../../src/config/menu_config';
 import { PREFERENCES_STORAGE_KEY, RECORDS_STORAGE_KEY } from '../../../src/config/storage_config';
 import { createKeyboardState, type KeyboardState } from '../../../src/input/keyboard_state';
@@ -18,6 +20,8 @@ function setup(initialStorage: Record<string, string> = {}) {
   const audio = {
     playMusic: vi.fn(),
     stopMusic: vi.fn(),
+    pauseMusic: vi.fn(),
+    resumeMusic: vi.fn(),
     playSfx: vi.fn(),
     setTempoMultiplier: vi.fn(),
     setMusicEnabled: vi.fn(),
@@ -157,13 +161,13 @@ describe('partida', () => {
     startPlaying(ctx);
     ctx.press('KeyP');
     expect(ctx.controller.getSnapshot().screen).toBe('paused');
-    expect(ctx.audio.stopMusic).toHaveBeenCalled();
+    expect(ctx.audio.pauseMusic).toHaveBeenCalled();
     const frozen = ctx.controller.getGameState();
     ctx.controller.update(LONG_ENOUGH_MS);
     expect(ctx.controller.getGameState()).toBe(frozen);
     ctx.press('KeyP');
     expect(ctx.controller.getSnapshot().screen).toBe('playing');
-    expect(ctx.audio.playMusic).toHaveBeenLastCalledWith(KOROBEINIKI);
+    expect(ctx.audio.resumeMusic).toHaveBeenCalled();
   });
 
   it('Esc vuelve al menú desde la partida y desde la pausa sin guardar récord', () => {
@@ -274,5 +278,89 @@ describe('suscripción', () => {
     const ctx = setup();
     ctx.controller.patchGame({ score: 10 });
     expect(ctx.controller.getGameState()).toBeNull();
+  });
+});
+
+/** Completa una línea con una I vertical para pasar del nivel `level - 1` al `level`. */
+function forceLevelUp(ctx: ReturnType<typeof setup>, level: number): void {
+  ctx.controller.patchGame({
+    boardRows: ['OOOOOOOOO.'],
+    lines: level * 10 - 1,
+    level: level - 1,
+    activePiece: { type: 'I', rotation: 1, x: 9, y: 19 },
+  });
+  for (let i = 0; i < 200 && ctx.controller.getSnapshot().screen === 'playing'; i++) {
+    ctx.controller.update(17);
+  }
+}
+
+describe('celebraciones', () => {
+  it('al subir de nivel congela la partida, toca Kalinka y muestra el nivel', () => {
+    const ctx = setup();
+    startPlaying(ctx);
+    forceLevelUp(ctx, 3);
+    const snapshot = ctx.controller.getSnapshot();
+    expect(snapshot.screen).toBe('celebrating');
+    expect(snapshot.celebrationLevel).toBe(3);
+    expect(ctx.controller.getCelebration()?.dancerIndex).toBe(2);
+    expect(ctx.audio.pauseMusic).toHaveBeenCalled();
+    expect(ctx.audio.playMusic).toHaveBeenLastCalledWith(KALINKA);
+    const frozen = ctx.controller.getGameState();
+    ctx.controller.update(500);
+    expect(ctx.controller.getGameState()).toBe(frozen);
+  });
+
+  it('termina sola a los 4 segundos y reanuda la música de la partida', () => {
+    const ctx = setup();
+    startPlaying(ctx);
+    forceLevelUp(ctx, 1);
+    ctx.controller.update(CELEBRATION_DURATION_MS - 100);
+    expect(ctx.controller.getSnapshot().screen).toBe('celebrating');
+    ctx.controller.update(100);
+    expect(ctx.controller.getSnapshot().screen).toBe('playing');
+    expect(ctx.controller.getSnapshot().celebrationLevel).toBeNull();
+    expect(ctx.audio.resumeMusic).toHaveBeenCalled();
+  });
+
+  it.each(['Enter', 'Space'])('%s salta la celebración', (key) => {
+    const ctx = setup();
+    startPlaying(ctx);
+    forceLevelUp(ctx, 1);
+    ctx.press(key);
+    expect(ctx.controller.getSnapshot().screen).toBe('playing');
+  });
+
+  it('desactivada desde el menú, no aparece al subir de nivel', () => {
+    const ctx = setup({
+      [PREFERENCES_STORAGE_KEY]: JSON.stringify({ celebrationsEnabled: false }),
+    });
+    startPlaying(ctx);
+    forceLevelUp(ctx, 1);
+    expect(ctx.controller.getSnapshot().screen).toBe('playing');
+    expect(ctx.controller.getGameState()?.level).toBe(1);
+    expect(ctx.audio.playSfx).toHaveBeenCalledWith('levelUp');
+  });
+
+  it('Esc durante la celebración vuelve al menú', () => {
+    const ctx = setup();
+    startPlaying(ctx);
+    forceLevelUp(ctx, 1);
+    ctx.press('Escape');
+    expect(ctx.controller.getSnapshot().screen).toBe('menu');
+    expect(ctx.controller.getCelebration()).toBeNull();
+  });
+
+  it('el modo test puede congelarla en un instante y soltarla', () => {
+    const ctx = setup();
+    startPlaying(ctx);
+    forceLevelUp(ctx, 1);
+    ctx.controller.freezeCelebration(1500);
+    ctx.controller.update(CELEBRATION_DURATION_MS);
+    expect(ctx.controller.getCelebration()?.elapsedMs).toBe(1500);
+    ctx.controller.freezeCelebration(null);
+    ctx.controller.update(CELEBRATION_DURATION_MS);
+    expect(ctx.controller.getSnapshot().screen).toBe('playing');
+    ctx.controller.freezeCelebration(100);
+    expect(ctx.controller.getCelebration()).toBeNull();
   });
 });

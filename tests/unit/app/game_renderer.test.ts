@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createRenderTargets, renderGame } from '../../../src/app/game_renderer';
+import { startCelebration } from '../../../src/celebration/celebration_state';
 import { PREVIEW_BACKGROUND_COLOR } from '../../../src/config/palette';
 import { createInitialState } from '../../../src/engine/game_state';
 import { createFakeContext } from '../render/fake_context';
@@ -35,5 +36,18 @@ describe('renderGame', () => {
     renderGame(targets, 'playing', game);
     expect(board.calls).toHaveLength(0);
     expect(targets.get('board')).toBeNull();
+  });
+
+  it('dibuja la celebración en el escenario registrado', () => {
+    const targets = createRenderTargets();
+    let clears = 0;
+    const stage = { ...createFakeContext().ctx, clearRect: () => clears++ };
+    targets.registerStage(stage);
+    expect(targets.getStage()).toBe(stage);
+    renderGame(targets, 'celebrating', game, startCelebration(1));
+    expect(clears).toBe(1);
+    targets.registerStage(null);
+    renderGame(targets, 'celebrating', game, startCelebration(1));
+    expect(clears).toBe(1);
   });
 });

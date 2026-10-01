@@ -50,6 +50,10 @@ export const TEXTS = {
     title: 'PAUSA',
     hint: 'P CONTINUAR · ESC MENÚ',
   },
+  celebration: {
+    levelUp: (level: number): string => `¡NIVEL ${level}!`,
+    skip: 'ENTER / ESPACIO SALTAR',
+  },
   gameOver: {
     title: 'FIN DE LA PARTIDA',
     newRecord: '¡NUEVO RÉCORD!',

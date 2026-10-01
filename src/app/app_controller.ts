@@ -1,5 +1,14 @@
 import type { AudioEngine } from '../audio/audio_engine';
+import { KALINKA } from '../audio/songs/kalinka';
 import { KOROBEINIKI } from '../audio/songs/korobeiniki';
+import {
+  advanceCelebration,
+  isCelebrationFinished,
+  seekCelebration,
+  skipCelebration,
+  startCelebration,
+  type CelebrationState,
+} from '../celebration/celebration_state';
 import type { GameAction } from '../config/input_config';
 import type { GameState, PieceType } from '../engine/types';
 import type { KeyboardState } from '../input/keyboard_state';
@@ -24,7 +33,14 @@ import { applyTestPatch, type TestGamePatch } from './test_mode';
 
 /** Pantallas de la aplicación. */
 export type ScreenName =
-  'pressAnyKey' | 'menu' | 'controls' | 'records' | 'playing' | 'paused' | 'gameOver';
+  | 'pressAnyKey'
+  | 'menu'
+  | 'controls'
+  | 'records'
+  | 'playing'
+  | 'paused'
+  | 'celebrating'
+  | 'gameOver';
 
 /** Datos del marcador durante la partida. */
 export interface HudData {
@@ -53,12 +69,21 @@ export interface AppSnapshot {
   readonly records: readonly RecordEntry[];
   readonly hud: HudData | null;
   readonly lastResult: GameResult | null;
+  /** Nivel que se está celebrando, o `null` si no hay celebración. */
+  readonly celebrationLevel: number | null;
 }
 
 /** Parte del motor de audio que usa la aplicación. */
 export type AppAudio = Pick<
   AudioEngine,
-  'playMusic' | 'stopMusic' | 'playSfx' | 'setTempoMultiplier' | 'setMusicEnabled' | 'setMuted'
+  | 'playMusic'
+  | 'stopMusic'
+  | 'pauseMusic'
+  | 'resumeMusic'
+  | 'playSfx'
+  | 'setTempoMultiplier'
+  | 'setMusicEnabled'
+  | 'setMuted'
 >;
 
 /** Dependencias de la aplicación (inyectables para tests). */
@@ -82,8 +107,15 @@ export interface AppController {
   readonly subscribe: (listener: () => void) => () => void;
   /** Estado del motor de la partida en curso, o `null` si no hay partida. */
   readonly getGameState: () => GameState | null;
+  /** Celebración en curso, o `null`. */
+  readonly getCelebration: () => CelebrationState | null;
   /** Modifica la partida en curso (solo para el modo test). */
   readonly patchGame: (patch: TestGamePatch) => void;
+  /**
+   * Congela la celebración en curso en un instante (solo para el modo test y las
+   * capturas); con `null` vuelve a avanzar con normalidad.
+   */
+  readonly freezeCelebration: (elapsedMs: number | null) => void;
 }
 
 /** Entradas del menú en el orden en que se procesan, con la acción de teclado de cada una. */
@@ -108,6 +140,8 @@ export function createAppController(deps: AppDependencies): AppController {
   let records = loadRecords(storage);
   let session: GameSession | null = null;
   let lastResult: GameResult | null = null;
+  let celebration: CelebrationState | null = null;
+  let celebrationFrozen = false;
   let snapshot = buildSnapshot();
   const listeners = new Set<() => void>();
 
@@ -122,6 +156,7 @@ export function createAppController(deps: AppDependencies): AppController {
       preferences,
       records,
       lastResult,
+      celebrationLevel: celebration?.level ?? null,
       hud:
         state === null
           ? null
@@ -166,6 +201,7 @@ export function createAppController(deps: AppDependencies): AppController {
 
   function returnToMenu(): void {
     session = null;
+    celebration = null;
     audio.setTempoMultiplier(1);
     audio.playMusic(KOROBEINIKI);
     goTo('menu');
@@ -233,7 +269,7 @@ export function createAppController(deps: AppDependencies): AppController {
       return;
     }
     if (keyboard.consumePressed('pause')) {
-      audio.stopMusic();
+      audio.pauseMusic();
       goTo('paused');
       return;
     }
@@ -241,6 +277,42 @@ export function createAppController(deps: AppDependencies): AppController {
     applyGameAudio(audio, events, current.getState());
     if (events.some((event) => event.type === 'gameOver')) {
       finishGame(current.getState());
+      return;
+    }
+    const levelUp = events.find((event) => event.type === 'levelUp');
+    if (levelUp !== undefined && preferences.celebrationsEnabled) {
+      startDance(levelUp.level);
+    }
+  }
+
+  function startDance(level: number): void {
+    celebration = startCelebration(level);
+    celebrationFrozen = false;
+    audio.pauseMusic();
+    audio.setTempoMultiplier(1);
+    audio.playMusic(KALINKA);
+    goTo('celebrating');
+  }
+
+  function endDance(): void {
+    celebration = null;
+    audio.resumeMusic();
+    goTo('playing');
+  }
+
+  function updateCelebrating(dtMs: number, current: CelebrationState): void {
+    if (keyboard.consumePressed('back')) {
+      returnToMenu();
+      return;
+    }
+    const next = keyboard.consumePressed('skip')
+      ? skipCelebration(current)
+      : celebrationFrozen
+        ? current
+        : advanceCelebration(current, dtMs);
+    celebration = next;
+    if (isCelebrationFinished(next)) {
+      endDance();
     }
   }
 
@@ -266,11 +338,16 @@ export function createAppController(deps: AppDependencies): AppController {
           updatePlaying(dtMs, session);
         }
         return;
+      case 'celebrating':
+        if (celebration !== null) {
+          updateCelebrating(dtMs, celebration);
+        }
+        return;
       case 'paused':
         if (keyboard.consumePressed('back')) {
           returnToMenu();
         } else if (keyboard.consumePressed('pause')) {
-          audio.playMusic(KOROBEINIKI);
+          audio.resumeMusic();
           goTo('playing');
         }
         return;
@@ -299,10 +376,17 @@ export function createAppController(deps: AppDependencies): AppController {
       return () => listeners.delete(listener);
     },
     getGameState: () => session?.getState() ?? null,
+    getCelebration: () => celebration,
     patchGame: (patch) => {
       if (session !== null) {
         session.replaceState(applyTestPatch(session.getState(), patch));
         publish();
+      }
+    },
+    freezeCelebration: (elapsedMs) => {
+      celebrationFrozen = elapsedMs !== null;
+      if (celebration !== null && elapsedMs !== null) {
+        celebration = seekCelebration(celebration, elapsedMs);
       }
     },
   };
@@ -321,6 +405,7 @@ function snapshotsEqual(a: AppSnapshot, b: AppSnapshot): boolean {
     a.preferences === b.preferences &&
     a.records === b.records &&
     a.lastResult === b.lastResult &&
+    a.celebrationLevel === b.celebrationLevel &&
     hudEqual(a.hud, b.hud)
   );
 }

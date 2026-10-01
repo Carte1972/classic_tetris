@@ -10,6 +10,8 @@ export interface BloquesTestApi {
   readonly getGameState: () => GameState | null;
   /** Modifica la partida en curso. */
   readonly patchGame: (patch: TestGamePatch) => void;
+  /** Congela la celebración en un instante (ms), o la reanuda con `null`. */
+  readonly freezeCelebration: (elapsedMs: number | null) => void;
 }
 
 declare global {
@@ -29,5 +31,6 @@ export function createTestApi(controller: AppController): BloquesTestApi {
     getSnapshot: controller.getSnapshot,
     getGameState: controller.getGameState,
     patchGame: controller.patchGame,
+    freezeCelebration: controller.freezeCelebration,
   };
 }

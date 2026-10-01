@@ -1,3 +1,5 @@
+import type { CelebrationState } from '../celebration/celebration_state';
+import { drawCelebration, type StageContext } from '../celebration/celebration_renderer';
 import type { GameState } from '../engine/types';
 import { drawBoard } from '../render/board_renderer';
 import { drawNextPiece } from '../render/next_piece_renderer';
@@ -13,6 +15,10 @@ export interface RenderTargets {
   readonly register: (slot: CanvasSlot, context: RenderContext | null) => void;
   /** Contexto registrado para un canvas, o `null`. */
   readonly get: (slot: CanvasSlot) => RenderContext | null;
+  /** Registra (o elimina, con `null`) el escenario de las celebraciones. */
+  readonly registerStage: (context: StageContext | null) => void;
+  /** Escenario de las celebraciones registrado, o `null`. */
+  readonly getStage: () => StageContext | null;
 }
 
 /**
@@ -21,7 +27,12 @@ export interface RenderTargets {
  */
 export function createRenderTargets(): RenderTargets {
   const contexts = new Map<CanvasSlot, RenderContext>();
+  let stage: StageContext | null = null;
   return {
+    registerStage: (context) => {
+      stage = context;
+    },
+    getStage: () => stage,
     register: (slot, context) => {
       if (context === null) {
         contexts.delete(slot);
@@ -34,16 +45,23 @@ export function createRenderTargets(): RenderTargets {
 }
 
 /**
- * Dibuja la partida en los canvas registrados. En pausa se oculta el tablero.
+ * Dibuja la partida en los canvas registrados (en pausa se oculta el tablero) y, si hay
+ * celebración, el bailarín en su escenario.
  * @param targets Canvas disponibles.
  * @param screen Pantalla actual.
  * @param game Estado de la partida, o `null` si no hay partida.
+ * @param celebration Celebración en curso, o `null`.
  */
 export function renderGame(
   targets: RenderTargets,
   screen: ScreenName,
   game: GameState | null,
+  celebration: CelebrationState | null = null,
 ): void {
+  const stage = targets.getStage();
+  if (stage !== null && celebration !== null) {
+    drawCelebration(stage, celebration);
+  }
   if (game === null) {
     return;
   }

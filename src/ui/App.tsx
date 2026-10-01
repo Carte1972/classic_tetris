@@ -32,6 +32,7 @@ function renderScreen(snapshot: AppSnapshot, targets: RenderTargets): React.JSX.
       return <RecordsScreen records={snapshot.records} />;
     case 'playing':
     case 'paused':
+    case 'celebrating':
     case 'gameOver':
       return snapshot.hud === null ? null : (
         <GameScreen snapshot={snapshot} hud={snapshot.hud} targets={targets} />

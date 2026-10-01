@@ -4,6 +4,7 @@ import type { RenderTargets } from '../app/game_renderer';
 import { RENDER_SCALE } from '../config/render_config';
 import { TEXTS } from '../config/texts';
 import { getBoardCanvasSize, getPreviewCanvasSize } from '../render/layout';
+import { CelebrationOverlay } from './CelebrationOverlay';
 import { Hud } from './Hud';
 import { PixelCanvas } from './PixelCanvas';
 
@@ -16,7 +17,7 @@ export interface GameScreenProps {
 
 /**
  * Pantalla de partida: marcador, pozo y siguiente pieza, con las capas de pausa y de
- * fin de partida encima del pozo.
+ * fin de partida encima del pozo y la de celebración a pantalla completa.
  * @param props Propiedades de la pantalla.
  * @returns La pantalla.
  */
@@ -82,6 +83,9 @@ export function GameScreen(props: GameScreenProps): React.JSX.Element {
           canvasRef={registerPreview}
         />
       </div>
+      {snapshot.screen === 'celebrating' && snapshot.celebrationLevel !== null && (
+        <CelebrationOverlay level={snapshot.celebrationLevel} targets={targets} />
+      )}
     </section>
   );
 }

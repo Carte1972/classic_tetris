@@ -41,6 +41,21 @@ describe('boardFromRows', () => {
 });
 
 describe('applyTestPatch', () => {
+  it('fijar una pieza activa pasa la partida a la fase de caída', () => {
+    const state = {
+      ...createInitialState({ seed: 1, startLevel: 0 }),
+      phase: 'entryDelay' as const,
+      activePiece: null,
+      phaseFramesRemaining: 5,
+    };
+    const patched = applyTestPatch(state, {
+      activePiece: { type: 'I', rotation: 1, x: 9, y: 19 },
+    });
+    expect(patched.phase).toBe('falling');
+    expect(patched.phaseFramesRemaining).toBe(0);
+    expect(patched.activePiece).toEqual({ type: 'I', rotation: 1, x: 9, y: 19 });
+  });
+
   it('cambia solo los campos indicados', () => {
     const state = createInitialState({ seed: 1, startLevel: 0 });
     const patched = applyTestPatch(state, { score: 500, lines: 9, nextPiece: 'I' });
