@@ -1,0 +1,29 @@
+BLOQUES - juego de bloques clásico estilo NES
+=============================================
+
+Para jugar solo necesitas un navegador moderno. No hace falta instalar nada.
+
+Cómo abrirlo (haz doble clic en el lanzador de tu sistema):
+
+  macOS    Bloques.command
+           La primera vez macOS puede bloquearlo por venir de internet ("no se
+           puede abrir porque es de un desarrollador no identificado"). Haz clic
+           derecho sobre Bloques.command > Abrir > Abrir. También puedes quitar la
+           marca de cuarentena desde Terminal:
+             xattr -d com.apple.quarantine Bloques.command
+
+  Linux    bloques.sh
+           Si no se ejecuta, dale permiso de ejecución (chmod +x bloques.sh) o
+           activa "Permitir ejecutar como programa" en sus propiedades.
+
+  Windows  Bloques.bat
+           Si aparece SmartScreen ("Windows protegió su PC"), pulsa
+           "Más información" > "Ejecutar de todas formas".
+
+También puedes abrir index.html directamente con tu navegador.
+
+Los récords y las preferencias se guardan en el navegador asociados a la ruta
+de esta carpeta: si la mueves de sitio, empezarás con los récords en blanco.
+
+Controles: flechas izquierda/derecha mover, abajo bajar, arriba / Z rotar,
+P pausa, M silenciar, Esc menú, Enter empezar / reiniciar.

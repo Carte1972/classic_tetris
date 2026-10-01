@@ -1,0 +1,4 @@
+# Los lanzadores necesitan finales de línea propios de cada sistema.
+*.command text eol=lf
+*.sh text eol=lf
+*.bat text eol=crlf
