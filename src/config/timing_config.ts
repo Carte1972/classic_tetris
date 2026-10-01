@@ -24,3 +24,6 @@ export const ENTRY_DELAY_ROWS_PER_STEP = 4;
 
 /** Retardo de entrada (ARE) máximo. */
 export const ENTRY_DELAY_MAX_FRAMES = 18;
+
+/** Tiempo máximo que se simula en un solo fotograma de pantalla (evita saltos tras pausas del navegador). */
+export const MAX_FRAME_DELTA_MS = 250;
