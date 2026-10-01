@@ -34,10 +34,16 @@ describe('drawBoard', () => {
     expect(calls[0]).toMatchObject({ fillStyle: BOARD_BACKGROUND_COLOR, x: 0, y: 0 });
   });
 
-  it('no dibuja la pieza mientras está en las filas ocultas', () => {
+  it('no dibuja las celdas de la pieza que están en las filas ocultas', () => {
     const { ctx, calls } = createFakeContext();
-    drawBoard(ctx, base, { hidden: false });
-    expect(blocksDrawn(calls)).toBe(0);
+    drawBoard(
+      ctx,
+      { ...base, activePiece: { type: 'I', rotation: 1, x: 4, y: 2 } },
+      {
+        hidden: false,
+      },
+    );
+    expect(blocksDrawn(calls)).toBe(2);
   });
 
   it('dibuja bloques fijados y la pieza activa visible', () => {

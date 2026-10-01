@@ -254,9 +254,12 @@ describe('tick: cambio de nivel', () => {
 
 describe('tick: game over', () => {
   /** Tablero con la zona de aparición ocupada. */
-  const blockedBoard = [filledRow([0, 1, 8, 9]), filledRow([0, 1, 8, 9])].concat(
-    Array.from({ length: TOTAL_ROWS - 2 }, createEmptyRow),
-  );
+  const blockedBoard = [
+    createEmptyRow(),
+    createEmptyRow(),
+    filledRow([0, 1, 8, 9]),
+    filledRow([0, 1, 8, 9]),
+  ].concat(Array.from({ length: TOTAL_ROWS - 4 }, createEmptyRow));
 
   it('termina la partida si la nueva pieza no cabe al aparecer', () => {
     const state = stateWith({

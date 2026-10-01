@@ -1,4 +1,5 @@
 import type { CellOffset, PieceType } from '../engine/types';
+import { HIDDEN_ROWS } from './board_config';
 
 /** Orden canónico de las piezas; el generador aleatorio indexa sobre esta lista. */
 export const PIECE_TYPES: readonly PieceType[] = ['T', 'J', 'Z', 'O', 'S', 'L', 'I'];
@@ -148,5 +149,8 @@ export const PIECE_ROTATIONS: Readonly<Record<PieceType, readonly (readonly Cell
 /** Columna del pivote al aparecer una pieza. */
 export const SPAWN_COLUMN = 5;
 
-/** Fila del pivote al aparecer una pieza (dentro de las filas ocultas). */
-export const SPAWN_ROW = 0;
+/**
+ * Fila del pivote al aparecer una pieza: la primera fila visible, como en NES. Las filas
+ * ocultas de encima dejan sitio para las orientaciones verticales al rotar recién aparecida.
+ */
+export const SPAWN_ROW = HIDDEN_ROWS;

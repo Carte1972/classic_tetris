@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { HIDDEN_ROWS } from '../../../src/config/board_config';
 import { PIECE_TYPES, SPAWN_COLUMN, SPAWN_ROW } from '../../../src/config/tetromino_config';
 import {
   createSpawnPiece,
@@ -37,13 +38,22 @@ describe('tetrominoes', () => {
     expect(rotatePiece(rotatePiece(spawn, 1), -1)).toEqual(spawn);
   });
 
-  it('las piezas aparecen en la columna y fila de spawn, en las filas ocultas', () => {
+  it('las piezas aparecen en las dos primeras filas visibles, como en NES', () => {
     for (const type of PIECE_TYPES) {
       const piece = createSpawnPiece(type);
       expect(piece).toEqual({ type, rotation: 0, x: SPAWN_COLUMN, y: SPAWN_ROW });
       for (const cell of getPieceCells(piece)) {
+        expect(cell.y).toBeGreaterThanOrEqual(HIDDEN_ROWS);
+        expect(cell.y).toBeLessThanOrEqual(HIDDEN_ROWS + 1);
+      }
+    }
+  });
+
+  it.each(PIECE_TYPES)('%s puede adoptar todas sus orientaciones recién aparecida', (type) => {
+    const spawn = createSpawnPiece(type);
+    for (let rotation = 0; rotation < getRotationCount(type); rotation++) {
+      for (const cell of getPieceCells({ ...spawn, rotation })) {
         expect(cell.y).toBeGreaterThanOrEqual(0);
-        expect(cell.y).toBeLessThanOrEqual(1);
       }
     }
   });
