@@ -1,0 +1,40 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Publicar el paquete del juego
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: La versión del tag coincide con package.json
+        run: |
+          version="v$(node -p "require('./package.json').version")"
+          if [ "$version" != "$GITHUB_REF_NAME" ]; then
+            echo "El tag $GITHUB_REF_NAME no coincide con la versión de package.json ($version)"
+            exit 1
+          fi
+      - name: Tests unitarios y cobertura
+        run: npm run test:coverage
+      - run: npm run build
+      - run: npm run package
+      - name: Comprobar el paquete
+        run: unzip -t release/bloques-${GITHUB_REF_NAME}.zip
+      - name: Crear la GitHub Release con el paquete
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "release/bloques-${GITHUB_REF_NAME}.zip" \
+            --title "Bloques $GITHUB_REF_NAME" \
+            --generate-notes
