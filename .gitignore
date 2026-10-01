@@ -1,0 +1,52 @@
+# Dependencias
+node_modules/
+
+# Builds y artefactos
+dist/
+dist-ssr/
+release/
+*.zip
+*.tsbuildinfo
+.vite/
+
+# Tests y cobertura
+coverage/
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/
+
+# Playwright MCP (capturas y logs locales)
+.playwright-mcp/
+playwright_screenshots/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# macOS
+.DS_Store
+._*
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Editores
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Claude Code (solo local)
+CLAUDE.md
+.claude/settings.local.json
