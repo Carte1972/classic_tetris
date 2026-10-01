@@ -27,3 +27,14 @@ export const BOARD_FLASH_COLOR = '#e9e4d4';
 
 /** Color de fondo del recuadro de la siguiente pieza. */
 export const PREVIEW_BACKGROUND_COLOR = '#0b0d17';
+
+/** Colores de la interfaz (se aplican como variables CSS). */
+export const UI_COLORS = {
+  background: '#141726',
+  panel: '#0b0d17',
+  border: '#3a3f5c',
+  text: '#e9e4d4',
+  dim: '#8a8fa8',
+  accent: '#f2b134',
+  danger: '#d94a5c',
+} as const;
