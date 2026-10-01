@@ -38,3 +38,6 @@ export const UI_COLORS = {
   accent: '#f2b134',
   danger: '#d94a5c',
 } as const;
+
+/** Color del suelo del escenario de las celebraciones. */
+export const CELEBRATION_FLOOR_COLOR = '#3a3f5c';
