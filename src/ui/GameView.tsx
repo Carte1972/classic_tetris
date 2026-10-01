@@ -1,4 +1,7 @@
 import { useEffect, useRef, type CSSProperties } from 'react';
+import { createAudioEngine } from '../audio/audio_engine';
+import { KOROBEINIKI } from '../audio/songs/korobeiniki';
+import { applyGameAudio } from '../app/game_audio_director';
 import { createGameLoop } from '../app/game_loop';
 import { createGameSession } from '../app/game_session';
 import { createRandomSeed } from '../app/seed';
@@ -24,8 +27,8 @@ function pixelCanvasStyle(size: CanvasSize): CSSProperties {
 }
 
 /**
- * Vista de la partida: pozo y siguiente pieza, animados por el bucle de juego y
- * controlados con el teclado.
+ * Vista de la partida: pozo y siguiente pieza, animados por el bucle de juego,
+ * controlados con el teclado y con música y efectos (M silencia).
  * @returns Los canvas del juego.
  */
 export function GameView(): React.JSX.Element {
@@ -42,10 +45,17 @@ export function GameView(): React.JSX.Element {
     }
     const keyboard = createKeyboardState();
     const detachKeyboard = attachKeyboard(window, keyboard);
+    const audio = createAudioEngine();
+    const unlockAudio = (): void => audio.unlock();
+    window.addEventListener('keydown', unlockAudio);
+    audio.playMusic(KOROBEINIKI);
     const session = createGameSession({ seed: createRandomSeed(), startLevel: 0 }, keyboard);
     const loop = createGameLoop({
       update: (dtMs) => {
-        session.advance(dtMs);
+        if (keyboard.consumePressed('mute')) {
+          audio.setMuted(!audio.isMuted());
+        }
+        applyGameAudio(audio, session.advance(dtMs), session.getState());
       },
       render: () => {
         const state = session.getState();
@@ -57,6 +67,8 @@ export function GameView(): React.JSX.Element {
     return () => {
       loop.stop();
       detachKeyboard();
+      window.removeEventListener('keydown', unlockAudio);
+      audio.stopMusic();
     };
   }, []);
 
