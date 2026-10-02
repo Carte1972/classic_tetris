@@ -21,6 +21,7 @@ Se juega delante de una **Plaza Roja viva** en pixel-art, vista desde San Basili
 - [Arquitectura](#arquitectura)
 - [Estructura de carpetas](#estructura-de-carpetas)
 - [Contribuir](#contribuir)
+- [Tiempo y tokens](#tiempo-y-tokens)
 - [Créditos](#créditos)
 
 ## Capturas de pantalla
@@ -428,6 +429,24 @@ flowchart LR
 5. No desactives tests, reglas de lint ni el umbral de cobertura para que algo pase: corrige la causa.
 
 El CI ejecuta las mismas comprobaciones, los e2e y la prueba de los lanzadores en cada push y pull request.
+
+## Tiempo y tokens
+
+El juego y el vídeo explicativo se desarrollaron en una sola sesión de desarrollo asistido por IA, del 1 de octubre de 2026 a las 20:54 al 2 de octubre a las 22:55. Las cifras salen del registro de esa sesión y del historial de git (89 commits).
+
+|                                | Juego                     | Vídeo explicativo | Total       |
+| ------------------------------ | ------------------------- | ----------------- | ----------- |
+| Tiempo de reloj                | 21,9 h (incluye la noche) | 4,1 h             | 26,0 h      |
+| Tiempo con actividad           | 5,5 h                     | 2,8 h             | 8,3 h       |
+| Respuestas del asistente       | 617                       | 178               | 795         |
+| Tokens generados (salida)      | 1,04 M                    | 0,22 M            | 1,26 M      |
+| Tokens de entrada nuevos       | 3,28 M                    | 1,51 M            | 4,79 M      |
+| Tokens releídos de caché       | 251,9 M                   | 134,0 M           | 385,9 M     |
+| **Total de tokens procesados** | **256,2 M**               | **135,8 M**       | **392,0 M** |
+
+- El **vídeo** se cuenta desde que se pidió (2 de octubre, 18:51); lo anterior es el **juego**: especificación, tres iteraciones, tests, capturas y release.
+- El **tiempo con actividad** suma solo los intervalos de menos de 15 minutos sin actividad, así que no cuenta las pausas largas. Sí incluye el tiempo de revisar, escuchar y responder.
+- Casi todos los tokens son **lecturas de caché**: en cada respuesta se vuelve a leer el contexto de la conversación. Los tokens nuevos de verdad son los de entrada nueva y los generados (unos 6 M en total).
 
 ## Créditos
 
