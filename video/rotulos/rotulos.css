@@ -1,0 +1,61 @@
+/* Estética de los rótulos: la misma de la interfaz del juego (src/ui/styles.css). */
+:root {
+  --panel: #0b0d17;
+  --border: #3a3f5c;
+  --text: #e9e4d4;
+  --dim: #8a8fa8;
+  --accent: #f2b134;
+}
+
+html,
+body {
+  margin: 0;
+  width: 1920px;
+  height: 1080px;
+  background: transparent;
+  overflow: hidden;
+}
+
+#rotulo {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  color: var(--text);
+  font-family: 'Courier New', ui-monospace, monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.panel {
+  position: absolute;
+  background: var(--panel);
+  border: 6px solid var(--border);
+  box-shadow: 0 0 0 3px var(--panel);
+  padding: 24px 36px;
+}
+
+.pixel {
+  display: block;
+  image-rendering: pixelated;
+}
+
+.titulo-grande {
+  font-size: 64px;
+}
+
+.acento {
+  color: var(--accent);
+}
+
+.tenue {
+  color: var(--dim);
+}
+
+.fondo {
+  position: absolute;
+  inset: 0;
+  width: 1920px;
+  height: 1080px;
+  image-rendering: pixelated;
+}

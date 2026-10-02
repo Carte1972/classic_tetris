@@ -11,3 +11,19 @@ export function encodeFrames(framesDir: string, output: string, fps: number): vo
  * @param dir Carpeta.
  */
 export function resetDir(dir: string): void;
+
+/**
+ * Extrae un fotograma de un vídeo a PNG.
+ * @param video Vídeo.
+ * @param seconds Instante.
+ * @param output PNG de salida.
+ * @param width Ancho final.
+ * @param height Alto final.
+ */
+export function extractFrame(
+  video: string,
+  seconds: number,
+  output: string,
+  width: number,
+  height: number,
+): void;

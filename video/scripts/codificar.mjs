@@ -43,3 +43,33 @@ export function resetDir(dir) {
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });
 }
+
+/**
+ * Extrae un fotograma de un vídeo a PNG, escalado sin suavizar.
+ * @param {string} video Vídeo.
+ * @param {number} seconds Instante.
+ * @param {string} output PNG de salida.
+ * @param {number} width Ancho final.
+ * @param {number} height Alto final.
+ */
+export function extractFrame(video, seconds, output, width, height) {
+  mkdirSync(dirname(output), { recursive: true });
+  execFileSync(
+    'ffmpeg',
+    [
+      '-y',
+      '-v',
+      'error',
+      '-ss',
+      String(seconds),
+      '-i',
+      video,
+      '-frames:v',
+      '1',
+      '-vf',
+      `scale=${width}:${height}:flags=area`,
+      output,
+    ],
+    { stdio: ['ignore', 'ignore', 'pipe'] },
+  );
+}
