@@ -1,13 +1,36 @@
 import { createAudioEngine } from '../audio/audio_engine';
 import { attachKeyboard } from '../input/keyboard_listener';
 import { createKeyboardState } from '../input/keyboard_state';
+import { createRedSquareScene, type LayerFactory } from '../scene/red_square_scene';
 import { getBrowserStorage } from '../storage/key_value_storage';
 import { createAppController, type AppController } from './app_controller';
 import { createGameLoop } from './game_loop';
-import { createRenderTargets, renderGame, type RenderTargets } from './game_renderer';
+import {
+  createRenderTargets,
+  renderBackground,
+  renderGame,
+  type RenderTargets,
+} from './game_renderer';
 import { createRandomSeed } from './seed';
 import { createTestApi } from './test_api';
 import { parseTestOptions } from './test_mode';
+
+/**
+ * Crea capas en caché sobre canvas del navegador que no se muestran.
+ * @param width Ancho en píxeles lógicos.
+ * @param height Alto en píxeles lógicos.
+ * @returns La capa.
+ */
+const createCanvasLayer: LayerFactory = (width, height) => {
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext('2d');
+  if (context === null) {
+    throw new Error('El navegador no permite dibujar en canvas');
+  }
+  return { canvas, context };
+};
 
 /** Aplicación montada sobre el navegador. */
 export interface AppRuntime {
@@ -37,6 +60,7 @@ export function createAppRuntime(): AppRuntime {
     createSeed: () => options.seed ?? createRandomSeed(),
     now: () => new Date(),
   });
+  const scene = createRedSquareScene(options.seed ?? createRandomSeed(), createCanvasLayer);
 
   return {
     controller,
@@ -47,18 +71,23 @@ export function createAppRuntime(): AppRuntime {
       const unlockAudio = (): void => audio.unlock();
       window.addEventListener('keydown', unlockAudio);
       const loop = createGameLoop({
-        update: controller.update,
-        render: () =>
+        update: (dtMs) => {
+          controller.update(dtMs);
+          scene.advance(dtMs);
+        },
+        render: () => {
+          renderBackground(targets, scene);
           renderGame(
             targets,
             controller.getSnapshot().screen,
             controller.getGameState(),
             controller.getCelebration(),
-          ),
+          );
+        },
       });
       loop.start();
       if (options.testApi) {
-        window.__bloques = createTestApi(controller);
+        window.__bloques = createTestApi(controller, scene);
       }
       return () => {
         loop.stop();

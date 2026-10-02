@@ -3,6 +3,7 @@ import type { AppSnapshot } from '../app/app_controller';
 import type { RenderTargets } from '../app/game_renderer';
 import { createAppRuntime } from '../app/runtime';
 import { UI_COLORS } from '../config/palette';
+import { BackgroundCanvas } from './BackgroundCanvas';
 import { ControlsScreen } from './ControlsScreen';
 import { GameScreen } from './GameScreen';
 import { PressAnyKey } from './PressAnyKey';
@@ -53,7 +54,8 @@ export function App(): React.JSX.Element {
   );
   return (
     <main className="app" style={COLOR_VARIABLES}>
-      {renderScreen(snapshot, runtime.targets)}
+      <BackgroundCanvas targets={runtime.targets} />
+      <div className="foreground">{renderScreen(snapshot, runtime.targets)}</div>
     </main>
   );
 }

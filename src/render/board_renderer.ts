@@ -21,6 +21,7 @@ export interface BoardRenderOptions {
  */
 export function drawBoard(ctx: RenderContext, state: GameState, options: BoardRenderOptions): void {
   const size = getBoardCanvasSize();
+  ctx.clearRect(0, 0, size.width, size.height);
   ctx.fillStyle = isBoardFlashing(state) ? BOARD_FLASH_COLOR : BOARD_BACKGROUND_COLOR;
   ctx.fillRect(0, 0, size.width, size.height);
   if (options.hidden) {

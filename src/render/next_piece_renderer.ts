@@ -11,6 +11,7 @@ import type { RenderContext } from './render_context';
  */
 export function drawNextPiece(ctx: RenderContext, type: PieceType | null): void {
   const size = getPreviewCanvasSize();
+  ctx.clearRect(0, 0, size.width, size.height);
   ctx.fillStyle = PREVIEW_BACKGROUND_COLOR;
   ctx.fillRect(0, 0, size.width, size.height);
   if (type === null) {

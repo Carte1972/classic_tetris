@@ -41,7 +41,12 @@ describe('renderGame', () => {
   it('dibuja la celebración en el escenario registrado', () => {
     const targets = createRenderTargets();
     let clears = 0;
-    const stage = { ...createFakeContext().ctx, clearRect: () => clears++ };
+    const stage = {
+      ...createFakeContext().ctx,
+      clearRect: () => {
+        clears++;
+      },
+    };
     targets.registerStage(stage);
     expect(targets.getStage()).toBe(stage);
     renderGame(

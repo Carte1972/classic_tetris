@@ -1,5 +1,5 @@
 /** Subconjunto del contexto 2D que usa el render (permite dobles de prueba). */
-export type RenderContext = Pick<CanvasRenderingContext2D, 'fillStyle' | 'fillRect'>;
+export type RenderContext = Pick<CanvasRenderingContext2D, 'fillStyle' | 'fillRect' | 'clearRect'>;
 
 /** Tamaño de un canvas en píxeles lógicos. */
 export interface CanvasSize {

@@ -1,4 +1,5 @@
 import type { GameState } from '../engine/types';
+import type { BackgroundScene, SceneConditions } from '../scene/red_square_scene';
 import type { AppController, AppSnapshot } from './app_controller';
 import type { TestGamePatch } from './test_mode';
 
@@ -12,6 +13,8 @@ export interface BloquesTestApi {
   readonly patchGame: (patch: TestGamePatch) => void;
   /** Congela la celebración en un instante (ms), o la reanuda con `null`. */
   readonly freezeCelebration: (elapsedMs: number | null) => void;
+  /** Fija la hora y el tiempo atmosférico del fondo. */
+  readonly setScene: (conditions: SceneConditions) => void;
 }
 
 declare global {
@@ -22,15 +25,17 @@ declare global {
 }
 
 /**
- * Crea la API del modo test sobre el controlador.
+ * Crea la API del modo test sobre el controlador y la escena de fondo.
  * @param controller Controlador de la aplicación.
+ * @param scene Escena de fondo.
  * @returns La API.
  */
-export function createTestApi(controller: AppController): BloquesTestApi {
+export function createTestApi(controller: AppController, scene: BackgroundScene): BloquesTestApi {
   return {
     getSnapshot: controller.getSnapshot,
     getGameState: controller.getGameState,
     patchGame: controller.patchGame,
     freezeCelebration: controller.freezeCelebration,
+    setScene: scene.setConditions,
   };
 }

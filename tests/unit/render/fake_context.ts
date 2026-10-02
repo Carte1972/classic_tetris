@@ -14,6 +14,9 @@ export function createFakeContext(): { ctx: RenderContext; calls: FillCall[] } {
   const calls: FillCall[] = [];
   const ctx: RenderContext = {
     fillStyle: '',
+    clearRect() {
+      // Borrar no deja rastro en las llamadas registradas.
+    },
     fillRect(x: number, y: number, width: number, height: number) {
       const style = ctx.fillStyle;
       calls.push({

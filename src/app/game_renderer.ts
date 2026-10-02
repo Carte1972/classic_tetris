@@ -2,6 +2,7 @@ import type { CelebrationState } from '../celebration/celebration_state';
 import { drawCelebration, type StageContext } from '../celebration/celebration_renderer';
 import { isNextPieceVisible } from '../engine/difficulty';
 import type { GameState } from '../engine/types';
+import type { BackgroundScene, SceneContext } from '../scene/red_square_scene';
 import { drawBoard } from '../render/board_renderer';
 import { drawNextPiece } from '../render/next_piece_renderer';
 import type { RenderContext } from '../render/render_context';
@@ -20,6 +21,10 @@ export interface RenderTargets {
   readonly registerStage: (context: StageContext | null) => void;
   /** Escenario de las celebraciones registrado, o `null`. */
   readonly getStage: () => StageContext | null;
+  /** Registra (o elimina, con `null`) el canvas del fondo animado. */
+  readonly registerBackground: (context: SceneContext | null) => void;
+  /** Canvas del fondo registrado, o `null`. */
+  readonly getBackground: () => SceneContext | null;
 }
 
 /**
@@ -29,7 +34,12 @@ export interface RenderTargets {
 export function createRenderTargets(): RenderTargets {
   const contexts = new Map<CanvasSlot, RenderContext>();
   let stage: StageContext | null = null;
+  let background: SceneContext | null = null;
   return {
+    registerBackground: (context) => {
+      background = context;
+    },
+    getBackground: () => background,
     registerStage: (context) => {
       stage = context;
     },
@@ -73,5 +83,17 @@ export function renderGame(
   }
   if (preview !== null) {
     drawNextPiece(preview, isNextPieceVisible(game.level) ? game.nextPiece : null);
+  }
+}
+
+/**
+ * Dibuja el fondo animado (la Plaza Roja) si su canvas está registrado.
+ * @param targets Canvas disponibles.
+ * @param scene Escena de fondo.
+ */
+export function renderBackground(targets: RenderTargets, scene: BackgroundScene): void {
+  const background = targets.getBackground();
+  if (background !== null) {
+    scene.draw(background);
   }
 }
