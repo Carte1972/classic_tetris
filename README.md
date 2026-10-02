@@ -434,18 +434,18 @@ El CI ejecuta las mismas comprobaciones, los e2e y la prueba de los lanzadores e
 
 El juego y el vídeo explicativo se desarrollaron en una sola sesión de desarrollo asistido por IA, entre el 1 y el 2 de octubre de 2026. Las cifras salen del registro de esa sesión y del historial de git (89 commits).
 
-|                                | Juego       | Vídeo explicativo | Total       |
-| ------------------------------ | ----------- | ----------------- | ----------- |
-| Tiempo con actividad           | 5,5 h       | 2,8 h             | 8,3 h       |
-| Respuestas del asistente       | 617         | 178               | 795         |
-| Tokens generados (salida)      | 1,04 M      | 0,22 M            | 1,26 M      |
-| Tokens de entrada nuevos       | 3,28 M      | 1,51 M            | 4,79 M      |
-| Tokens releídos de caché       | 251,9 M     | 134,0 M           | 385,9 M     |
-| **Total de tokens procesados** | **256,2 M** | **135,8 M**       | **392,0 M** |
+|                          | Juego       | Vídeo explicativo | Total       |
+| ------------------------ | ----------- | ----------------- | ----------- |
+| Tiempo con actividad     | 5,5 h       | 2,8 h             | 8,3 h       |
+| Respuestas del asistente | 617         | 178               | 795         |
+| Tokens de entrada        | 255,2 M     | 135,5 M           | 390,7 M     |
+| Tokens de salida         | 1,04 M      | 0,22 M            | 1,26 M      |
+| **Total de tokens**      | **256,2 M** | **135,8 M**       | **392,0 M** |
 
 - El **vídeo** se cuenta desde que se pidió; lo anterior es el **juego**: especificación, tres iteraciones, tests, capturas y release.
 - El **tiempo con actividad** suma solo los intervalos de menos de 15 minutos sin actividad, así que no cuenta las pausas largas. Sí incluye el tiempo de revisar, escuchar y responder.
-- Casi todos los tokens son **lecturas de caché**: en cada respuesta se vuelve a leer el contexto de la conversación. Los tokens nuevos de verdad son los de entrada nueva y los generados (unos 6 M en total).
+- Los **tokens de salida** son todo lo que generó el asistente: respuestas, código, órdenes y razonamiento.
+- Los **tokens de entrada** son todo lo que leyó para generarlo. En cada respuesta vuelve a leer la conversación entera, así que el 98 % de la entrada es contexto releído de la caché; lo nuevo (mensajes, archivos leídos y resultados de comandos) son unos 4,8 M.
 
 ## Créditos
 
