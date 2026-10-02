@@ -40,6 +40,12 @@ const SFX_DB = {
 /** Bajada de la música bajo la voz (ducking): umbral, proporción y tiempos. */
 const DUCKING = 'threshold=0.015:ratio=10:attack=20:release=450:makeup=1';
 
+/**
+ * Grabaciones que pueden mostrar una celebración: el adelanto del cosaco y el rótulo
+ * «¡NIVEL 2!» (grabado con las celebraciones desactivadas, sin bailarín).
+ */
+const CLIPS_CON_BAILARIN = new Set(['extracto_baile_cosaco', 'extracto_objetivo_nivel']);
+
 /** Carpetas. */
 const CLIPS = path('video/extractos/');
 const AUDIO = path('video/audio/');
@@ -294,6 +300,15 @@ function montarEscena(escena) {
       if (tramo.desde < 0 || tramo.desde + tramo.dur > disponible + 0.01) {
         throw new Error(
           `Escena ${escena.numero}: el tramo de ${tramo.clip} (${tramo.desde.toFixed(2)} s + ${tramo.dur.toFixed(2)} s) se sale de la grabación (${disponible.toFixed(2)} s)`,
+        );
+      }
+      // Solo el adelanto del cosaco puede mostrar una celebración con bailarín.
+      const celebra = readJson(`${CLIPS}${tramo.clip}.json`).eventos.some(
+        (e) => e.tipo === 'celebracion' && e.t >= tramo.desde && e.t < tramo.desde + tramo.dur,
+      );
+      if (celebra && !CLIPS_CON_BAILARIN.has(tramo.clip)) {
+        throw new Error(
+          `Escena ${escena.numero}: el tramo de ${tramo.clip} muestra una celebración`,
         );
       }
       args.push(

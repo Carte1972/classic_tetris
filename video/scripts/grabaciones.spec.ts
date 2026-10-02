@@ -61,6 +61,20 @@ const SAMPLE_RECORDS = [
   { score: 4_160, lines: 26, level: 2, date: '2026-09-01' },
 ];
 
+/**
+ * Preferencias con las celebraciones desactivadas: en las partidas grabadas no puede
+ * salir ningún bailarín (solo el cosaco del adelanto). Si se supera un nivel, sale solo el
+ * rótulo «¡NIVEL N!».
+ */
+const NO_CELEBRATIONS = {
+  [PREFERENCES_STORAGE_KEY]: JSON.stringify({
+    startLevel: 0,
+    musicEnabled: true,
+    celebrationsEnabled: false,
+    muted: false,
+  }),
+};
+
 /** Evento de la plaza grabado con su hora y su tiempo. */
 interface EventClip {
   readonly file: string;
@@ -208,7 +222,7 @@ test('extracto_plaza_dia_noche: amanecer, día y atardecer; después día, lluvi
 test('extracto_partida_en_curso: partida de nivel 1 con el jugador automático', async ({
   page,
 }) => {
-  await openRecording(page);
+  await openRecording(page, NO_CELEBRATIONS);
   await startGame(page, 1);
   await patchGame(page, { boardRows: MID_GAME_BOARD, score: 1_840, lines: 4, levelLines: 4 });
   const recorder = new Recorder(page, 'extracto_partida_en_curso');
@@ -218,7 +232,7 @@ test('extracto_partida_en_curso: partida de nivel 1 con el jugador automático',
 });
 
 test('extracto_limpieza_4_lineas: una I limpia 4 líneas a la vez', async ({ page }) => {
-  await openRecording(page);
+  await openRecording(page, NO_CELEBRATIONS);
   await startGame(page, 5);
   await patchGame(page, {
     boardRows: TETRIS_BOARD,
@@ -243,7 +257,7 @@ test('extracto_limpieza_4_lineas: una I limpia 4 líneas a la vez', async ({ pag
 });
 
 test('extracto_fin_partida: la pila llega arriba y se acaba la partida', async ({ page }) => {
-  await openRecording(page);
+  await openRecording(page, NO_CELEBRATIONS);
   await startGame(page, 0);
   await patchGame(page, {
     boardRows: FULL_BOARD,
@@ -307,7 +321,7 @@ test('extracto_objetivo_nivel: se cumple el objetivo y empieza el nivel 2 vacío
 });
 
 test('extracto_nivel_15: partida rápida sin vista previa', async ({ page }) => {
-  await openRecording(page);
+  await openRecording(page, NO_CELEBRATIONS);
   await startGame(page, 9);
   await patchGame(page, {
     boardRows: MID_GAME_BOARD.slice(2),
@@ -325,7 +339,7 @@ test('extracto_nivel_15: partida rápida sin vista previa', async ({ page }) => 
 });
 
 test('extracto_controles: cada tecla en acción', async ({ page }) => {
-  await openRecording(page);
+  await openRecording(page, NO_CELEBRATIONS);
   await startGame(page, 0);
   await patchGame(page, {
     boardRows: MID_GAME_BOARD.slice(3),
