@@ -4,11 +4,19 @@ import {
   GROUND_NEAR_Y,
   PIGEON_COUNT,
   PIGEON_RETURN_MS,
+  LAWN_EDGE,
   SCENE_WIDTH,
+  VANISHING_POINT,
   WALKER_COUNT,
 } from '../../../src/config/scene_config';
-import { advanceCrowd, createCrowd, depthScale, type CrowdState } from '../../../src/scene/crowd';
-import { drawCrowd } from '../../../src/scene/crowd_renderer';
+import {
+  advanceCrowd,
+  createCrowd,
+  depthScale,
+  walkableLeft,
+  type CrowdState,
+} from '../../../src/scene/crowd';
+import { crowdActors, type CrowdLighting } from '../../../src/scene/crowd_renderer';
 import { createFakeContext } from '../render/fake_context';
 
 describe('crowd', () => {
@@ -23,10 +31,25 @@ describe('crowd', () => {
     expect(crowd.pigeons.every((p) => !p.flying)).toBe(true);
   });
 
-  it('la escala de perspectiva crece hacia el espectador', () => {
-    expect(depthScale(GROUND_FAR_Y)).toBeCloseTo(0.35);
+  it('la escala de perspectiva es proporcional a la distancia al punto de fuga', () => {
+    const middle = (VANISHING_POINT.y + GROUND_NEAR_Y) / 2;
+    expect(depthScale(middle)).toBeCloseTo(0.5);
     expect(depthScale(GROUND_NEAR_Y)).toBe(1);
-    expect(depthScale(0)).toBeCloseTo(0.35);
+    expect(depthScale(GROUND_FAR_Y)).toBeLessThan(0.2);
+    expect(depthScale(0)).toBeCloseTo(0.1);
+  });
+
+  it('nadie camina por el césped ni por la muralla', () => {
+    expect(walkableLeft(LAWN_EDGE.from.y + 10)).toBeLessThan(0);
+    expect(walkableLeft(LAWN_EDGE.from.y)).toBeLessThanOrEqual(LAWN_EDGE.from.x);
+    expect(walkableLeft(LAWN_EDGE.to.y)).toBeCloseTo(LAWN_EDGE.to.x);
+    let state: CrowdState = createCrowd(3);
+    for (let i = 0; i < 90; i++) {
+      state = advanceCrowd(state, 1000);
+      for (const walker of state.walkers) {
+        expect(walker.x).toBeGreaterThanOrEqual(walkableLeft(walker.y) - 1);
+      }
+    }
   });
 
   it('los paseantes avanzan en su sentido y los que salen se sustituyen', () => {
@@ -68,11 +91,27 @@ describe('crowd', () => {
 
   it('dibuja a la gente con y sin paraguas, de día y de noche', () => {
     const crowd = advanceCrowd(createCrowd(9), 500);
-    const day = createFakeContext();
-    drawCrowd(day.ctx, crowd, 1000, { daylight: 1, nightColor: '#000000', umbrellas: false });
-    const rain = createFakeContext();
-    drawCrowd(rain.ctx, crowd, 1000, { daylight: 0, nightColor: '#000000', umbrellas: true });
-    expect(day.calls.length).toBeGreaterThan(WALKER_COUNT * 4);
-    expect(rain.calls.length).toBeGreaterThan(day.calls.length);
+    /** Dibuja todos los actores con una luz. */
+    const draw = (lighting: CrowdLighting) => {
+      const fake = createFakeContext();
+      crowdActors(crowd, 1000, lighting).forEach((actor) => actor.draw(fake.ctx));
+      return fake.calls;
+    };
+    const day = draw({ daylight: 1, nightColor: '#000000', umbrellas: false });
+    const rain = draw({ daylight: 0, nightColor: '#000000', umbrellas: true });
+    expect(day.length).toBeGreaterThan(WALKER_COUNT * 4);
+    expect(rain.length).toBeGreaterThan(day.length);
+  });
+
+  it('las palomas que vuelan se dibujan por delante de todo', () => {
+    const crowd = createCrowd(9);
+    const pigeon = crowd.pigeons[0];
+    if (pigeon === undefined) {
+      throw new Error('Falta la paloma');
+    }
+    const flying = { ...crowd, pigeons: [{ ...pigeon, flying: true }] };
+    const lighting = { daylight: 1, nightColor: '#000000', umbrellas: false };
+    const actors = crowdActors(flying, 0, lighting);
+    expect(actors.at(-1)?.y).toBe(Number.POSITIVE_INFINITY);
   });
 });

@@ -1,15 +1,22 @@
-import { DAY_CYCLE_MS, SCENE_HEIGHT, SCENE_WIDTH, type WeatherKind } from '../config/scene_config';
+import {
+  DAY_CYCLE_MS,
+  FRONT_LINE_Y,
+  SCENE_HEIGHT,
+  SCENE_WIDTH,
+  type WeatherKind,
+} from '../config/scene_config';
 import type { RenderContext } from '../render/render_context';
+import { sortByDepth, type SceneActor } from './actors';
 import { advanceCrowd, createCrowd, type CrowdState } from './crowd';
-import { drawCrowd } from './crowd_renderer';
+import { crowdActors } from './crowd_renderer';
 import { drawLine, fillEllipse, fillPixelRect, withAlpha } from './pixel_shapes';
 import { createGround } from './red_square/ground';
 import { createGum } from './red_square/gum';
 import { createKremlin, drawClockHands } from './red_square/kremlin';
-import { drawLamps } from './red_square/lamps';
+import { LAMPS, drawLamp } from './red_square/lamps';
 import { createHistoricalMuseum } from './red_square/museum';
 import { createStBasil } from './red_square/st_basil';
-import type { SceneryPiece } from './scenery';
+import type { PixelRect, RoofLine, SceneryPiece } from './scenery';
 import { createSkyLayout, drawSky, type SkyLayout } from './sky';
 import { drawWeatherParticles } from './weather_particles';
 import {
@@ -90,10 +97,11 @@ function tintLayer(context: LayerContext, color: string): void {
 
 /** Charcos: centro y semiejes. */
 const PUDDLES = [
-  { x: 120, y: 140, rx: 14, ry: 2 },
-  { x: 205, y: 152, rx: 20, ry: 3 },
-  { x: 70, y: 166, rx: 24, ry: 3 },
-  { x: 268, y: 172, rx: 18, ry: 3 },
+  { x: 240, y: 290, rx: 22, ry: 2 },
+  { x: 380, y: 300, rx: 30, ry: 3 },
+  { x: 150, y: 330, rx: 40, ry: 4 },
+  { x: 560, y: 344, rx: 36, ry: 4 },
+  { x: 330, y: 350, rx: 48, ry: 5 },
 ] as const;
 
 /** Proporción de ventanas que se encienden de noche. */
@@ -116,39 +124,106 @@ function isWindowLit(index: number): boolean {
   return value - Math.floor(value) < LIT_WINDOW_RATIO;
 }
 
+/** Edificios cacheados juntos en capas de día y de noche. */
+interface SceneryGroup {
+  readonly day: SceneLayer;
+  readonly night: SceneLayer;
+  readonly windows: readonly PixelRect[];
+  readonly roofs: readonly RoofLine[];
+}
+
 /**
- * Crea la escena de la Plaza Roja.
+ * Pinta un grupo de edificios en sus capas de día y de noche.
+ * @param pieces Elementos del grupo.
+ * @param createLayer Fabrica de capas.
+ * @returns El grupo con sus capas, ventanas y tejados.
+ */
+function createGroup(pieces: readonly SceneryPiece[], createLayer: LayerFactory): SceneryGroup {
+  const day = createLayer(SCENE_WIDTH, SCENE_HEIGHT);
+  const night = createLayer(SCENE_WIDTH, SCENE_HEIGHT);
+  pieces.forEach((piece) => piece.draw(day.context));
+  pieces.forEach((piece) => piece.draw(night.context));
+  tintLayer(night.context, withAlpha(NIGHT_TINT, NIGHT_TINT_ALPHA));
+  return {
+    day,
+    night,
+    windows: pieces.flatMap((piece) => piece.windows),
+    roofs: pieces.flatMap((piece) => piece.roofs),
+  };
+}
+
+/** Luz y nieve de un fotograma, comunes a todos los grupos. */
+interface GroupLight {
+  readonly night: number;
+  readonly snowCover: number;
+}
+
+/**
+ * Dibuja un grupo de edificios con la luz del momento: mezcla de las capas de día y
+ * noche, ventanas encendidas y nieve en los tejados.
+ * @param ctx Contexto de la escena.
+ * @param group Grupo.
+ * @param light Luz y nieve.
+ */
+function drawGroup(ctx: SceneContext, group: SceneryGroup, light: GroupLight): void {
+  ctx.drawImage(group.day.canvas, 0, 0);
+  if (light.night > 0) {
+    ctx.globalAlpha = light.night;
+    ctx.drawImage(group.night.canvas, 0, 0);
+    ctx.globalAlpha = 1;
+  }
+  if (light.night > 0.2) {
+    const alpha = Math.min(1, (light.night - 0.2) * 1.4);
+    group.windows.forEach((rect, index) => {
+      if (isWindowLit(index)) {
+        fillPixelRect(ctx, rect.x, rect.y, rect.width, rect.height, withAlpha(WINDOW_LIGHT, alpha));
+      }
+    });
+  }
+  drawRoofSnow(ctx, group.roofs, light.snowCover);
+}
+
+/**
+ * Dibuja la nieve acumulada en los tejados y cornisas.
+ * @param ctx Contexto de la escena.
+ * @param roofs Bordes de tejados.
+ * @param snowCover Nieve acumulada (0–1).
+ */
+function drawRoofSnow(ctx: SceneContext, roofs: readonly RoofLine[], snowCover: number): void {
+  if (snowCover <= 0) {
+    return;
+  }
+  const alpha = Math.min(1, snowCover * 1.5);
+  roofs.forEach((roof) => {
+    const thickness = Math.max(1, Math.round(roof.thickness * snowCover + 0.4));
+    drawLine(ctx, roof.from, roof.to, thickness, withAlpha(SNOW_COLOR, alpha));
+  });
+}
+
+/**
+ * Crea la escena de la Plaza Roja vista desde el sur: el Kremlin a la izquierda, San
+ * Basilio a la derecha y el Museo Histórico y el GUM al fondo.
  * @param seed Semilla de la gente, las nubes y el tiempo.
  * @param createLayer Fabrica de capas en caché.
  * @returns La escena.
  */
 export function createRedSquareScene(seed: number, createLayer: LayerFactory): BackgroundScene {
-  const pieces: readonly SceneryPiece[] = [
-    createGround(),
-    createKremlin(),
-    createStBasil(),
-    createGum(),
-    createHistoricalMuseum(),
-  ];
+  const ground = createGround();
+  const buildings = [createHistoricalMuseum(), createGum(), createKremlin()];
+  const back = createGroup([ground, ...buildings], createLayer);
+  // San Basilio va en su propia capa: tapa a quien camina por detrás de ella.
+  const front = createGroup([createStBasil()], createLayer);
   const sky: SkyLayout = createSkyLayout(seed);
   let world: WorldState = createWorld(seed);
   let crowd: CrowdState = createCrowd(seed);
 
-  const dayLayer = createLayer(SCENE_WIDTH, SCENE_HEIGHT);
-  const nightLayer = createLayer(SCENE_WIDTH, SCENE_HEIGHT);
-  const snowLayer = createLayer(SCENE_WIDTH, SCENE_HEIGHT);
-  pieces.forEach((piece) => piece.draw(dayLayer.context));
-  pieces.forEach((piece) => piece.draw(nightLayer.context));
-  tintLayer(nightLayer.context, withAlpha(NIGHT_TINT, NIGHT_TINT_ALPHA));
   // Nieve del suelo: el suelo en blanco, recortando la silueta de los edificios.
-  const [ground, ...buildings] = pieces;
-  ground?.draw(snowLayer.context);
+  const snowLayer = createLayer(SCENE_WIDTH, SCENE_HEIGHT);
+  ground.draw(snowLayer.context);
   tintLayer(snowLayer.context, SNOW_COLOR);
   snowLayer.context.globalCompositeOperation = 'destination-out';
   buildings.forEach((piece) => piece.draw(snowLayer.context));
   snowLayer.context.globalCompositeOperation = 'source-over';
-  const windows = pieces.flatMap((piece) => piece.windows);
-  const roofs = pieces.flatMap((piece) => piece.roofs);
 
   return {
     advance: (dtMs) => {
@@ -181,6 +256,7 @@ export function createRedSquareScene(seed: number, createLayer: LayerFactory): B
       const overcast = getOvercast(world);
       const intensity = getWeatherIntensity(world);
       const night = 1 - daylight;
+      const light: GroupLight = { night, snowCover: world.snowCover };
 
       drawSky(ctx, sky, {
         colors: getSkyColors(timeOfDay, overcast),
@@ -189,36 +265,13 @@ export function createRedSquareScene(seed: number, createLayer: LayerFactory): B
         overcast,
         timeMs,
       });
-      ctx.drawImage(dayLayer.canvas, 0, 0);
-      if (night > 0) {
-        ctx.globalAlpha = night;
-        ctx.drawImage(nightLayer.canvas, 0, 0);
-        ctx.globalAlpha = 1;
-      }
-      if (night > 0.2) {
-        windows.forEach((rect, index) => {
-          if (isWindowLit(index)) {
-            fillPixelRect(
-              ctx,
-              rect.x,
-              rect.y,
-              rect.width,
-              rect.height,
-              withAlpha(WINDOW_LIGHT, Math.min(1, (night - 0.2) * 1.4)),
-            );
-          }
-        });
-      }
+      drawGroup(ctx, back, { night, snowCover: 0 });
       drawClockHands(ctx, timeOfDay, (c, from, to, color) => drawLine(c, from, to, 1, color));
       if (world.snowCover > 0) {
         ctx.globalAlpha = world.snowCover * GROUND_SNOW_ALPHA;
         ctx.drawImage(snowLayer.canvas, 0, 0);
         ctx.globalAlpha = 1;
-        roofs.forEach((roof) => {
-          const thickness = Math.max(1, Math.round(roof.thickness * world.snowCover + 0.4));
-          const alpha = Math.min(1, world.snowCover * 1.5);
-          drawLine(ctx, roof.from, roof.to, thickness, withAlpha(SNOW_COLOR, alpha));
-        });
+        drawRoofSnow(ctx, back.roofs, world.snowCover);
       }
       if (world.wetness > 0) {
         const reflection = getSkyColors(timeOfDay, overcast).bottom;
@@ -233,12 +286,21 @@ export function createRedSquareScene(seed: number, createLayer: LayerFactory): B
           ),
         );
       }
-      drawCrowd(ctx, crowd, timeMs, {
-        daylight,
-        nightColor: NIGHT_TINT,
-        umbrellas: world.weather === 'rain' && intensity > 0.3,
-      });
-      drawLamps(ctx, Math.min(1, night * 1.5));
+      const lit = Math.min(1, night * 1.5);
+      const actors: SceneActor[] = sortByDepth([
+        ...crowdActors(crowd, timeMs, {
+          daylight,
+          nightColor: NIGHT_TINT,
+          umbrellas: world.weather === 'rain' && intensity > 0.3,
+        }),
+        ...LAMPS.map((lamp) => ({
+          y: lamp.baseY,
+          draw: (c: RenderContext) => drawLamp(c, lamp, lit),
+        })),
+      ]);
+      actors.filter((actor) => actor.y < FRONT_LINE_Y).forEach((actor) => actor.draw(ctx));
+      drawGroup(ctx, front, light);
+      actors.filter((actor) => actor.y >= FRONT_LINE_Y).forEach((actor) => actor.draw(ctx));
       if (overcast > 0) {
         fillPixelRect(
           ctx,

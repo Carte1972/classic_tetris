@@ -3,7 +3,7 @@ import { HORIZON_Y, SCENE_HEIGHT, SCENE_WIDTH } from '../../../src/config/scene_
 import { createGround } from '../../../src/scene/red_square/ground';
 import { createGum } from '../../../src/scene/red_square/gum';
 import { createKremlin } from '../../../src/scene/red_square/kremlin';
-import { drawLamps } from '../../../src/scene/red_square/lamps';
+import { LAMPS, drawLamp } from '../../../src/scene/red_square/lamps';
 import { createHistoricalMuseum } from '../../../src/scene/red_square/museum';
 import { createStBasil } from '../../../src/scene/red_square/st_basil';
 import {
@@ -18,12 +18,12 @@ import { createFakeContext, type FillCall } from '../render/fake_context';
 /** Contexto falso de capa o de pantalla, con registro de capas dibujadas. */
 function createFakeSceneContext() {
   const { ctx, calls } = createFakeContext();
-  const images: { source: unknown; alpha: number }[] = [];
+  const images: { source: unknown; alpha: number; afterCalls: number }[] = [];
   const scene = Object.assign(ctx, {
     globalAlpha: 1,
     globalCompositeOperation: 'source-over',
     drawImage(source: unknown) {
-      images.push({ source, alpha: scene.globalAlpha });
+      images.push({ source, alpha: scene.globalAlpha, afterCalls: calls.length });
     },
   });
   return { ctx: scene as unknown as SceneContext & LayerContext, calls, images };
@@ -54,19 +54,25 @@ describe('edificios de la Plaza Roja', () => {
     expect(piece.roofs.length).toBeGreaterThan(0);
   });
 
-  it('el suelo cubre desde el horizonte hasta abajo', () => {
+  it('el suelo cubre desde el fondo de la plaza hasta abajo', () => {
     const { ctx, calls } = createFakeContext();
     createGround().draw(ctx);
-    expect(Math.min(...calls.map((c) => c.y))).toBe(HORIZON_Y);
-    expect(Math.max(...calls.map((c) => c.y))).toBe(SCENE_HEIGHT - 1);
+    expect(Math.min(...calls.map((c) => c.y))).toBeLessThanOrEqual(HORIZON_Y);
+    expect(Math.max(...calls.map((c) => c.y + c.height))).toBeGreaterThanOrEqual(SCENE_HEIGHT);
   });
 
-  it('las farolas brillan solo cuando están encendidas', () => {
-    const off = createFakeContext();
-    drawLamps(off.ctx, 0);
-    const on = createFakeContext();
-    drawLamps(on.ctx, 1);
-    expect(on.calls.length).toBeGreaterThan(off.calls.length);
+  it('las farolas brillan solo cuando están encendidas y crecen al acercarse', () => {
+    for (const lamp of LAMPS) {
+      const off = createFakeContext();
+      drawLamp(off.ctx, lamp, 0);
+      const on = createFakeContext();
+      drawLamp(on.ctx, lamp, 1);
+      expect(on.calls.length).toBeGreaterThan(off.calls.length);
+      expectInsideScene(on.calls);
+    }
+    const near = LAMPS.reduce((a, b) => (b.baseY > a.baseY ? b : a));
+    const far = LAMPS.reduce((a, b) => (b.baseY < a.baseY ? b : a));
+    expect(near.height).toBeGreaterThan(far.height);
   });
 });
 
@@ -112,23 +118,38 @@ describe('createRedSquareScene', () => {
     return { scene, layers };
   }
 
-  it('prepara en caché las capas de día, de noche y de nieve', () => {
+  it('prepara en caché las capas de día y de noche del fondo y de San Basilio, y la de nieve', () => {
     const { layers } = setup();
-    expect(layers).toHaveLength(3);
+    expect(layers).toHaveLength(5);
     layers.forEach((layer) => expect(layer.calls.length).toBeGreaterThan(100));
   });
 
-  it('de día solo pinta la capa de día y de noche mezcla la de noche', () => {
+  it('de día solo pinta las capas de día y de noche mezcla también las de noche', () => {
     const { scene } = setup();
     const day = createFakeSceneContext();
     scene.setConditions({ timeOfDay: 0.5, weather: 'clear' });
     scene.draw(day.ctx);
-    expect(day.images).toHaveLength(1);
+    expect(day.images).toHaveLength(2);
     const night = createFakeSceneContext();
     scene.setConditions({ timeOfDay: 0.95 });
     scene.draw(night.ctx);
-    expect(night.images).toHaveLength(2);
+    expect(night.images).toHaveLength(4);
     expect(night.images[1]?.alpha).toBe(1);
+    expect(night.images[3]?.alpha).toBe(1);
+  });
+
+  it('pinta San Basilio entre la gente que pasa por detrás y la que pasa por delante', () => {
+    const { scene } = setup();
+    const frame = createFakeSceneContext();
+    scene.setConditions({ timeOfDay: 0.5, weather: 'clear' });
+    scene.draw(frame.ctx);
+    const background = frame.images[0];
+    const cathedral = frame.images[1];
+    if (background === undefined || cathedral === undefined) {
+      throw new Error('Faltan capas');
+    }
+    expect(cathedral.afterCalls).toBeGreaterThan(background.afterCalls);
+    expect(frame.calls.length).toBeGreaterThan(cathedral.afterCalls);
   });
 
   it('con nieve acumulada pinta la capa de nieve; con humedad, charcos', () => {

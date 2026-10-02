@@ -14,10 +14,10 @@ import type { SkyColors } from './world_clock';
 const MS_PER_SECOND = 1000;
 
 /** Altura máxima del sol y la luna sobre el horizonte (px). */
-const ARC_HEIGHT = 92;
+const ARC_HEIGHT = 210;
 
 /** Margen lateral del recorrido del sol y la luna (px). */
-const ARC_MARGIN = 24;
+const ARC_MARGIN = 48;
 
 /** Colores del sol, la luna y las nubes. */
 const COLORS = {
@@ -65,14 +65,14 @@ export function createSkyLayout(seed: number): SkyLayout {
   };
   const stars = Array.from({ length: STAR_COUNT }, () => ({
     x: Math.floor(random() * SCENE_WIDTH),
-    y: Math.floor(random() * (HORIZON_Y - 30)),
+    y: Math.floor(random() * (HORIZON_Y - 60)),
     phase: random() * Math.PI * 2,
   }));
   const clouds = Array.from({ length: CLOUD_COUNT }, () => ({
     x: random() * SCENE_WIDTH,
-    y: 8 + random() * 40,
-    width: 18 + random() * 26,
-    speed: 2 + random() * 4,
+    y: 16 + random() * 100,
+    width: 40 + random() * 60,
+    speed: 4 + random() * 9,
   }));
   return { stars, clouds };
 }
@@ -94,7 +94,7 @@ export interface SkyFrame {
  * @param colors Colores de arriba y abajo.
  */
 function drawGradient(ctx: RenderContext, colors: SkyColors): void {
-  const bandHeight = 6;
+  const bandHeight = 8;
   for (let y = 0; y < HORIZON_Y; y += bandHeight) {
     fillPixelRect(
       ctx,
@@ -142,13 +142,13 @@ export function drawSky(ctx: RenderContext, layout: SkyLayout, frame: SkyFrame):
   const sunProgress = (frame.timeOfDay - dawnStart) / dayLength;
   if (sunProgress > 0 && sunProgress < 1) {
     const sun = arcPosition(sunProgress);
-    fillCircle(ctx, sun.x, sun.y, 9, withAlpha(COLORS.sunGlow, 0.25 * clearSky));
-    fillCircle(ctx, sun.x, sun.y, 6, withAlpha(COLORS.sun, Math.max(0.15, clearSky)));
+    fillCircle(ctx, sun.x, sun.y, 20, withAlpha(COLORS.sunGlow, 0.22 * clearSky));
+    fillCircle(ctx, sun.x, sun.y, 12, withAlpha(COLORS.sun, Math.max(0.15, clearSky)));
   } else {
     const nightProgress = ((frame.timeOfDay - nightStart + 1) % 1) / (1 - dayLength);
     const moon = arcPosition(Math.min(1, Math.max(0, nightProgress)));
-    fillCircle(ctx, moon.x, moon.y, 5, withAlpha(COLORS.moon, Math.max(0.2, clearSky)));
-    fillCircle(ctx, moon.x + 2, moon.y - 1, 4, withAlpha(COLORS.moonShade, 0.5 * clearSky));
+    fillCircle(ctx, moon.x, moon.y, 10, withAlpha(COLORS.moon, Math.max(0.2, clearSky)));
+    fillCircle(ctx, moon.x + 4, moon.y - 2, 8, withAlpha(COLORS.moonShade, 0.5 * clearSky));
   }
   const cloudColor = mixColors(
     mixColors(COLORS.cloud, COLORS.cloudGray, frame.overcast),
@@ -160,8 +160,8 @@ export function drawSky(ctx: RenderContext, layout: SkyLayout, frame: SkyFrame):
     const span = SCENE_WIDTH + cloud.width * 2;
     const x = ((cloud.x + (cloud.speed * frame.timeMs) / MS_PER_SECOND) % span) - cloud.width;
     const w = cloud.width * (1 + frame.overcast * 0.6);
-    fillEllipse(ctx, x, cloud.y, w * 0.5, 4 + frame.overcast * 3, cloudColor);
-    fillEllipse(ctx, x - w * 0.22, cloud.y + 1, w * 0.3, 3 + frame.overcast * 2, cloudColor);
-    fillEllipse(ctx, x + w * 0.18, cloud.y - 2, w * 0.28, 4 + frame.overcast * 2, cloudColor);
+    fillEllipse(ctx, x, cloud.y, w * 0.5, 8 + frame.overcast * 6, cloudColor);
+    fillEllipse(ctx, x - w * 0.22, cloud.y + 2, w * 0.3, 6 + frame.overcast * 4, cloudColor);
+    fillEllipse(ctx, x + w * 0.18, cloud.y - 4, w * 0.28, 8 + frame.overcast * 4, cloudColor);
   });
 }

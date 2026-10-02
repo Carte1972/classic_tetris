@@ -1,4 +1,5 @@
 import type { RenderContext } from '../render/render_context';
+import type { SceneActor } from './actors';
 import { depthScale, type CrowdState, type Pigeon, type Walker, type WalkerKind } from './crowd';
 import { fillCircle, fillEllipse, fillPixelRect, mixColors } from './pixel_shapes';
 
@@ -34,7 +35,7 @@ const OUTFITS: Readonly<Record<WalkerKind, readonly (readonly [string, string, s
 };
 
 /** Altura de un adulto en la fila más cercana (px). */
-const ADULT_HEIGHT = 22;
+const ADULT_HEIGHT = 30;
 
 /** Proporción de altura de un niño respecto a un adulto. */
 const CHILD_RATIO = 0.62;
@@ -170,42 +171,41 @@ function drawPigeon(
     mixColors(color, lighting.nightColor, (1 - lighting.daylight) * 0.6);
   const x = Math.round(pigeon.x);
   const y = Math.round(pigeon.y);
+  // Tamaño de cada "píxel" de la paloma: las cercanas se ven más grandes.
+  const m = pigeon.flying ? 2 : Math.max(1, Math.round(depthScale(pigeon.y) * 2));
   if (pigeon.flying) {
     const flap = Math.floor(timeMs / 120) % 2 === 0;
-    fillPixelRect(ctx, x - 1, y, 3, 1, shade(PIGEON_COLORS.body));
-    fillPixelRect(ctx, x - 3, flap ? y - 1 : y + 1, 2, 1, shade(PIGEON_COLORS.wing));
-    fillPixelRect(ctx, x + 2, flap ? y - 1 : y + 1, 2, 1, shade(PIGEON_COLORS.wing));
+    fillPixelRect(ctx, x - m, y, 3 * m, m, shade(PIGEON_COLORS.body));
+    fillPixelRect(ctx, x - 3 * m, flap ? y - m : y + m, 2 * m, m, shade(PIGEON_COLORS.wing));
+    fillPixelRect(ctx, x + 2 * m, flap ? y - m : y + m, 2 * m, m, shade(PIGEON_COLORS.wing));
     return;
   }
-  const peck = Math.floor((timeMs + x * 37) / 400) % 3 === 0 ? 1 : 0;
-  fillPixelRect(ctx, x - 1, y - 2, 3, 2, shade(PIGEON_COLORS.body));
-  fillPixelRect(ctx, x + pigeon.direction, y - 3 + peck, 1, 1, shade(PIGEON_COLORS.neck));
+  const peck = Math.floor((timeMs + x * 37) / 400) % 3 === 0 ? m : 0;
+  fillPixelRect(ctx, x - m, y - 2 * m, 3 * m, 2 * m, shade(PIGEON_COLORS.body));
+  fillPixelRect(ctx, x + pigeon.direction * m, y - 3 * m + peck, m, m, shade(PIGEON_COLORS.neck));
 }
 
 /**
- * Dibuja la gente y las palomas, de lejos a cerca.
- * @param ctx Contexto de dibujo.
+ * Paseantes y palomas como actores ordenables por profundidad. Las palomas que vuelan
+ * van siempre por delante de todo.
  * @param crowd Estado de la plaza.
  * @param timeMs Tiempo de la escena.
  * @param lighting Luz y tiempo.
+ * @returns Actores de la gente y las palomas.
  */
-export function drawCrowd(
-  ctx: RenderContext,
+export function crowdActors(
   crowd: CrowdState,
   timeMs: number,
   lighting: CrowdLighting,
-): void {
-  const items: { y: number; draw: () => void }[] = [
+): SceneActor[] {
+  return [
     ...crowd.walkers.map((walker) => ({
       y: walker.y,
-      draw: () => drawWalker(ctx, walker, lighting),
+      draw: (ctx: RenderContext) => drawWalker(ctx, walker, lighting),
     })),
-    ...crowd.pigeons
-      .filter((pigeon) => !pigeon.flying)
-      .map((pigeon) => ({ y: pigeon.y, draw: () => drawPigeon(ctx, pigeon, timeMs, lighting) })),
+    ...crowd.pigeons.map((pigeon) => ({
+      y: pigeon.flying ? Number.POSITIVE_INFINITY : pigeon.y,
+      draw: (ctx: RenderContext) => drawPigeon(ctx, pigeon, timeMs, lighting),
+    })),
   ];
-  items.sort((a, b) => a.y - b.y).forEach((item) => item.draw());
-  crowd.pigeons
-    .filter((pigeon) => pigeon.flying)
-    .forEach((pigeon) => drawPigeon(ctx, pigeon, timeMs, lighting));
 }

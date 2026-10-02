@@ -11,10 +11,10 @@ import { withAlpha } from './pixel_shapes';
 const MS_PER_SECOND = 1000;
 
 /** Velocidad de caída de la lluvia y la nieve (px por segundo). */
-const FALL_SPEED = { rain: 190, snow: 22 } as const;
+const FALL_SPEED = { rain: 380, snow: 44 } as const;
 
 /** Desplazamiento lateral por el viento (px por segundo). */
-const WIND = { rain: -40, snow: -6 } as const;
+const WIND = { rain: -80, snow: -12 } as const;
 
 /** Colores de las gotas y los copos. */
 const COLORS = { rain: '#c5d6ea', snow: '#ffffff' } as const;
@@ -53,13 +53,13 @@ export function drawWeatherParticles(
   for (let i = 0; i < count; i++) {
     const speed = FALL_SPEED[weather] * (0.7 + 0.6 * hash(i, 1));
     const y = (hash(i, 2) * SCENE_HEIGHT + speed * seconds) % SCENE_HEIGHT;
-    const drift = weather === 'snow' ? Math.sin(seconds * 1.5 + i) * 3 : 0;
+    const drift = weather === 'snow' ? Math.sin(seconds * 1.5 + i) * 6 : 0;
     const rawX = hash(i, 3) * SCENE_WIDTH + WIND[weather] * seconds + drift;
     const x = ((rawX % SCENE_WIDTH) + SCENE_WIDTH) % SCENE_WIDTH;
     if (weather === 'rain') {
-      ctx.fillRect(Math.round(x), Math.round(y), 1, 4);
+      ctx.fillRect(Math.round(x), Math.round(y), 1, 7);
     } else {
-      const size = hash(i, 4) < 0.3 ? 2 : 1;
+      const size = hash(i, 4) < 0.3 ? 3 : 2;
       ctx.fillRect(Math.round(x), Math.round(y), size, size);
     }
   }
