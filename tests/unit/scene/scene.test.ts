@@ -173,4 +173,43 @@ describe('createRedSquareScene', () => {
     scene.draw(after.ctx);
     expect(after.calls).not.toEqual(before.calls);
   });
+
+  it('un evento fijado añade decorados y figurantes, y al quitarlo vuelve la vida normal', () => {
+    const { scene } = setup();
+    scene.setConditions({ timeOfDay: 0.45, weather: 'clear', event: null });
+    const normal = createFakeSceneContext();
+    scene.draw(normal.ctx);
+    scene.setConditions({ event: 'christmas', eventElapsedMs: 20_000 });
+    const christmas = createFakeSceneContext();
+    scene.draw(christmas.ctx);
+    expect(christmas.calls.length).toBeGreaterThan(normal.calls.length + 300);
+    scene.setConditions({ event: null });
+    const back = createFakeSceneContext();
+    scene.draw(back.ctx);
+    expect(back.calls.length).toBeLessThan(christmas.calls.length);
+  });
+
+  it('de noche, los focos de un evento vuelven a pintar los edificios con sus colores de día', () => {
+    const { scene } = setup();
+    scene.setConditions({ timeOfDay: 0.9, weather: 'clear', event: null });
+    const dark = createFakeSceneContext();
+    scene.draw(dark.ctx);
+    scene.setConditions({ event: 'easter', eventElapsedMs: 20_000 });
+    const lit = createFakeSceneContext();
+    scene.draw(lit.ctx);
+    expect(lit.images.length).toBe(dark.images.length + 2);
+  });
+
+  it('el primer evento empieza solo al cabo de un rato', () => {
+    const { scene } = setup();
+    scene.setConditions({ timeOfDay: 0.3, weather: 'clear' });
+    const before = createFakeSceneContext();
+    scene.draw(before.ctx);
+    for (let i = 0; i < 30; i++) {
+      scene.advance(1000);
+    }
+    const after = createFakeSceneContext();
+    scene.draw(after.ctx);
+    expect(after.calls.length).toBeGreaterThan(before.calls.length + 200);
+  });
 });

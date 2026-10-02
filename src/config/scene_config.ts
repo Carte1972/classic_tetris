@@ -22,6 +22,9 @@ export const GROUND_NEAR_Y = 358;
  */
 export const WALL_FOOT = { from: { x: 0, y: 296 }, to: { x: 300, y: 270 } } as const;
 
+/** Borde superior de la muralla del Kremlin (debajo de las almenas). */
+export const WALL_TOP = { from: { x: 0, y: 214 }, to: { x: 300, y: 250 } } as const;
+
 /** Borde del césped que hay delante de la muralla: los paseantes caminan a su derecha. */
 export const LAWN_EDGE = { from: { x: 0, y: 314 }, to: { x: 310, y: 272 } } as const;
 

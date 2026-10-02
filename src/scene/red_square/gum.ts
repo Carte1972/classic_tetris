@@ -19,6 +19,12 @@ const FAR = { x: 316, top: 256, base: 271 } as const;
 /** Extremo derecho (cercano) de la fachada. */
 const NEAR = { x: 434, top: 234, base: 280 } as const;
 
+/** Cornisa de la fachada, de lejos a cerca (para colgar adornos). */
+export const GUM_CORNICE = {
+  from: { x: FAR.x, y: FAR.top },
+  to: { x: NEAR.x, y: NEAR.top },
+} as const;
+
 /**
  * Interpola la fachada en perspectiva en una fracción de su longitud.
  * @param t Fracción (0 en el extremo lejano, 1 en el cercano).

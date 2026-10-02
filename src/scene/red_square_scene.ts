@@ -5,8 +5,24 @@ import {
   SCENE_WIDTH,
   type WeatherKind,
 } from '../config/scene_config';
+import {
+  EVENT_FADE_MS,
+  FORCED_EVENT_MS,
+  PLAZA_EVENT_RULES,
+  type PlazaEventKind,
+} from '../config/plaza_events_config';
 import type { RenderContext } from '../render/render_context';
 import { sortByDepth, type SceneActor } from './actors';
+import {
+  advanceEventSchedule,
+  createEventSchedule,
+  getEventPresence,
+  startEvent,
+  startNormalLife,
+  type EventSchedule,
+} from './events/event_schedule';
+import type { EventFrame, PlazaEvent } from './events/event_types';
+import { PLAZA_EVENTS } from './events/plaza_events';
 import { advanceCrowd, createCrowd, type CrowdState } from './crowd';
 import { crowdActors } from './crowd_renderer';
 import { drawLine, fillEllipse, fillPixelRect, withAlpha } from './pixel_shapes';
@@ -27,6 +43,7 @@ import {
   getSkyColors,
   getTimeOfDay,
   getWeatherIntensity,
+  requestWeather,
   type WorldState,
 } from './world_clock';
 
@@ -66,6 +83,10 @@ export interface SceneConditions {
   readonly snowCover?: number;
   /** Humedad del suelo (0–1). */
   readonly wetness?: number;
+  /** Evento que ocupa la plaza (`null` para volver a la vida normal). */
+  readonly event?: PlazaEventKind | null;
+  /** Tiempo que lleva el evento fijado (ms). */
+  readonly eventElapsedMs?: number;
 }
 
 /** Color del tinte nocturno de los edificios. */
@@ -152,10 +173,12 @@ function createGroup(pieces: readonly SceneryPiece[], createLayer: LayerFactory)
   };
 }
 
-/** Luz y nieve de un fotograma, comunes a todos los grupos. */
+/** Luz y nieve de un fotograma para un grupo de edificios. */
 interface GroupLight {
   readonly night: number;
   readonly snowCover: number;
+  /** Luz de los focos de un evento (0–1), que devuelve sus colores de día. */
+  readonly floodlight: number;
 }
 
 /**
@@ -170,6 +193,11 @@ function drawGroup(ctx: SceneContext, group: SceneryGroup, light: GroupLight): v
   if (light.night > 0) {
     ctx.globalAlpha = light.night;
     ctx.drawImage(group.night.canvas, 0, 0);
+    ctx.globalAlpha = 1;
+  }
+  if (light.floodlight > 0) {
+    ctx.globalAlpha = Math.min(1, light.floodlight);
+    ctx.drawImage(group.day.canvas, 0, 0);
     ctx.globalAlpha = 1;
   }
   if (light.night > 0.2) {
@@ -201,6 +229,69 @@ function drawRoofSnow(ctx: SceneContext, roofs: readonly RoofLine[], snowCover: 
 }
 
 /**
+ * Dibuja una capa de un evento con su presencia como opacidad (para que aparezca y se
+ * vaya poco a poco).
+ * @param ctx Contexto de la escena.
+ * @param frame Fotograma del evento.
+ * @param draw Dibujo de la capa, si el evento la tiene.
+ */
+function withEventAlpha(
+  ctx: SceneContext,
+  frame: EventFrame,
+  draw: ((ctx: RenderContext, frame: EventFrame) => void) | undefined,
+): void {
+  if (draw === undefined || frame.presence <= 0) {
+    return;
+  }
+  ctx.globalAlpha = frame.presence;
+  draw(ctx, frame);
+  ctx.globalAlpha = 1;
+}
+
+/**
+ * Actores de un evento, que se dibujan con su presencia como opacidad.
+ * @param event Evento en curso, si hay.
+ * @param frame Fotograma del evento.
+ * @returns Actores.
+ */
+function eventActors(event: PlazaEvent | undefined, frame: EventFrame): SceneActor[] {
+  if (event === undefined || frame.presence <= 0) {
+    return [];
+  }
+  return event.actors(frame).map((actor) => ({
+    y: actor.y,
+    draw: (ctx: RenderContext) => {
+      const scene = ctx as SceneContext;
+      scene.globalAlpha = frame.presence;
+      actor.draw(ctx);
+      scene.globalAlpha = 1;
+    },
+  }));
+}
+
+/** Paseantes que cuentan para repartir quién se queda durante un evento. */
+const WALKER_SLOTS = 20;
+
+/**
+ * Durante un evento se quedan solo parte de los paseantes habituales (el resto deja
+ * sitio a los figurantes).
+ * @param crowd Gente de la plaza.
+ * @param schedule Calendario de eventos.
+ * @param presence Presencia del evento.
+ * @returns Gente que se dibuja.
+ */
+function keepWalkers(crowd: CrowdState, schedule: EventSchedule, presence: number): CrowdState {
+  if (schedule.current === null || presence <= 0) {
+    return crowd;
+  }
+  const share = 1 - presence * (1 - PLAZA_EVENT_RULES[schedule.current].walkers);
+  return {
+    ...crowd,
+    walkers: crowd.walkers.filter((_, i) => (i % WALKER_SLOTS) / WALKER_SLOTS < share),
+  };
+}
+
+/**
  * Crea la escena de la Plaza Roja vista desde el sur: el Kremlin a la izquierda, San
  * Basilio a la derecha y el Museo Histórico y el GUM al fondo.
  * @param seed Semilla de la gente, las nubes y el tiempo.
@@ -216,6 +307,7 @@ export function createRedSquareScene(seed: number, createLayer: LayerFactory): B
   const sky: SkyLayout = createSkyLayout(seed);
   let world: WorldState = createWorld(seed);
   let crowd: CrowdState = createCrowd(seed);
+  let schedule: EventSchedule = createEventSchedule(seed);
 
   // Nieve del suelo: el suelo en blanco, recortando la silueta de los edificios.
   const snowLayer = createLayer(SCENE_WIDTH, SCENE_HEIGHT);
@@ -229,6 +321,15 @@ export function createRedSquareScene(seed: number, createLayer: LayerFactory): B
     advance: (dtMs) => {
       world = advanceWorld(world, dtMs);
       crowd = advanceCrowd(crowd, dtMs);
+      const step = advanceEventSchedule(schedule, dtMs, getTimeOfDay(world));
+      schedule = step.schedule;
+      if (step.started !== null) {
+        world = requestWeather(world, PLAZA_EVENT_RULES[step.started].weather, schedule.durationMs);
+      }
+      if (schedule.current !== null) {
+        const minimum = PLAZA_EVENT_RULES[schedule.current].snowCover * getEventPresence(schedule);
+        world = { ...world, snowCover: Math.max(world.snowCover, minimum) };
+      }
     },
     setConditions: (conditions) => {
       if (conditions.timeOfDay !== undefined) {
@@ -248,6 +349,16 @@ export function createRedSquareScene(seed: number, createLayer: LayerFactory): B
         snowCover: conditions.snowCover ?? world.snowCover,
         wetness: conditions.wetness ?? world.wetness,
       };
+      if (conditions.event === null) {
+        schedule = startNormalLife(schedule);
+      } else if (conditions.event !== undefined) {
+        schedule = startEvent(
+          schedule,
+          conditions.event,
+          FORCED_EVENT_MS,
+          conditions.eventElapsedMs ?? EVENT_FADE_MS,
+        );
+      }
     },
     draw: (ctx) => {
       const timeMs = world.elapsedMs;
@@ -256,7 +367,15 @@ export function createRedSquareScene(seed: number, createLayer: LayerFactory): B
       const overcast = getOvercast(world);
       const intensity = getWeatherIntensity(world);
       const night = 1 - daylight;
-      const light: GroupLight = { night, snowCover: world.snowCover };
+      const event = schedule.current === null ? undefined : PLAZA_EVENTS[schedule.current];
+      const frame: EventFrame = {
+        elapsedMs: schedule.elapsedMs,
+        durationMs: schedule.durationMs,
+        presence: getEventPresence(schedule),
+        timeMs,
+        night,
+      };
+      const illumination = event?.illumination?.(frame) ?? { back: 0, front: 0 };
 
       drawSky(ctx, sky, {
         colors: getSkyColors(timeOfDay, overcast),
@@ -265,7 +384,12 @@ export function createRedSquareScene(seed: number, createLayer: LayerFactory): B
         overcast,
         timeMs,
       });
-      drawGroup(ctx, back, { night, snowCover: 0 });
+      withEventAlpha(ctx, frame, event?.drawSky);
+      drawGroup(ctx, back, {
+        night,
+        snowCover: 0,
+        floodlight: night * illumination.back * frame.presence,
+      });
       drawClockHands(ctx, timeOfDay, (c, from, to, color) => drawLine(c, from, to, 1, color));
       if (world.snowCover > 0) {
         ctx.globalAlpha = world.snowCover * GROUND_SNOW_ALPHA;
@@ -286,9 +410,11 @@ export function createRedSquareScene(seed: number, createLayer: LayerFactory): B
           ),
         );
       }
+      withEventAlpha(ctx, frame, event?.drawBackDecor);
       const lit = Math.min(1, night * 1.5);
       const actors: SceneActor[] = sortByDepth([
-        ...crowdActors(crowd, timeMs, {
+        ...eventActors(event, frame),
+        ...crowdActors(keepWalkers(crowd, schedule, frame.presence), timeMs, {
           daylight,
           nightColor: NIGHT_TINT,
           umbrellas: world.weather === 'rain' && intensity > 0.3,
@@ -299,7 +425,12 @@ export function createRedSquareScene(seed: number, createLayer: LayerFactory): B
         })),
       ]);
       actors.filter((actor) => actor.y < FRONT_LINE_Y).forEach((actor) => actor.draw(ctx));
-      drawGroup(ctx, front, light);
+      drawGroup(ctx, front, {
+        night,
+        snowCover: world.snowCover,
+        floodlight: night * illumination.front * frame.presence,
+      });
+      withEventAlpha(ctx, frame, event?.drawFrontDecor);
       actors.filter((actor) => actor.y >= FRONT_LINE_Y).forEach((actor) => actor.draw(ctx));
       if (overcast > 0) {
         fillPixelRect(

@@ -1,4 +1,4 @@
-import { WALL_FOOT } from '../../config/scene_config';
+import { WALL_FOOT, WALL_TOP } from '../../config/scene_config';
 import type { RenderContext } from '../../render/render_context';
 import { fillCircle, fillPixelRect, fillPolygon, mixColors, type Point } from '../pixel_shapes';
 import type { PixelRect, RoofLine, SceneryPiece } from '../scenery';
@@ -25,9 +25,6 @@ const COLORS = {
 
 /** Colores del ladrillo de las torres. */
 const BRICK = { front: STONE.brick, side: STONE.brickDark } as const;
-
-/** Borde superior de la muralla: del borde izquierdo al fondo de la plaza. */
-const WALL_TOP = { from: { x: 0, y: 214 }, to: { x: 300, y: 250 } } as const;
 
 /** Centro x de la torre Spásskaya. */
 const SPASSKAYA_X = 94;

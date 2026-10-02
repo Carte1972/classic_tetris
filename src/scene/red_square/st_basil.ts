@@ -107,6 +107,9 @@ const FRONT_DOMES: readonly Dome[] = [
   },
 ];
 
+/** Cornisa de la galería de la base (para colgar adornos). */
+export const GALLERY_CORNICE = { from: { x: 432, y: 267 }, to: { x: 598, y: 267 } } as const;
+
 /** Centro x de la torre central. */
 const TOWER_X = 514;
 
