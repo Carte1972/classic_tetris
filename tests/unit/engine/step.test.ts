@@ -9,7 +9,7 @@ import {
 } from '../../../src/config/timing_config';
 import { createEmptyRow, findFullRows } from '../../../src/engine/board';
 import { createInitialState } from '../../../src/engine/game_state';
-import { EMPTY_INPUT, step, tick } from '../../../src/engine/step';
+import { EMPTY_INPUT, startNextLevel, step, tick } from '../../../src/engine/step';
 import type { FrameInput, GameEvent, GameState } from '../../../src/engine/types';
 import { boardWithBottomRows, filledRow } from './helpers';
 
@@ -210,6 +210,11 @@ describe('tick: fijar pieza, ARE y aparición', () => {
     const locked = runUntilPhaseChanges(state);
     expect(locked.state.phaseFramesRemaining).toBe(18);
   });
+
+  it('el ARE se acorta con el nivel', () => {
+    const state = stateWith({ level: 4, activePiece: { type: 'O', rotation: 0, x: 5, y: 20 } });
+    expect(runUntilPhaseChanges(state).state.phaseFramesRemaining).toBe(6);
+  });
 });
 
 describe('tick: limpieza de líneas', () => {
@@ -242,29 +247,68 @@ describe('tick: limpieza de líneas', () => {
   });
 });
 
-describe('tick: cambio de nivel', () => {
-  it('sube de nivel al llegar a 10 líneas y puntúa con el nivel anterior', () => {
-    const locked = runUntilPhaseChanges(wellState(1, { lines: 9 }));
+describe('tick: niveles por objetivo de líneas', () => {
+  it('el primer nivel pide 10 líneas y cuenta las del nivel aparte de las totales', () => {
+    const state = createInitialState({ seed: 1, startLevel: 3 });
+    expect(state.levelGoal).toBe(10);
+    expect(state.levelLines).toBe(0);
+    const locked = runUntilPhaseChanges(wellState(2, { lines: 30, levelLines: 4 }));
+    const cleared = runTicks(locked.state, LINE_CLEAR_ANIMATION_FRAMES);
+    expect(cleared.state.lines).toBe(32);
+    expect(cleared.state.levelLines).toBe(6);
+    expect(cleared.state.phase).toBe('entryDelay');
+  });
+
+  it('al alcanzar el objetivo se detiene, sube de nivel y puntúa con el nivel anterior', () => {
+    const locked = runUntilPhaseChanges(wellState(1, { levelLines: 9 }));
     const cleared = runTicks(locked.state, LINE_CLEAR_ANIMATION_FRAMES);
     expect(cleared.events).toContainEqual({ type: 'levelUp', level: 1 });
+    expect(cleared.state.phase).toBe('levelComplete');
     expect(cleared.state.level).toBe(1);
     expect(cleared.state.score).toBe(40);
+    expect(cleared.state.activePiece).toBeNull();
   });
 
-  it('no sube de nivel si las líneas no superan el nivel inicial', () => {
-    const locked = runUntilPhaseChanges(wellState(1, { lines: 9, level: 5, startLevel: 5 }));
+  it('las líneas que sobrepasan el objetivo no se acumulan', () => {
+    const locked = runUntilPhaseChanges(wellState(4, { levelLines: 8 }));
     const cleared = runTicks(locked.state, LINE_CLEAR_ANIMATION_FRAMES);
-    expect(cleared.events).not.toContainEqual(expect.objectContaining({ type: 'levelUp' }));
-    expect(cleared.state.level).toBe(5);
+    expect(cleared.state.levelLines).toBe(10);
+    expect(cleared.state.lines).toBe(4);
   });
 
-  it('la gravedad usa el nuevo nivel tras subir', () => {
-    const locked = runUntilPhaseChanges(wellState(4, { lines: 8, level: 0 }));
-    const cleared = runTicks(locked.state, LINE_CLEAR_ANIMATION_FRAMES);
-    expect(cleared.state.level).toBe(1);
-    const spawned = runUntilPhaseChanges(cleared.state);
-    const startRow = spawned.state.activePiece?.y ?? 0;
-    expect(runTicks(spawned.state, 43).state.activePiece?.y).toBe(startRow + 1);
+  it('la partida no avanza hasta que empieza el nivel siguiente', () => {
+    const locked = runUntilPhaseChanges(wellState(1, { levelLines: 9 }));
+    const completed = runTicks(locked.state, LINE_CLEAR_ANIMATION_FRAMES).state;
+    expect(runTicks(completed, 500, SOFT_DROP).state).toEqual(completed);
+  });
+
+  it('el nivel siguiente empieza con el tablero vacío, 2 líneas más de objetivo y más velocidad', () => {
+    const locked = runUntilPhaseChanges(wellState(4, { levelLines: 9 }));
+    const completed = runTicks(locked.state, LINE_CLEAR_ANIMATION_FRAMES).state;
+    const next = startNextLevel(completed);
+    expect(next.phase).toBe('falling');
+    expect(next.board.every((row) => row.every((cell) => cell === null))).toBe(true);
+    expect(next.levelLines).toBe(0);
+    expect(next.levelGoal).toBe(12);
+    expect(next.activePiece).toMatchObject({ type: completed.nextPiece, y: SPAWN_ROW });
+    expect(next.softDropReleaseRequired).toBe(true);
+    const startRow = next.activePiece?.y ?? 0;
+    expect(runTicks(next, 43).state.activePiece?.y).toBe(startRow + 1);
+  });
+
+  it('el objetivo crece con los niveles superados desde el nivel inicial', () => {
+    const completed = stateWith({
+      phase: 'levelComplete',
+      activePiece: null,
+      startLevel: 5,
+      level: 8,
+    });
+    expect(startNextLevel(completed).levelGoal).toBe(16);
+  });
+
+  it('startNextLevel no hace nada fuera de la fase levelComplete', () => {
+    const playing = stateWith();
+    expect(startNextLevel(playing)).toBe(playing);
   });
 });
 

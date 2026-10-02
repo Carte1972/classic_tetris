@@ -4,13 +4,13 @@ import {
   LINE_CLEAR_ANIMATION_FRAMES,
   SOFT_DROP_FRAMES_PER_ROW,
 } from '../config/timing_config';
-import { findFullRows, lockPiece, removeRows } from './board';
 import { collides } from './collision';
 import { getEntryDelayFrames } from './entry_delay';
 import { getGravityFrames } from './gravity';
 import { tryMove, tryRotate } from './movement';
 import { rollNextPiece } from './randomizer';
-import { calculateLevel, getLineClearScore } from './scoring';
+import { createEmptyBoard, findFullRows, lockPiece, removeRows } from './board';
+import { getLevelGoal, getLineClearScore } from './scoring';
 import { createSpawnPiece } from './tetrominoes';
 import type { ActivePiece, FrameInput, GameEvent, GameState, StepResult } from './types';
 
@@ -59,6 +59,7 @@ export function tick(state: GameState, input: FrameInput): StepResult {
       return tickLineClear(state);
     case 'entryDelay':
       return tickEntryDelay(state);
+    case 'levelComplete':
     case 'gameOver':
       return { state, events: [] };
   }
@@ -163,7 +164,7 @@ function lockActivePiece(
 ): StepResult {
   const board = lockPiece(state.board, piece);
   const fullRows = findFullRows(board);
-  const entryDelayFrames = getEntryDelayFrames(piece.y);
+  const entryDelayFrames = getEntryDelayFrames(piece.y, state.level);
   const base: GameState = {
     ...state,
     board,
@@ -200,7 +201,8 @@ function lockActivePiece(
 
 /**
  * Frame de la animación de limpieza; al terminar elimina las filas y actualiza
- * puntuación, líneas y nivel.
+ * puntuación y líneas. Si se alcanza el objetivo del nivel, la partida pasa a
+ * `levelComplete` con el nivel siguiente y emite `levelUp`.
  * @param state Estado en fase `lineClear`.
  * @returns Nuevo estado y eventos.
  */
@@ -210,23 +212,59 @@ function tickLineClear(state: GameState): StepResult {
     return { state: { ...state, phaseFramesRemaining: remaining }, events: [] };
   }
   const cleared = state.clearingRows.length;
-  const lines = state.lines + cleared;
-  const level = calculateLevel(state.startLevel, lines);
-  const events: GameEvent[] = level > state.level ? [{ type: 'levelUp', level }] : [];
+  const levelLines = state.levelLines + cleared;
+  const base: GameState = {
+    ...state,
+    board: removeRows(state.board, state.clearingRows),
+    clearingRows: [],
+    lines: state.lines + cleared,
+    levelLines,
+    score: state.score + getLineClearScore(cleared, state.level),
+  };
+  if (levelLines >= state.levelGoal) {
+    const level = state.level + 1;
+    return {
+      state: {
+        ...base,
+        phase: 'levelComplete',
+        level,
+        levelLines: state.levelGoal,
+        phaseFramesRemaining: 0,
+        phaseFramesTotal: 0,
+      },
+      events: [{ type: 'levelUp', level }],
+    };
+  }
   return {
     state: {
-      ...state,
-      board: removeRows(state.board, state.clearingRows),
-      clearingRows: [],
-      lines,
-      level,
-      score: state.score + getLineClearScore(cleared, state.level),
+      ...base,
       phase: 'entryDelay',
       phaseFramesRemaining: state.entryDelayFrames,
       phaseFramesTotal: state.entryDelayFrames,
     },
-    events,
+    events: [],
   };
+}
+
+/**
+ * Empieza el nivel siguiente tras superar uno: tablero vacío, contador del nivel a cero,
+ * nuevo objetivo y la siguiente pieza ya cayendo.
+ * @param state Estado en fase `levelComplete`.
+ * @returns Estado del nuevo nivel (sin cambios si la partida no estaba en esa fase).
+ */
+export function startNextLevel(state: GameState): GameState {
+  if (state.phase !== 'levelComplete') {
+    return state;
+  }
+  return spawnNextPiece({
+    ...state,
+    board: createEmptyBoard(),
+    levelLines: 0,
+    levelGoal: getLevelGoal(state.level - state.startLevel),
+    gravityFrames: 0,
+    softDropFrames: 0,
+    softDropReleaseRequired: true,
+  }).state;
 }
 
 /**
@@ -250,7 +288,7 @@ function tickEntryDelay(state: GameState): StepResult {
  */
 function spawnNextPiece(state: GameState): StepResult {
   const piece = createSpawnPiece(state.nextPiece);
-  const next = rollNextPiece(state.rngState, state.nextPiece);
+  const next = rollNextPiece(state.rngState, state.nextPiece, state.level);
   const base: GameState = {
     ...state,
     nextPiece: next.piece,

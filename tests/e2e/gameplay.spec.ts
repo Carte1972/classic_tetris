@@ -14,6 +14,7 @@ test.describe('partida', () => {
     await expect(page.getByTestId('hud-lines')).toHaveText('0');
     await expect(page.getByTestId('hud-level')).toHaveText('0');
     await expect(page.getByTestId('hud-best')).toHaveText('0');
+    await expect(page.getByTestId('hud-goal')).toHaveText('0 / 10');
     await expect(page.getByRole('img', { name: 'SIGUIENTE' })).toBeVisible();
     await expect(page.getByRole('img', { name: 'Tablero' })).toBeVisible();
     expect((await snapshot(page)).hud?.nextPiece).toMatch(/^[IOTSZJL]$/);

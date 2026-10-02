@@ -1,35 +1,58 @@
-import { CELEBRATION_DURATION_MS } from '../config/celebration_config';
+import { CELEBRATION_DURATION_MS, LEVEL_BANNER_DURATION_MS } from '../config/celebration_config';
 import { DANCERS } from './characters';
 import type { CharacterDefinition } from './sprites/sprite_types';
+
+/** Tipo de transición entre niveles: baile completo o solo el rótulo del nivel. */
+export type CelebrationKind = 'dance' | 'banner';
 
 /** Estado de una celebración en curso. */
 export interface CelebrationState {
   /** Nivel alcanzado. */
   readonly level: number;
+  readonly kind: CelebrationKind;
   /** Índice del bailarín en `DANCERS`. */
   readonly dancerIndex: number;
   /** Tiempo transcurrido (ms), entre 0 y la duración total. */
   readonly elapsedMs: number;
+  /** Duración total (ms). */
+  readonly durationMs: number;
+}
+
+/** Datos para empezar una celebración. */
+export interface CelebrationStart {
+  /** Nivel alcanzado. */
+  readonly level: number;
+  /** Niveles superados en la partida, incluido este (1 = el primero). */
+  readonly levelsCompleted: number;
+  /** Si hay baile (celebraciones activadas) o solo el rótulo del nivel. */
+  readonly dance: boolean;
 }
 
 /**
- * Bailarín que corresponde a un nivel: `(nivel − 1) % número de personajes`, de forma
- * que el nivel 1 trae al primero y la lista se repite en rotación.
- * @param level Nivel alcanzado (1 o más).
+ * Bailarín que corresponde a cada nivel superado: `(niveles superados − 1) % número de
+ * personajes`, de forma que el primer nivel superado trae al primero y la lista se
+ * repite en rotación.
+ * @param levelsCompleted Niveles superados en la partida (1 o más).
  * @param count Número de bailarines.
  * @returns Índice del bailarín.
  */
-export function selectDancerIndex(level: number, count: number = DANCERS.length): number {
-  return (((level - 1) % count) + count) % count;
+export function selectDancerIndex(levelsCompleted: number, count: number = DANCERS.length): number {
+  return (((levelsCompleted - 1) % count) + count) % count;
 }
 
 /**
- * Empieza la celebración de un nivel.
- * @param level Nivel alcanzado.
+ * Empieza la celebración de un nivel superado.
+ * @param start Nivel, niveles superados y si hay baile.
  * @returns Estado inicial de la celebración.
  */
-export function startCelebration(level: number): CelebrationState {
-  return { level, dancerIndex: selectDancerIndex(level), elapsedMs: 0 };
+export function startCelebration(start: CelebrationStart): CelebrationState {
+  return {
+    level: start.level,
+    kind: start.dance ? 'dance' : 'banner',
+    dancerIndex: selectDancerIndex(start.levelsCompleted),
+    elapsedMs: 0,
+    durationMs: start.dance ? CELEBRATION_DURATION_MS : LEVEL_BANNER_DURATION_MS,
+  };
 }
 
 /**
@@ -41,7 +64,7 @@ export function startCelebration(level: number): CelebrationState {
 export function advanceCelebration(state: CelebrationState, dtMs: number): CelebrationState {
   return {
     ...state,
-    elapsedMs: Math.min(CELEBRATION_DURATION_MS, state.elapsedMs + Math.max(0, dtMs)),
+    elapsedMs: Math.min(state.durationMs, state.elapsedMs + Math.max(0, dtMs)),
   };
 }
 
@@ -51,7 +74,7 @@ export function advanceCelebration(state: CelebrationState, dtMs: number): Celeb
  * @returns Estado terminado.
  */
 export function skipCelebration(state: CelebrationState): CelebrationState {
-  return { ...state, elapsedMs: CELEBRATION_DURATION_MS };
+  return { ...state, elapsedMs: state.durationMs };
 }
 
 /**
@@ -61,7 +84,7 @@ export function skipCelebration(state: CelebrationState): CelebrationState {
  * @returns Nuevo estado.
  */
 export function seekCelebration(state: CelebrationState, elapsedMs: number): CelebrationState {
-  return { ...state, elapsedMs: Math.min(CELEBRATION_DURATION_MS, Math.max(0, elapsedMs)) };
+  return { ...state, elapsedMs: Math.min(state.durationMs, Math.max(0, elapsedMs)) };
 }
 
 /**
@@ -70,7 +93,7 @@ export function seekCelebration(state: CelebrationState, elapsedMs: number): Cel
  * @returns `true` si ya no queda animación.
  */
 export function isCelebrationFinished(state: CelebrationState): boolean {
-  return state.elapsedMs >= CELEBRATION_DURATION_MS;
+  return state.elapsedMs >= state.durationMs;
 }
 
 /**

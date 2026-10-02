@@ -199,7 +199,7 @@ test('celebracion_nivel.png: un personaje en plena prisiadka', async ({ page }) 
   await startGame(page);
   await patchGame(page, {
     boardRows: ['OOOOOOOOO.'],
-    lines: 9,
+    levelLines: 9,
     activePiece: { type: 'I', rotation: 1, x: 9, y: 19 },
   });
   for (let frame = 0; frame < 600 && (await screen(page)) !== 'celebrating'; frame++) {

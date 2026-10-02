@@ -41,7 +41,10 @@ const colorsUsed = (fills: { color: string }[]) => new Set(fills.map((f) => f.co
 describe('drawCelebration', () => {
   it('borra el fotograma anterior y dibuja el suelo y al bailarín', () => {
     const { ctx, fills, clears } = createFakeStage();
-    drawCelebration(ctx, seekCelebration(startCelebration(1), 1500));
+    drawCelebration(
+      ctx,
+      seekCelebration(startCelebration({ level: 1, levelsCompleted: 1, dance: true }), 1500),
+    );
     expect(clears()).toBe(1);
     expect(fills[0]).toMatchObject({ color: CELEBRATION_FLOOR_COLOR, w: STAGE_WIDTH });
     expect(colorsUsed(fills)).toContain(DANCERS[0]?.colors['B']);
@@ -53,31 +56,61 @@ describe('drawCelebration', () => {
 
   it('la matrioska grande da paso a la pequeña al abrirse', () => {
     const before = createFakeStage();
-    drawCelebration(before.ctx, seekCelebration(startCelebration(2), MATRYOSHKA_OPEN_AT_MS - 10));
+    drawCelebration(
+      before.ctx,
+      seekCelebration(
+        startCelebration({ level: 2, levelsCompleted: 2, dance: true }),
+        MATRYOSHKA_OPEN_AT_MS - 10,
+      ),
+    );
     expect(colorsUsed(before.fills)).not.toContain(MATRYOSHKA_SMALL.colors['T']);
     const opening = createFakeStage();
-    drawCelebration(opening.ctx, seekCelebration(startCelebration(2), MATRYOSHKA_OPEN_AT_MS + 100));
+    drawCelebration(
+      opening.ctx,
+      seekCelebration(
+        startCelebration({ level: 2, levelsCompleted: 2, dance: true }),
+        MATRYOSHKA_OPEN_AT_MS + 100,
+      ),
+    );
     const colors = colorsUsed(opening.fills);
     expect(colors).toContain(MATRYOSHKA_SMALL.colors['T']);
     expect(colors).toContain(DANCERS[1]?.colors['T']);
     const after = createFakeStage();
-    drawCelebration(after.ctx, seekCelebration(startCelebration(2), 3000));
+    drawCelebration(
+      after.ctx,
+      seekCelebration(startCelebration({ level: 2, levelsCompleted: 2, dance: true }), 3000),
+    );
     expect(colorsUsed(after.fills)).not.toContain(DANCERS[1]?.colors['T']);
   });
 
   it('el gigante bota su balón', () => {
     const { ctx, fills } = createFakeStage();
-    drawCelebration(ctx, seekCelebration(startCelebration(7), 1500));
+    drawCelebration(
+      ctx,
+      seekCelebration(startCelebration({ level: 7, levelsCompleted: 7, dance: true }), 1500),
+    );
     expect(colorsUsed(fills)).toContain(DANCERS[6]?.colors['X']);
   });
 
   it('la bailarina se tambalea durante la prisiadka', () => {
     const lefts = [1000, 1150, 1290, 1420].map((t) => {
       const { ctx, fills } = createFakeStage();
-      drawCelebration(ctx, seekCelebration(startCelebration(8), t));
+      drawCelebration(
+        ctx,
+        seekCelebration(startCelebration({ level: 8, levelsCompleted: 8, dance: true }), t),
+      );
       return Math.min(...fills.slice(1).map((f) => f.x));
     });
     expect(new Set(lefts).size).toBeGreaterThan(1);
+  });
+});
+
+describe('drawCelebration con rótulo', () => {
+  it('sin baile solo borra el escenario', () => {
+    const { ctx, fills, clears } = createFakeStage();
+    drawCelebration(ctx, startCelebration({ level: 2, levelsCompleted: 1, dance: false }));
+    expect(clears()).toBe(1);
+    expect(fills).toHaveLength(0);
   });
 });
 

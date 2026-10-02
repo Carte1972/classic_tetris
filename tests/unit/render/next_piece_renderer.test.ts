@@ -11,4 +11,10 @@ describe('drawNextPiece', () => {
     expect(calls[0]?.fillStyle).toBe(PREVIEW_BACKGROUND_COLOR);
     expect(calls.filter((c) => c.fillStyle === PIECE_COLORS[type].fill)).toHaveLength(4);
   });
+
+  it('sin pieza solo dibuja el fondo', () => {
+    const { ctx, calls } = createFakeContext();
+    drawNextPiece(ctx, null);
+    expect(calls).toHaveLength(1);
+  });
 });

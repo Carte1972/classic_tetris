@@ -1,6 +1,6 @@
 import { FRAME_DURATION_MS } from '../config/timing_config';
 import { createInitialState, type NewGameOptions } from '../engine/game_state';
-import { step } from '../engine/step';
+import { startNextLevel, step } from '../engine/step';
 import type { GameEvent, GameState } from '../engine/types';
 import { INITIAL_DAS_STATE, type DasState } from '../input/das';
 import { sampleFrameInput } from '../input/frame_input';
@@ -16,6 +16,8 @@ export interface GameSession {
    * @returns Los eventos producidos.
    */
   readonly advance: (dtMs: number) => readonly GameEvent[];
+  /** Empieza el nivel siguiente tras superar uno (tablero vacío). */
+  readonly startNextLevel: () => void;
   /** Sustituye el estado del motor (solo para el modo test). */
   readonly replaceState: (next: GameState) => void;
 }
@@ -45,6 +47,9 @@ export function createGameSession(options: NewGameOptions, keyboard: KeyboardSta
         events.push(...result.events);
       }
       return events;
+    },
+    startNextLevel: () => {
+      state = startNextLevel(state);
     },
     replaceState: (next) => {
       state = next;

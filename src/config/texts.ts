@@ -44,6 +44,8 @@ export const TEXTS = {
     lines: 'LÍNEAS',
     level: 'NIVEL',
     next: 'SIGUIENTE',
+    nextHidden: 'OCULTA',
+    goal: 'OBJETIVO',
     muted: 'SONIDO SILENCIADO (M)',
   },
   pause: {

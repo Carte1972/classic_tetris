@@ -44,10 +44,28 @@ describe('renderGame', () => {
     const stage = { ...createFakeContext().ctx, clearRect: () => clears++ };
     targets.registerStage(stage);
     expect(targets.getStage()).toBe(stage);
-    renderGame(targets, 'celebrating', game, startCelebration(1));
+    renderGame(
+      targets,
+      'celebrating',
+      game,
+      startCelebration({ level: 1, levelsCompleted: 1, dance: true }),
+    );
     expect(clears).toBe(1);
     targets.registerStage(null);
-    renderGame(targets, 'celebrating', game, startCelebration(1));
+    renderGame(
+      targets,
+      'celebrating',
+      game,
+      startCelebration({ level: 1, levelsCompleted: 1, dance: true }),
+    );
     expect(clears).toBe(1);
+  });
+
+  it('en niveles altos el recuadro de la siguiente pieza queda vacío', () => {
+    const targets = createRenderTargets();
+    const preview = createFakeContext();
+    targets.register('preview', preview.ctx);
+    renderGame(targets, 'playing', { ...game, level: 15 });
+    expect(preview.calls).toHaveLength(1);
   });
 });

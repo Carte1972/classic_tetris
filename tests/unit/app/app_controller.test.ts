@@ -2,7 +2,10 @@ import { describe, expect, it, vi } from 'vitest';
 import { createAppController, type AppDependencies } from '../../../src/app/app_controller';
 import { KALINKA } from '../../../src/audio/songs/kalinka';
 import { KOROBEINIKI } from '../../../src/audio/songs/korobeiniki';
-import { CELEBRATION_DURATION_MS } from '../../../src/config/celebration_config';
+import {
+  CELEBRATION_DURATION_MS,
+  LEVEL_BANNER_DURATION_MS,
+} from '../../../src/config/celebration_config';
 import { MENU_ITEMS } from '../../../src/config/menu_config';
 import { PREFERENCES_STORAGE_KEY, RECORDS_STORAGE_KEY } from '../../../src/config/storage_config';
 import { createKeyboardState, type KeyboardState } from '../../../src/input/keyboard_state';
@@ -281,11 +284,12 @@ describe('suscripción', () => {
   });
 });
 
-/** Completa una línea con una I vertical para pasar del nivel `level - 1` al `level`. */
+/** Completa la última línea del objetivo con una I vertical para pasar al nivel `level`. */
 function forceLevelUp(ctx: ReturnType<typeof setup>, level: number): void {
   ctx.controller.patchGame({
     boardRows: ['OOOOOOOOO.'],
-    lines: level * 10 - 1,
+    levelGoal: 10,
+    levelLines: 9,
     level: level - 1,
     activePiece: { type: 'I', rotation: 1, x: 9, y: 19 },
   });
@@ -310,15 +314,21 @@ describe('celebraciones', () => {
     expect(ctx.controller.getGameState()).toBe(frozen);
   });
 
-  it('termina sola a los 4 segundos y reanuda la música de la partida', () => {
+  it('al terminar empieza el nivel siguiente con el tablero vacío y reanuda la música', () => {
     const ctx = setup();
     startPlaying(ctx);
     forceLevelUp(ctx, 1);
+    expect(ctx.controller.getSnapshot().celebrationKind).toBe('dance');
     ctx.controller.update(CELEBRATION_DURATION_MS - 100);
     expect(ctx.controller.getSnapshot().screen).toBe('celebrating');
     ctx.controller.update(100);
-    expect(ctx.controller.getSnapshot().screen).toBe('playing');
-    expect(ctx.controller.getSnapshot().celebrationLevel).toBeNull();
+    const snapshot = ctx.controller.getSnapshot();
+    expect(snapshot.screen).toBe('playing');
+    expect(snapshot.celebrationLevel).toBeNull();
+    expect(snapshot.hud).toMatchObject({ level: 1, levelLines: 0, levelGoal: 12 });
+    const game = ctx.controller.getGameState();
+    expect(game?.phase).toBe('falling');
+    expect(game?.board.every((row) => row.every((cell) => cell === null))).toBe(true);
     expect(ctx.audio.resumeMusic).toHaveBeenCalled();
   });
 
@@ -330,15 +340,27 @@ describe('celebraciones', () => {
     expect(ctx.controller.getSnapshot().screen).toBe('playing');
   });
 
-  it('desactivada desde el menú, no aparece al subir de nivel', () => {
+  it('desactivadas desde el menú, solo se muestra el rótulo del nivel durante 2 segundos', () => {
     const ctx = setup({
       [PREFERENCES_STORAGE_KEY]: JSON.stringify({ celebrationsEnabled: false }),
     });
     startPlaying(ctx);
     forceLevelUp(ctx, 1);
+    expect(ctx.controller.getSnapshot().celebrationKind).toBe('banner');
+    expect(ctx.audio.playMusic).not.toHaveBeenLastCalledWith(KALINKA);
+    expect(ctx.audio.playSfx).toHaveBeenCalledWith('levelUp');
+    ctx.controller.update(LEVEL_BANNER_DURATION_MS);
     expect(ctx.controller.getSnapshot().screen).toBe('playing');
     expect(ctx.controller.getGameState()?.level).toBe(1);
-    expect(ctx.audio.playSfx).toHaveBeenCalledWith('levelUp');
+    expect(ctx.audio.resumeMusic).not.toHaveBeenCalled();
+  });
+
+  it('en niveles altos el marcador indica que la siguiente pieza está oculta', () => {
+    const ctx = setup();
+    startPlaying(ctx);
+    expect(ctx.controller.getSnapshot().hud?.nextVisible).toBe(true);
+    ctx.controller.patchGame({ level: 15 });
+    expect(ctx.controller.getSnapshot().hud?.nextVisible).toBe(false);
   });
 
   it('Esc durante la celebración vuelve al menú', () => {

@@ -147,9 +147,18 @@ h2 {
 }
 
 .next {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.next-hidden {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 44px;
+  text-align: center;
 }
 
 .board-frame {

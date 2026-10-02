@@ -2,6 +2,7 @@ import { MAX_START_LEVEL, MIN_START_LEVEL } from '../config/scoring_config';
 import { createEmptyBoard } from './board';
 import { normalizeSeed } from './random';
 import { rollNextPiece } from './randomizer';
+import { getLevelGoal } from './scoring';
 import { createSpawnPiece } from './tetrominoes';
 import type { GameState } from './types';
 
@@ -20,8 +21,8 @@ export interface NewGameOptions {
  */
 export function createInitialState(options: NewGameOptions): GameState {
   const startLevel = clampStartLevel(options.startLevel);
-  const first = rollNextPiece(normalizeSeed(options.seed), null);
-  const next = rollNextPiece(first.rngState, first.piece);
+  const first = rollNextPiece(normalizeSeed(options.seed), null, startLevel);
+  const next = rollNextPiece(first.rngState, first.piece, startLevel);
   return {
     board: createEmptyBoard(),
     activePiece: createSpawnPiece(first.piece),
@@ -31,6 +32,8 @@ export function createInitialState(options: NewGameOptions): GameState {
     startLevel,
     level: startLevel,
     lines: 0,
+    levelLines: 0,
+    levelGoal: getLevelGoal(0),
     score: 0,
     gravityFrames: 0,
     softDropFrames: 0,

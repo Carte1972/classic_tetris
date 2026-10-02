@@ -5,14 +5,17 @@ import { getPreviewBlockPositions, getPreviewCanvasSize } from './layout';
 import type { RenderContext } from './render_context';
 
 /**
- * Dibuja la siguiente pieza centrada en su recuadro.
+ * Dibuja la siguiente pieza centrada en su recuadro, o solo el fondo si está oculta.
  * @param ctx Contexto del canvas de vista previa.
- * @param type Pieza siguiente.
+ * @param type Pieza siguiente, o `null` si no se muestra.
  */
-export function drawNextPiece(ctx: RenderContext, type: PieceType): void {
+export function drawNextPiece(ctx: RenderContext, type: PieceType | null): void {
   const size = getPreviewCanvasSize();
   ctx.fillStyle = PREVIEW_BACKGROUND_COLOR;
   ctx.fillRect(0, 0, size.width, size.height);
+  if (type === null) {
+    return;
+  }
   for (const position of getPreviewBlockPositions(type)) {
     drawBlock(ctx, position.x, position.y, PIECE_COLORS[type]);
   }

@@ -38,9 +38,11 @@ export interface ActivePiece {
  * - `falling`: hay una pieza activa cayendo.
  * - `lineClear`: se está animando la limpieza de líneas.
  * - `entryDelay`: retardo de entrada (ARE) antes de la siguiente pieza.
+ * - `levelComplete`: se ha alcanzado el objetivo de líneas; la partida espera a que
+ *   empiece el nivel siguiente (`startNextLevel`).
  * - `gameOver`: la partida ha terminado.
  */
-export type GamePhase = 'falling' | 'lineClear' | 'entryDelay' | 'gameOver';
+export type GamePhase = 'falling' | 'lineClear' | 'entryDelay' | 'levelComplete' | 'gameOver';
 
 /** Estado inmutable completo de una partida. */
 export interface GameState {
@@ -53,7 +55,12 @@ export interface GameState {
   readonly phase: GamePhase;
   readonly startLevel: number;
   readonly level: number;
+  /** Líneas totales de la partida. */
   readonly lines: number;
+  /** Líneas completadas en el nivel actual. */
+  readonly levelLines: number;
+  /** Líneas que pide el nivel actual para superarlo. */
+  readonly levelGoal: number;
   readonly score: number;
   /** Frames acumulados desde la última caída por gravedad. */
   readonly gravityFrames: number;
@@ -96,6 +103,7 @@ export type GameEvent =
   | { readonly type: 'pieceRotated' }
   | { readonly type: 'pieceLocked' }
   | { readonly type: 'linesCleared'; readonly count: number }
+  /** Se ha superado el nivel; `level` es el nivel nuevo, que empieza con `startNextLevel`. */
   | { readonly type: 'levelUp'; readonly level: number }
   | { readonly type: 'gameOver' };
 

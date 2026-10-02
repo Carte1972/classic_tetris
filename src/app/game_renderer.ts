@@ -1,5 +1,6 @@
 import type { CelebrationState } from '../celebration/celebration_state';
 import { drawCelebration, type StageContext } from '../celebration/celebration_renderer';
+import { isNextPieceVisible } from '../engine/difficulty';
 import type { GameState } from '../engine/types';
 import { drawBoard } from '../render/board_renderer';
 import { drawNextPiece } from '../render/next_piece_renderer';
@@ -71,6 +72,6 @@ export function renderGame(
     drawBoard(board, game, { hidden: screen === 'paused' });
   }
   if (preview !== null) {
-    drawNextPiece(preview, game.nextPiece);
+    drawNextPiece(preview, isNextPieceVisible(game.level) ? game.nextPiece : null);
   }
 }

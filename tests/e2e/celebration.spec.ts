@@ -15,9 +15,10 @@ test.describe('celebración al subir de nivel', () => {
     const frozen = await page.evaluate(() => window.__bloques?.getGameState());
     await page.waitForTimeout(1000);
     expect(await page.evaluate(() => window.__bloques?.getGameState())).toEqual(frozen);
-    await expect(overlay).toHaveCount(0, { timeout: 6000 });
+    await expect(overlay).toHaveCount(0, { timeout: 15000 });
     await expectScreen(page, 'playing');
     await expect(page.getByTestId('hud-level')).toHaveText('1');
+    await expect(page.getByTestId('hud-goal')).toHaveText('0 / 12');
   });
 
   for (const key of ['Enter', 'Space']) {
@@ -31,7 +32,7 @@ test.describe('celebración al subir de nivel', () => {
     });
   }
 
-  test('desactivada desde el menú, no aparece', async ({ page }) => {
+  test('desactivada desde el menú, solo aparece el rótulo del nivel', async ({ page }) => {
     await tap(page, 'Space');
     await tap(page, 'ArrowDown');
     await tap(page, 'ArrowDown');
@@ -44,8 +45,11 @@ test.describe('celebración al subir de nivel', () => {
     await tap(page, 'Enter');
     await expectScreen(page, 'playing');
     await forceLevelUp(page, 1);
+    const banner = page.getByRole('dialog', { name: '¡NIVEL 1!' });
+    await expect(banner).toBeVisible();
+    await expect(banner.getByRole('img', { name: 'Baile de celebración' })).toHaveCount(0);
+    await expect(banner).toHaveCount(0, { timeout: 4000 });
     await expect(page.getByTestId('hud-level')).toHaveText('1');
-    await page.waitForTimeout(300);
     expect((await snapshot(page)).screen).toBe('playing');
   });
 });

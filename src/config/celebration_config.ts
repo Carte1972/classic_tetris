@@ -22,6 +22,9 @@ export const CHOREOGRAPHY: readonly ChoreographyStep[] = [
   { movement: 'exit', durationMs: 700, cycles: 1 },
 ];
 
+/** Duración del rótulo "¡NIVEL N!" cuando las celebraciones están desactivadas (ms). */
+export const LEVEL_BANNER_DURATION_MS = 2000;
+
 /** Duración total de la celebración (ms). */
 export const CELEBRATION_DURATION_MS = CHOREOGRAPHY.reduce((total, s) => total + s.durationMs, 0);
 

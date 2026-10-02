@@ -58,8 +58,21 @@ describe('applyTestPatch', () => {
 
   it('cambia solo los campos indicados', () => {
     const state = createInitialState({ seed: 1, startLevel: 0 });
-    const patched = applyTestPatch(state, { score: 500, lines: 9, nextPiece: 'I' });
-    expect(patched).toEqual({ ...state, score: 500, lines: 9, nextPiece: 'I' });
+    const patched = applyTestPatch(state, {
+      score: 500,
+      lines: 9,
+      levelLines: 3,
+      levelGoal: 14,
+      nextPiece: 'I',
+    });
+    expect(patched).toEqual({
+      ...state,
+      score: 500,
+      lines: 9,
+      levelLines: 3,
+      levelGoal: 14,
+      nextPiece: 'I',
+    });
     const withBoard = applyTestPatch(state, {
       boardRows: ['OO........'],
       activePiece: null,

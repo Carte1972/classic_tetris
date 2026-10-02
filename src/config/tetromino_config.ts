@@ -5,12 +5,6 @@ import { HIDDEN_ROWS } from './board_config';
 export const PIECE_TYPES: readonly PieceType[] = ['T', 'J', 'Z', 'O', 'S', 'L', 'I'];
 
 /**
- * Caras de la primera tirada del generador de NES: una por pieza más un valor
- * inválido que obliga a repetir la tirada.
- */
-export const FIRST_ROLL_SIDES = PIECE_TYPES.length + 1;
-
-/**
  * Orientaciones de cada pieza según el sistema de rotación de NES, en sentido horario.
  * La primera es la orientación de aparición. Las coordenadas son relativas al pivote
  * y la `y` crece hacia abajo. Sin wall kicks: si una rotación choca, se descarta.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calculateLevel, getLineClearScore } from '../../../src/engine/scoring';
+import { getLevelGoal, getLineClearScore } from '../../../src/engine/scoring';
 
 describe('getLineClearScore', () => {
   it.each([
@@ -20,20 +20,15 @@ describe('getLineClearScore', () => {
   });
 });
 
-describe('calculateLevel', () => {
-  it('sube un nivel cada 10 líneas', () => {
-    expect(calculateLevel(0, 0)).toBe(0);
-    expect(calculateLevel(0, 9)).toBe(0);
-    expect(calculateLevel(0, 10)).toBe(1);
-    expect(calculateLevel(0, 25)).toBe(2);
-    expect(calculateLevel(0, 290)).toBe(29);
+describe('getLevelGoal', () => {
+  it('el primer nivel pide 10 líneas y cada uno siguiente 2 más', () => {
+    expect(getLevelGoal(0)).toBe(10);
+    expect(getLevelGoal(1)).toBe(12);
+    expect(getLevelGoal(2)).toBe(14);
+    expect(getLevelGoal(10)).toBe(30);
   });
 
-  it('nunca baja del nivel inicial (regla de NES)', () => {
-    expect(calculateLevel(5, 0)).toBe(5);
-    expect(calculateLevel(5, 59)).toBe(5);
-    expect(calculateLevel(5, 60)).toBe(6);
-    expect(calculateLevel(9, 99)).toBe(9);
-    expect(calculateLevel(9, 100)).toBe(10);
+  it('trata valores negativos como el primer nivel', () => {
+    expect(getLevelGoal(-1)).toBe(10);
   });
 });

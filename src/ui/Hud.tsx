@@ -8,17 +8,18 @@ export interface HudProps {
 }
 
 /**
- * Marcador de la partida: puntuación, récord, líneas y nivel.
+ * Marcador de la partida: puntuación, récord, nivel, objetivo del nivel y líneas totales.
  * @param props Propiedades del marcador.
  * @returns El marcador.
  */
 export function Hud(props: HudProps): React.JSX.Element {
   const { hud, muted } = props;
-  const stats: readonly [string, number, string][] = [
-    [TEXTS.hud.score, hud.score, 'score'],
-    [TEXTS.hud.best, hud.best, 'best'],
-    [TEXTS.hud.lines, hud.lines, 'lines'],
-    [TEXTS.hud.level, hud.level, 'level'],
+  const stats: readonly [string, string, string][] = [
+    [TEXTS.hud.score, String(hud.score), 'score'],
+    [TEXTS.hud.best, String(hud.best), 'best'],
+    [TEXTS.hud.level, String(hud.level), 'level'],
+    [TEXTS.hud.goal, `${hud.levelLines} / ${hud.levelGoal}`, 'goal'],
+    [TEXTS.hud.lines, String(hud.lines), 'lines'],
   ];
   return (
     <dl className="panel hud">

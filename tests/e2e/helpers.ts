@@ -75,11 +75,12 @@ export async function forceGameOver(page: Page, score: number): Promise<void> {
   await expectScreen(page, 'gameOver');
 }
 
-/** Completa una línea para pasar del nivel `level - 1` al `level`. */
+/** Completa la última línea del objetivo para pasar al nivel `level`. */
 export async function forceLevelUp(page: Page, level: number): Promise<void> {
   await patchGame(page, {
     boardRows: ['OOOOOOOOO.'],
-    lines: level * 10 - 1,
+    levelGoal: 10,
+    levelLines: 9,
     level: level - 1,
     activePiece: { type: 'I', rotation: 1, x: 9, y: 19 },
   });

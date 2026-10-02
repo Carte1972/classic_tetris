@@ -76,6 +76,7 @@ export function GameScreen(props: GameScreenProps): React.JSX.Element {
       </div>
       <div className="panel next">
         <h2 className="panel-title">{TEXTS.hud.next}</h2>
+        {!hud.nextVisible && <p className="hint next-hidden">{TEXTS.hud.nextHidden}</p>}
         <PixelCanvas
           size={getPreviewCanvasSize()}
           scale={RENDER_SCALE}
@@ -84,7 +85,11 @@ export function GameScreen(props: GameScreenProps): React.JSX.Element {
         />
       </div>
       {snapshot.screen === 'celebrating' && snapshot.celebrationLevel !== null && (
-        <CelebrationOverlay level={snapshot.celebrationLevel} targets={targets} />
+        <CelebrationOverlay
+          level={snapshot.celebrationLevel}
+          dance={snapshot.celebrationKind === 'dance'}
+          targets={targets}
+        />
       )}
     </section>
   );

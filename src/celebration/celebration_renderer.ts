@@ -96,6 +96,9 @@ function drawGrid(
  */
 export function drawCelebration(ctx: StageContext, state: CelebrationState): void {
   ctx.clearRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT);
+  if (state.kind !== 'dance') {
+    return;
+  }
   ctx.fillStyle = CELEBRATION_FLOOR_COLOR;
   ctx.fillRect(0, STAGE_GROUND_Y + 1, STAGE_WIDTH, STAGE_FLOOR_THICKNESS);
 

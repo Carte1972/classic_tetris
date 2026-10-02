@@ -7,8 +7,10 @@ import {
   seekCelebration,
   skipCelebration,
   startCelebration,
+  type CelebrationKind,
   type CelebrationState,
 } from '../celebration/celebration_state';
+import { isNextPieceVisible } from '../engine/difficulty';
 import type { GameAction } from '../config/input_config';
 import type { GameState, PieceType } from '../engine/types';
 import type { KeyboardState } from '../input/keyboard_state';
@@ -48,6 +50,12 @@ export interface HudData {
   readonly lines: number;
   readonly level: number;
   readonly nextPiece: PieceType;
+  /** Si se muestra la siguiente pieza (en niveles altos se oculta). */
+  readonly nextVisible: boolean;
+  /** Líneas completadas en el nivel actual. */
+  readonly levelLines: number;
+  /** Líneas que pide el nivel actual. */
+  readonly levelGoal: number;
   /** Mejor puntuación conocida, incluida la partida en curso. */
   readonly best: number;
 }
@@ -71,6 +79,8 @@ export interface AppSnapshot {
   readonly lastResult: GameResult | null;
   /** Nivel que se está celebrando, o `null` si no hay celebración. */
   readonly celebrationLevel: number | null;
+  /** Si la celebración tiene baile o es solo el rótulo del nivel. */
+  readonly celebrationKind: CelebrationKind | null;
 }
 
 /** Parte del motor de audio que usa la aplicación. */
@@ -157,6 +167,7 @@ export function createAppController(deps: AppDependencies): AppController {
       records,
       lastResult,
       celebrationLevel: celebration?.level ?? null,
+      celebrationKind: celebration?.kind ?? null,
       hud:
         state === null
           ? null
@@ -165,6 +176,9 @@ export function createAppController(deps: AppDependencies): AppController {
               lines: state.lines,
               level: state.level,
               nextPiece: state.nextPiece,
+              nextVisible: isNextPieceVisible(state.level),
+              levelLines: state.levelLines,
+              levelGoal: state.levelGoal,
               best: Math.max(records[0]?.score ?? 0, state.score),
             },
     };
@@ -280,23 +294,29 @@ export function createAppController(deps: AppDependencies): AppController {
       return;
     }
     const levelUp = events.find((event) => event.type === 'levelUp');
-    if (levelUp !== undefined && preferences.celebrationsEnabled) {
-      startDance(levelUp.level);
+    if (levelUp !== undefined) {
+      startLevelTransition(levelUp.level, current.getState().startLevel);
     }
   }
 
-  function startDance(level: number): void {
-    celebration = startCelebration(level);
+  function startLevelTransition(level: number, startLevel: number): void {
+    const dance = preferences.celebrationsEnabled;
+    celebration = startCelebration({ level, levelsCompleted: level - startLevel, dance });
     celebrationFrozen = false;
-    audio.pauseMusic();
-    audio.setTempoMultiplier(1);
-    audio.playMusic(KALINKA);
+    if (dance) {
+      audio.pauseMusic();
+      audio.setTempoMultiplier(1);
+      audio.playMusic(KALINKA);
+    }
     goTo('celebrating');
   }
 
-  function endDance(): void {
+  function endLevelTransition(finished: CelebrationState): void {
     celebration = null;
-    audio.resumeMusic();
+    session?.startNextLevel();
+    if (finished.kind === 'dance') {
+      audio.resumeMusic();
+    }
     goTo('playing');
   }
 
@@ -312,7 +332,7 @@ export function createAppController(deps: AppDependencies): AppController {
         : advanceCelebration(current, dtMs);
     celebration = next;
     if (isCelebrationFinished(next)) {
-      endDance();
+      endLevelTransition(next);
     }
   }
 
@@ -406,6 +426,7 @@ function snapshotsEqual(a: AppSnapshot, b: AppSnapshot): boolean {
     a.records === b.records &&
     a.lastResult === b.lastResult &&
     a.celebrationLevel === b.celebrationLevel &&
+    a.celebrationKind === b.celebrationKind &&
     hudEqual(a.hud, b.hud)
   );
 }
@@ -425,6 +446,9 @@ function hudEqual(a: HudData | null, b: HudData | null): boolean {
     a.lines === b.lines &&
     a.level === b.level &&
     a.nextPiece === b.nextPiece &&
+    a.nextVisible === b.nextVisible &&
+    a.levelLines === b.levelLines &&
+    a.levelGoal === b.levelGoal &&
     a.best === b.best
   );
 }

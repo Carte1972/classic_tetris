@@ -1,4 +1,5 @@
-import { LINE_CLEAR_BASE_POINTS, LINES_PER_LEVEL } from '../config/scoring_config';
+import { LEVEL_GOAL_BASE_LINES, LEVEL_GOAL_STEP_LINES } from '../config/difficulty_config';
+import { LINE_CLEAR_BASE_POINTS } from '../config/scoring_config';
 
 /**
  * Puntos por limpiar líneas: 40 / 100 / 300 / 1200 × (nivel + 1).
@@ -15,11 +16,10 @@ export function getLineClearScore(linesCleared: number, level: number): number {
 }
 
 /**
- * Nivel según las líneas totales, como en NES: nunca por debajo del nivel inicial.
- * @param startLevel Nivel inicial elegido.
- * @param lines Líneas totales limpiadas.
- * @returns Nivel actual.
+ * Líneas que pide un nivel: 10 el primero de la partida y 2 más cada nivel siguiente.
+ * @param levelsCompleted Niveles ya superados en esta partida.
+ * @returns Objetivo de líneas del nivel.
  */
-export function calculateLevel(startLevel: number, lines: number): number {
-  return Math.max(startLevel, Math.floor(lines / LINES_PER_LEVEL));
+export function getLevelGoal(levelsCompleted: number): number {
+  return LEVEL_GOAL_BASE_LINES + LEVEL_GOAL_STEP_LINES * Math.max(0, levelsCompleted);
 }

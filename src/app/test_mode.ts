@@ -19,6 +19,8 @@ export interface TestGamePatch {
   readonly nextPiece?: PieceType;
   readonly score?: number;
   readonly lines?: number;
+  readonly levelLines?: number;
+  readonly levelGoal?: number;
   readonly level?: number;
 }
 
@@ -80,6 +82,8 @@ export function applyTestPatch(state: GameState, patch: TestGamePatch): GameStat
     ...(patch.nextPiece === undefined ? {} : { nextPiece: patch.nextPiece }),
     ...(patch.score === undefined ? {} : { score: patch.score }),
     ...(patch.lines === undefined ? {} : { lines: patch.lines }),
+    ...(patch.levelLines === undefined ? {} : { levelLines: patch.levelLines }),
+    ...(patch.levelGoal === undefined ? {} : { levelGoal: patch.levelGoal }),
     ...(patch.level === undefined ? {} : { level: patch.level }),
   };
 }

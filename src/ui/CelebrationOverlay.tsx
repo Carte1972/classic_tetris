@@ -7,18 +7,20 @@ import { getStageSize } from '../celebration/celebration_renderer';
 export interface CelebrationOverlayProps {
   /** Nivel alcanzado. */
   readonly level: number;
+  /** Si hay baile; si no, solo se muestra el rótulo del nivel. */
+  readonly dance: boolean;
   /** Registro donde se inscribe el escenario para que el bucle dibuje en él. */
   readonly targets: RenderTargets;
 }
 
 /**
- * Capa a pantalla completa con el escenario donde baila el personaje de la subida de
- * nivel.
+ * Capa a pantalla completa con el rótulo del nivel alcanzado y, si las celebraciones
+ * están activadas, el escenario donde baila el personaje.
  * @param props Propiedades de la capa.
  * @returns La capa.
  */
 export function CelebrationOverlay(props: CelebrationOverlayProps): React.JSX.Element {
-  const { level, targets } = props;
+  const { level, dance, targets } = props;
   const size = getStageSize();
   const registerStage = useCallback(
     (canvas: HTMLCanvasElement | null) => targets.registerStage(canvas?.getContext('2d') ?? null),
@@ -27,21 +29,23 @@ export function CelebrationOverlay(props: CelebrationOverlayProps): React.JSX.El
   return (
     <div className="celebration" role="dialog" aria-label={TEXTS.celebration.levelUp(level)}>
       <h2 className="accent celebration-title">{TEXTS.celebration.levelUp(level)}</h2>
-      <canvas
-        ref={registerStage}
-        className="pixel-canvas celebration-stage"
-        width={size.width}
-        height={size.height}
-        style={
-          {
-            aspectRatio: `${size.width} / ${size.height}`,
-            '--stage-ratio': size.width / size.height,
-          } as CSSProperties
-        }
-        role="img"
-        aria-label="Baile de celebración"
-      />
-      <p className="hint">{TEXTS.celebration.skip}</p>
+      {dance && (
+        <canvas
+          ref={registerStage}
+          className="pixel-canvas celebration-stage"
+          width={size.width}
+          height={size.height}
+          style={
+            {
+              aspectRatio: `${size.width} / ${size.height}`,
+              '--stage-ratio': size.width / size.height,
+            } as CSSProperties
+          }
+          role="img"
+          aria-label="Baile de celebración"
+        />
+      )}
+      {dance && <p className="hint">{TEXTS.celebration.skip}</p>}
     </div>
   );
 }
