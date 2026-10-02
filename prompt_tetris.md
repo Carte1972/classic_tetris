@@ -271,3 +271,18 @@ Tras probar la versión 1.0.0 (aún sin publicar), el autor pide mejorar los gr�
 ### Licencia
 - El repositorio **no lleva licencia** (todos los derechos reservados): se elimina `LICENSE` y `package.json` usa `"license": "UNLICENSED"`.
 
+
+## Cambios acordados — tercera iteración (2 de octubre de 2026)
+
+Estos cambios prevalecen sobre todo lo anterior.
+
+### Nombre
+- El juego se llama **ТЕТРИС** (en ruso; "Tetris" donde no se puede usar el alfabeto cirílico, como nombres de archivo y el paquete). Se levanta la prohibición de usar la marca por decisión del autor, que conoce el riesgo de que el titular pida retirar el repositorio público. Los textos del juego siguen en español.
+- Afecta al título de la pantalla de inicio, la pestaña del navegador, los lanzadores (`Tetris.command`, `tetris.sh`, `Tetris.bat`), el zip de la release (`tetris-vX.Y.Z.zip`), el `LEEME.txt`, el README y el nombre del paquete. El repositorio sigue siendo `classic_tetris`.
+
+### Zona de juego
+- El pozo, el marcador y la siguiente pieza son **opacos** (sin transparencia) y **más grandes**: se escalan con el tamaño de la ventana, a múltiplos enteros para que el pixel-art siga nítido, hasta ocupar casi todo el alto.
+
+### Plaza Roja
+- **Vista más alejada**, con el encuadre típico de la plaza (según la foto que aportó el autor): muralla del Kremlin y torre Spásskaya a la izquierda, catedral de San Basilio a la derecha, Museo Histórico y GUM al fondo, y la explanada en perspectiva con gente.
+- **Eventos típicos** que van rotando durante la partida (uno cada 2–3 minutos, alternando con la vida normal y combinados con los paseantes): desfile de la Victoria, Pascua ortodoxa, Navidad y Año Nuevo (mercadillo, pista de hielo, abeto y luces), fuegos artificiales, Maslenitsa y celebración de victorias olímpicas. Cada evento aparece a la hora y con el tiempo que le corresponden (por ejemplo, los fuegos y la procesión de Pascua de noche, la Navidad con nieve).
