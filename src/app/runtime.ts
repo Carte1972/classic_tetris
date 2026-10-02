@@ -87,7 +87,7 @@ export function createAppRuntime(): AppRuntime {
       });
       loop.start();
       if (options.testApi) {
-        window.__tetris = createTestApi(controller, scene);
+        window.__tetris = createTestApi(controller, scene, document.documentElement);
       }
       return () => {
         loop.stop();

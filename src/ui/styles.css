@@ -88,6 +88,11 @@ h2 {
   z-index: 1;
 }
 
+/* Solo en el modo test (setInterfaceHidden): deja ver la Plaza Roja sin la interfaz. */
+.interface-hidden .foreground {
+  visibility: hidden;
+}
+
 .screen {
   padding: 28px 40px;
   background: color-mix(in srgb, var(--color-panel) 72%, transparent);

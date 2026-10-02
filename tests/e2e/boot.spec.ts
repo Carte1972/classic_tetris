@@ -30,4 +30,18 @@ test.describe('arranque', () => {
     ]);
     await expect(page.getByText('SALIR')).toHaveCount(0);
   });
+
+  test('el modo test oculta la interfaz para ver solo la plaza, y la vuelve a mostrar', async ({
+    page,
+  }) => {
+    await openGame(page);
+    await tap(page, 'Space');
+    const menu = page.getByRole('menu');
+    await expect(menu).toBeVisible();
+    await page.evaluate(() => window.__tetris?.setInterfaceHidden(true));
+    await expect(menu).toBeHidden();
+    await expect(page.locator('canvas.background')).toBeVisible();
+    await page.evaluate(() => window.__tetris?.setInterfaceHidden(false));
+    await expect(menu).toBeVisible();
+  });
 });
