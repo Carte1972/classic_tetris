@@ -152,7 +152,7 @@ Estos cambios prevalecen sobre lo anterior:
 
 - **Nombre de los archivos:** `tetris_video_explicativo.mp4` en vez de `bloques_video_explicativo.mp4`.
 - **Sin subtítulos:** no se generan ni el `.srt` ni la versión con subtítulos incrustados. Los entregables son `tetris_video_explicativo.mp4` y `miniatura.png`. Los pasos de la verificación sobre subtítulos no aplican; la sincronía se comprueba entre narración e imagen.
-- **Aviso de marca:** «ТЕТРИС es un homenaje independiente; Tetris es una marca registrada de Tetris Holding, con licencia a The Tetris Company». La marca es de Tetris Holding (ver `video/fuentes.md`).
+- **Aviso del cierre:** «ТЕТРИС es un homenaje independiente.». Primero se corrigió la mención a la marca (es de Tetris Holding, ver `video/fuentes.md`); después, al revisar la primera versión, el autor pidió quitarla del vídeo.
 - **Año de creación:** 1984.
 - **Plaza limpia:** para mostrar la Plaza Roja sin interfaz, el modo test tendrá una opción que oculta los paneles, con sus tests y sin cambiar el juego normal.
 - **Grabación:** fotograma a fotograma avanzando el reloj simulado, en vez de `recordVideo`.
@@ -164,3 +164,4 @@ Estos cambios prevalecen sobre lo anterior:
 - **Miniatura:** sin ningún bailarín.
 - **Intermedios:** los fotogramas van a `video/tmp/`, ignorado por git.
 - **Guion aprobado:** `video/guion.md`, borrador 2.
+- **Revisión de la primera versión:** el autor pidió que la voz fuera a una sola velocidad (170) salvo «¡Tetris!», más lenta y más fuerte; cambiar «Y con la P… ¡pausa!» por «Y con la P, pausas el juego»; quitar los puntos suspensivos leídos en «más sorpresas»; cambiar la pregunta final por «¡Atrévete a superarlas!»; y acortar la escena de controles tras la pausa. Todo está recogido en el guion.

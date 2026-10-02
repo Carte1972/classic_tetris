@@ -8,6 +8,8 @@
 - **Frase 4.3:** ahora dice «Y con la P, pausas el juego» (antes «Y con la P… ¡pausa!»).
 - **Frase 6.3:** sin los puntos suspensivos iniciales, porque la voz los leía como «punto». Queda «Y hay más sorpresas por descubrir».
 - **Frase 6.4 dividida:** «¿Te atreves a superarlas?» pasa a ser **«¡Atrévete a superarlas!»** (frase 6.5). La voz no sube el tono al final de las preguntas: medido, baja entre un 20 y un 29 %, y las variantes con `[[pbas]]` tampoco convencieron al autor.
+- **Escena 4:** termina poco después de «pausas el juego», unos 10 s en total. Se quita el tramo sin narración que venía detrás.
+- **Cierre:** el aviso queda en «ТЕТРИС es un homenaje independiente.».
 - **«¡Tetris!» (2.3), la única excepción:** más lenta (120) y 5 dB más fuerte, para remarcar el nombre con efusividad. El autor eligió esta versión de oído entre cuatro candidatas.
 - **Pausas:** 0,2 s más de pausa entre frases.
 - **Duración:** la narración real dura unos 111 s y el vídeo, 2 min 18 s.
@@ -117,11 +119,11 @@ _Las grafías «Páshitnov» y «Guéim Boi» se probarán en la prueba de voz. 
 | **Rótulos**         | ТЕТРИС · github.com/Carte1972/classic_tetris · y el aviso de marca (ver la nota de abajo).              |
 | **Música y sonido** | Korobéiniki sube a −8 dB tras la frase y termina con un fundido de 2 s.                                 |
 
-**Aviso de marca (aprobado por el autor):**
+**Aviso final (decidido por el autor tras ver la primera versión):**
 
-> ТЕТРИС es un homenaje independiente; Tetris es una marca registrada de Tetris Holding, con licencia a The Tetris Company.
+> ТЕТРИС es un homenaje independiente.
 
-La especificación decía «de The Tetris Company», pero la marca es de Tetris Holding, que se la licencia a The Tetris Company (ver `fuentes.md`, punto 4). El README se corrige igual.
+Antes incluía la mención a la marca («Tetris es una marca registrada de Tetris Holding, con licencia a The Tetris Company»). El autor pidió quitarla del vídeo; el README la mantiene.
 
 ## Grabaciones necesarias
 

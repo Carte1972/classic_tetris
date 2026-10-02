@@ -172,8 +172,9 @@ function escenas() {
   const metaEn = f(3, '3.6', 'fin') - 0.2;
   const metaDesde = suceso('extracto_objetivo_nivel', 'lineClear') - (metaEn - objetivo);
 
-  // Escena 4: dura lo que la grabación de controles necesita para enseñar todas las teclas.
-  const d4 = 16.5;
+  // Escena 4: acaba poco después de la pausa, cuando termina la frase 4.3 (el autor
+  // pidió quitar el tramo sin narración que venía detrás).
+  const d4 = Math.max(f(4, '4.3', 'fin') + 0.6, suceso('extracto_controles', 'pausa') + 1.2);
 
   // Escena 5: tras la primera frase, los seis eventos.
   const eventos = ['desfile', 'pascua', 'navidad', 'fuegos', 'maslenitsa', 'olimpiadas'];
@@ -424,7 +425,8 @@ function musica(inicios, total) {
     .eventos.filter((e) => e.tipo === 'tecla' && e.detalle === 'KeyP')
     .map((e) => e.t);
   const pausaIni = at(4, pausa ?? 0);
-  const pausaFin = at(4, reanuda ?? 0);
+  // La música vuelve al reanudar el juego o, si la escena acaba antes, con la escena 5.
+  const pausaFin = Math.min(at(4, reanuda ?? 0), at(5, 0));
   const kalinkaEn = at(6, -0.6);
   const kalinkaFin = at(6, 5.0);
   const vueltaEn = at(6, 5.4);

@@ -297,7 +297,7 @@ function rotuloEvento(root: HTMLElement, text: string): Rotulo {
 }
 
 /**
- * Cierre: título, URL del repositorio y aviso de marca.
+ * Cierre: título, URL del repositorio y aviso de homenaje independiente.
  * @param root Contenedor.
  * @returns Rótulo.
  */
@@ -315,7 +315,7 @@ function rotuloCierre(root: HTMLElement): Rotulo {
   box.insertAdjacentHTML(
     'beforeend',
     '<div class="acento" style="font-size:44px;margin-top:40px;text-transform:none">github.com/Carte1972/classic_tetris</div>' +
-      '<div class="tenue" style="font-size:22px;margin-top:36px;text-transform:none;letter-spacing:0.04em">ТЕТРИС es un homenaje independiente; Tetris es una marca registrada<br/>de Tetris Holding, con licencia a The Tetris Company.</div>',
+      '<div class="tenue" style="font-size:30px;margin-top:36px;text-transform:none;letter-spacing:0.04em">ТЕТРИС es un homenaje independiente.</div>',
   );
   root.append(box);
   return { render: () => undefined };
