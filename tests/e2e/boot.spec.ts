@@ -15,7 +15,7 @@ test.describe('arranque', () => {
     page,
   }) => {
     await openGame(page);
-    await expect(page.getByRole('img', { name: 'BLOQUES' })).toBeVisible();
+    await expect(page.getByRole('img', { name: 'ТЕТРИС' })).toBeVisible();
     await expect(page.getByRole('menu')).toHaveCount(0);
     await tap(page, 'KeyQ');
     await expect(page.getByText('PULSA CUALQUIER TECLA')).toHaveCount(0);

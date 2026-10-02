@@ -12,9 +12,9 @@ test.describe('celebración al subir de nivel', () => {
     const overlay = page.getByRole('dialog', { name: '¡NIVEL 1!' });
     await expect(overlay).toBeVisible();
     await expect(overlay.getByRole('img', { name: 'Baile de celebración' })).toBeVisible();
-    const frozen = await page.evaluate(() => window.__bloques?.getGameState());
+    const frozen = await page.evaluate(() => window.__tetris?.getGameState());
     await page.waitForTimeout(1000);
-    expect(await page.evaluate(() => window.__bloques?.getGameState())).toEqual(frozen);
+    expect(await page.evaluate(() => window.__tetris?.getGameState())).toEqual(frozen);
     await expect(overlay).toHaveCount(0, { timeout: 15000 });
     await expectScreen(page, 'playing');
     await expect(page.getByTestId('hud-level')).toHaveText('1');

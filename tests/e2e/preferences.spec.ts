@@ -21,7 +21,7 @@ test('las preferencias persisten tras recargar la página', async ({ page }) => 
 
   // Recargar solo cuando el guardado haya llegado a localStorage (en WebKit es asíncrono).
   await expect
-    .poll(() => page.evaluate(() => localStorage.getItem('bloques.preferences')))
+    .poll(() => page.evaluate(() => localStorage.getItem('tetris.preferences')))
     .toMatch(/"startLevel":4.*"muted":true/);
   await page.reload();
   await expect(page.getByText('PULSA CUALQUIER TECLA')).toBeVisible();
@@ -29,7 +29,7 @@ test('las preferencias persisten tras recargar la página', async ({ page }) => 
   await expect(items.nth(1)).toHaveText(/NIVEL INICIAL\s*4/);
   await expect(items.nth(2)).toHaveText(/MÚSICA\s*DESACTIVADA/);
   await expect(items.nth(3)).toHaveText(/CELEBRACIONES\s*DESACTIVADAS/);
-  expect(await page.evaluate(() => window.__bloques?.getSnapshot().preferences.muted)).toBe(true);
+  expect(await page.evaluate(() => window.__tetris?.getSnapshot().preferences.muted)).toBe(true);
   await tap(page, 'Enter');
   await expect(page.getByTestId('hud-level')).toHaveText('4');
   await expect(page.getByText('SONIDO SILENCIADO (M)')).toBeVisible();

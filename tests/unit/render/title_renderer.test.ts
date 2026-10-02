@@ -5,9 +5,9 @@ import { drawTitle, getTitleCanvasSize } from '../../../src/render/title_rendere
 import { createFakeContext } from './fake_context';
 
 describe('title_renderer', () => {
-  it('el título BLOQUES mide 7 letras de 5 columnas más 6 separaciones', () => {
+  it('el título ТЕТРИС mide 6 letras de 5 columnas más 5 separaciones', () => {
     expect(getTitleCanvasSize()).toEqual({
-      width: (7 * 5 + 6) * CELL_SIZE_PX,
+      width: (6 * 5 + 5) * CELL_SIZE_PX,
       height: 5 * CELL_SIZE_PX,
     });
   });

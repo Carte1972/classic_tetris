@@ -1,22 +1,22 @@
-BLOQUES - juego de bloques clásico estilo NES
+ТЕТРИС - juego de bloques clásico estilo NES
 =============================================
 
 Para jugar solo necesitas un navegador moderno. No hace falta instalar nada.
 
 Cómo abrirlo (haz doble clic en el lanzador de tu sistema):
 
-  macOS    Bloques.command
+  macOS    Tetris.command
            La primera vez macOS puede bloquearlo por venir de internet ("no se
            puede abrir porque es de un desarrollador no identificado"). Haz clic
-           derecho sobre Bloques.command > Abrir > Abrir. También puedes quitar la
+           derecho sobre Tetris.command > Abrir > Abrir. También puedes quitar la
            marca de cuarentena desde Terminal:
-             xattr -d com.apple.quarantine Bloques.command
+             xattr -d com.apple.quarantine Tetris.command
 
-  Linux    bloques.sh
-           Si no se ejecuta, dale permiso de ejecución (chmod +x bloques.sh) o
+  Linux    tetris.sh
+           Si no se ejecuta, dale permiso de ejecución (chmod +x tetris.sh) o
            activa "Permitir ejecutar como programa" en sus propiedades.
 
-  Windows  Bloques.bat
+  Windows  Tetris.bat
            Si aparece SmartScreen ("Windows protegió su PC"), pulsa
            "Más información" > "Ejecutar de todas formas".
 

@@ -1,10 +1,10 @@
-# Bloques
+# ТЕТРИС
 
 [![CI](https://github.com/Carte1972/classic_tetris/actions/workflows/ci.yml/badge.svg)](https://github.com/Carte1972/classic_tetris/actions/workflows/ci.yml)
 
-![Partida de Bloques en movimiento: las piezas caen y se completan líneas en un pozo semitransparente, con la Plaza Roja de fondo y sus paseantes](docs/screenshots/partida_demo.gif)
+![Partida de ТЕТРИС en movimiento: las piezas caen y se completan líneas en un pozo semitransparente, con la Plaza Roja de fondo y sus paseantes](docs/screenshots/partida_demo.gif)
 
-**Bloques** es un juego de bloques que caen, fiel a las reglas del clásico de NES (1989), hecho con TypeScript, React y Canvas. Se juega en el navegador. Todo el juego cabe en un único archivo `index.html` que funciona abierto con doble clic, sin servidor ni conexión, y viene con lanzadores para macOS, Linux y Windows.
+**ТЕТРИС** (Tetris) es un juego de bloques que caen, fiel a las reglas del clásico de NES (1989), hecho con TypeScript, React y Canvas. Se juega en el navegador. Todo el juego cabe en un único archivo `index.html` que funciona abierto con doble clic, sin servidor ni conexión, y viene con lanzadores para macOS, Linux y Windows.
 
 Se juega delante de una **Plaza Roja viva** en pixel-art, con paseantes, palomas, ciclo de día y noche y tiempo cambiante. Cada nivel tiene un **objetivo de líneas**; al superarlo, uno de los 9 personajes sale a bailar la danza cosaca durante 10 segundos en su propio escenario ruso. Incluye música chiptune sintetizada en tiempo real, efectos de sonido, récords y preferencias guardadas.
 
@@ -25,7 +25,7 @@ Se juega delante de una **Plaza Roja viva** en pixel-art, con paseantes, palomas
 
 |                                                                                                                                                                                       |                                                                                                                                                                                           |
 | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-|               ![Pantalla de inicio con el título BLOQUES dibujado con bloques de colores y el menú principal sobre la Plaza Roja](docs/screenshots/pantalla_inicio.png)               |         ![Partida a media pila con una T cayendo, el marcador con el objetivo del nivel a la izquierda y la siguiente pieza a la derecha](docs/screenshots/partida_en_curso.png)          |
+|               ![Pantalla de inicio con el título ТЕТРИС dibujado con bloques de colores y el menú principal sobre la Plaza Roja](docs/screenshots/pantalla_inicio.png)                |         ![Partida a media pila con una T cayendo, el marcador con el objetivo del nivel a la izquierda y la siguiente pieza a la derecha](docs/screenshots/partida_en_curso.png)          |
 |                                                                          Pantalla de inicio: título y menú.                                                                           |                                                       Partida en curso: marcador con el objetivo del nivel, pozo y siguiente pieza.                                                       |
 |                   ![Limpieza de cuatro líneas: el fondo del pozo destella y las filas completas desaparecen desde el centro](docs/screenshots/limpieza_lineas.png)                    |                            ![Partida de noche con la Plaza Roja nevada, ventanas y farolas encendidas y copos cayendo](docs/screenshots/plaza_roja_noche.png)                             |
 |                                                                   Limpieza de 4 líneas a la vez: el pozo destella.                                                                    |                                                         De noche y nevando: la plaza cambia de hora y de tiempo mientras juegas.                                                          |
@@ -42,15 +42,15 @@ Las capturas se generan automáticamente con `npm run screenshots` (ver [Captura
 
 Para jugar solo necesitas un **navegador moderno** (Chrome, Edge, Firefox o Safari). No hay que instalar nada.
 
-1. Descarga `bloques-vX.Y.Z.zip` de la última versión en [Releases](https://github.com/Carte1972/classic_tetris/releases).
+1. Descarga `tetris-vX.Y.Z.zip` de la última versión en [Releases](https://github.com/Carte1972/classic_tetris/releases).
 2. Descomprímelo.
 3. Haz doble clic en el lanzador de tu sistema:
 
-| Sistema | Lanzador          | Si el sistema lo bloquea                                |
-| ------- | ----------------- | ------------------------------------------------------- |
-| macOS   | `Bloques.command` | Ver [Gatekeeper](#macos-gatekeeper)                     |
-| Linux   | `bloques.sh`      | Ver [permiso de ejecución](#linux-permiso-de-ejecución) |
-| Windows | `Bloques.bat`     | Ver [SmartScreen](#windows-smartscreen)                 |
+| Sistema | Lanzador         | Si el sistema lo bloquea                                |
+| ------- | ---------------- | ------------------------------------------------------- |
+| macOS   | `Tetris.command` | Ver [Gatekeeper](#macos-gatekeeper)                     |
+| Linux   | `tetris.sh`      | Ver [permiso de ejecución](#linux-permiso-de-ejecución) |
+| Windows | `Tetris.bat`     | Ver [SmartScreen](#windows-smartscreen)                 |
 
 También puedes abrir `index.html` directamente con el navegador.
 
@@ -64,11 +64,11 @@ Los lanzadores no están firmados digitalmente (firmarlos requiere certificados 
 
 Si aparece _"no se puede abrir porque es de un desarrollador no identificado"_:
 
-- Haz **clic derecho** (o Control + clic) sobre `Bloques.command` → **Abrir** → **Abrir**. Solo hace falta la primera vez.
+- Haz **clic derecho** (o Control + clic) sobre `Tetris.command` → **Abrir** → **Abrir**. Solo hace falta la primera vez.
 - O quita la marca de cuarentena desde Terminal, dentro de la carpeta del juego:
 
   ```bash
-  xattr -d com.apple.quarantine Bloques.command
+  xattr -d com.apple.quarantine Tetris.command
   ```
 
 Al ejecutarse se abre una ventana de Terminal que puedes cerrar en cuanto aparezca el juego en el navegador.
@@ -79,11 +79,11 @@ Si aparece _"Windows protegió su PC"_, pulsa **Más información** → **Ejecut
 
 #### Linux (permiso de ejecución)
 
-Si el gestor de archivos abre `bloques.sh` en un editor en vez de ejecutarlo:
+Si el gestor de archivos abre `tetris.sh` en un editor en vez de ejecutarlo:
 
 ```bash
-chmod +x bloques.sh
-./bloques.sh
+chmod +x tetris.sh
+./tetris.sh
 ```
 
 O activa _"Permitir ejecutar el archivo como un programa"_ en sus propiedades. El lanzador usa `xdg-open`, que viene en casi todas las distribuciones de escritorio.
@@ -117,7 +117,7 @@ El nivel inicial, la música, las celebraciones y el silencio (M) se guardan ent
 
 ## Reglas y puntuación
 
-Bloques parte de las reglas del juego clásico de NES, no de las versiones modernas, con un sistema de niveles por objetivos y una dificultad que crece en cada nivel:
+ТЕТРИС parte de las reglas del juego clásico de NES, no de las versiones modernas, con un sistema de niveles por objetivos y una dificultad que crece en cada nivel:
 
 - **Tablero** de 10 columnas × 20 filas visibles, más 2 filas ocultas encima. Las piezas aparecen en las dos primeras filas visibles; las ocultas dejan sitio para girarlas en vertical nada más aparecer.
 - **7 piezas**: I, O, T, S, Z, J, L.
@@ -210,7 +210,7 @@ npm ci
 | `npm test`              | Tests unitarios (Vitest)                                                                                      |
 | `npm run test:coverage` | Tests unitarios con cobertura; falla si el motor (`src/engine/`) baja del 90 %                                |
 | `npm run test:e2e`      | Tests end-to-end (Playwright) en Chromium y WebKit, contra el build de producción                             |
-| `npm run package`       | Genera `release/bloques-vX.Y.Z.zip` con el juego y los lanzadores (requiere `npm run build`)                  |
+| `npm run package`       | Genera `release/tetris-vX.Y.Z.zip` con el juego y los lanzadores (requiere `npm run build`)                   |
 | `npm run screenshots`   | Regenera las capturas y el GIF de `docs/screenshots/`                                                         |
 
 Antes de ejecutar los tests e2e o las capturas por primera vez, instala los navegadores de Playwright:
@@ -232,7 +232,7 @@ npx playwright test tests/e2e/menu.spec.ts --project=chromium
 Para los tests e2e y las capturas, el juego admite dos parámetros en la URL:
 
 - `?seed=123` fija la semilla del generador aleatorio y de la escena de fondo, así todas las partidas son reproducibles.
-- `?test=1` expone `window.__bloques`, que permite leer el estado y preparar situaciones como un tablero casi lleno, un nivel a punto de superarse, un fotograma concreto de la celebración o una hora y un tiempo concretos en la Plaza Roja.
+- `?test=1` expone `window.__tetris`, que permite leer el estado y preparar situaciones como un tablero casi lleno, un nivel a punto de superarse, un fotograma concreto de la celebración o una hora y un tiempo concretos en la Plaza Roja.
 
 Sin esos parámetros el juego funciona con normalidad.
 
@@ -244,16 +244,16 @@ Sin esos parámetros el juego funciona con normalidad.
 
 Como el juego es un único `index.html`, "compilar para cada sistema" se reduce a acompañarlo de un lanzador por sistema:
 
-- `launchers/Bloques.command` (macOS), `launchers/bloques.sh` (Linux) y `launchers/Bloques.bat` (Windows) abren el juego en el navegador predeterminado. Buscan `index.html` junto a ellos (en el zip de la release) o en `../dist/` (en el repositorio clonado, después de `npm run build`). Si no lo encuentran, explican qué hacer.
-- `npm run package` crea `release/bloques-vX.Y.Z.zip` con `index.html`, los tres lanzadores (con permiso de ejecución en macOS y Linux) y un `LEEME.txt`.
+- `launchers/Tetris.command` (macOS), `launchers/tetris.sh` (Linux) y `launchers/Tetris.bat` (Windows) abren el juego en el navegador predeterminado. Buscan `index.html` junto a ellos (en el zip de la release) o en `../dist/` (en el repositorio clonado, después de `npm run build`). Si no lo encuentran, explican qué hacer.
+- `npm run package` crea `release/tetris-vX.Y.Z.zip` con `index.html`, los tres lanzadores (con permiso de ejecución en macOS y Linux) y un `LEEME.txt`.
 
 Para jugar desde el repositorio clonado:
 
 ```bash
 npm run build
-./launchers/Bloques.command   # macOS (o doble clic en Finder)
-./launchers/bloques.sh        # Linux
-launchers\Bloques.bat         # Windows
+./launchers/Tetris.command   # macOS (o doble clic en Finder)
+./launchers/tetris.sh        # Linux
+launchers\Tetris.bat         # Windows
 ```
 
 ### Publicar una release
@@ -268,7 +268,7 @@ git tag v1.2.0
 git push origin v1.2.0
 ```
 
-En unos minutos la release aparece en [Releases](https://github.com/Carte1972/classic_tetris/releases) con `bloques-v1.2.0.zip`. No hace falta compilar en cada sistema operativo: el mismo zip sirve para los tres. El workflow de CI ([`ci.yml`](.github/workflows/ci.yml)) prueba los lanzadores en macOS, Ubuntu y Windows en cada push.
+En unos minutos la release aparece en [Releases](https://github.com/Carte1972/classic_tetris/releases) con `tetris-v1.2.0.zip`. No hace falta compilar en cada sistema operativo: el mismo zip sirve para los tres. El workflow de CI ([`ci.yml`](.github/workflows/ci.yml)) prueba los lanzadores en macOS, Ubuntu y Windows en cada push.
 
 ## Arquitectura
 
@@ -380,4 +380,4 @@ El CI ejecuta las mismas comprobaciones, los e2e y la prueba de los lanzadores e
 - **"Kalinka"**: canción popular rusa de 1860, de dominio público. El arreglo chiptune (bajo y rasgueos) es original de este proyecto. La melodía se transcribió de una versión en [notación ABC](https://abcnotation.com/tunePage?a=trillian.mit.edu%2F%7Ejc%2Fmusic%2Fabc%2FRussia%2FKalinka%2F0000).
 - Gráficos, personajes, escenarios, paleta de colores, efectos de sonido y código son originales del proyecto. Rasputín aparece como caricatura del personaje histórico. Los aros olímpicos y Misha, la mascota de los Juegos Olímpicos de Moscú 1980, aparecen como homenaje en el escenario del pabellón; sus titulares no están afiliados a este proyecto ni lo respaldan.
 
-Bloques es un homenaje independiente al juego de bloques clásico de NES. No está afiliado ni respaldado por los titulares de ninguna marca comercial.
+ТЕТРИС es un homenaje independiente, sin ánimo de lucro, al Tetris clásico de NES. «Tetris» es una marca registrada de The Tetris Company; este proyecto no está afiliado ni respaldado por ella ni por los titulares de ninguna otra marca comercial.

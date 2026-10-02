@@ -73,17 +73,17 @@ async function tap(page: Page, key: string): Promise<void> {
 
 /** Pantalla actual. */
 async function screen(page: Page): Promise<ScreenName | undefined> {
-  return page.evaluate(() => window.__bloques?.getSnapshot().screen);
+  return page.evaluate(() => window.__tetris?.getSnapshot().screen);
 }
 
 /** Estado del motor. */
 async function gameState(page: Page): Promise<GameState | null | undefined> {
-  return page.evaluate(() => window.__bloques?.getGameState());
+  return page.evaluate(() => window.__tetris?.getGameState());
 }
 
 /** Modifica la partida. */
 async function patchGame(page: Page, patch: TestGamePatch): Promise<void> {
-  await page.evaluate((changes) => window.__bloques?.patchGame(changes), patch);
+  await page.evaluate((changes) => window.__tetris?.patchGame(changes), patch);
 }
 
 /** Margen tras instalar el reloj simulado antes de pausarlo (ms). */
@@ -101,7 +101,7 @@ async function openGame(page: Page): Promise<void> {
   await page.clock.pauseAt(new Date(FIXED_TIME.getTime() + CLOCK_PAUSE_OFFSET_MS));
   // Cada test tiene un contexto nuevo, así que no hay datos guardados que borrar.
   await page.goto('/?seed=123&test=1');
-  await page.waitForFunction(() => window.__bloques !== undefined);
+  await page.waitForFunction(() => window.__tetris !== undefined);
   // El origen de `performance.now()` del documento varía ±1 ms entre ejecuciones;
   // alinearlo evita que la rejilla de frames (y con ella alguna captura) cambie.
   const offset = await page.evaluate(() => performance.now());
@@ -234,7 +234,7 @@ async function celebrateLevel(page: Page, level: number, atMs: number): Promise<
   for (let frame = 0; frame < 600 && (await screen(page)) !== 'celebrating'; frame++) {
     await runFrames(page, 1);
   }
-  await page.evaluate((ms) => window.__bloques?.freezeCelebration(ms), atMs);
+  await page.evaluate((ms) => window.__tetris?.freezeCelebration(ms), atMs);
   await runFrames(page, 2);
 }
 
@@ -251,7 +251,7 @@ test('celebracion_moscu_1980.png: el gigante en el pabellón olímpico', async (
 test('plaza_roja_noche.png: la Plaza Roja nevada de noche durante la partida', async ({ page }) => {
   await page.evaluate(
     (timeOfDay) =>
-      window.__bloques?.setScene({ timeOfDay, weather: 'snow', snowCover: 1, wetness: 0 }),
+      window.__tetris?.setScene({ timeOfDay, weather: 'snow', snowCover: 1, wetness: 0 }),
     NIGHT_TIME_OF_DAY,
   );
   await startGame(page, 2);

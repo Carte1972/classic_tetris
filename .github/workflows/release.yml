@@ -30,11 +30,11 @@ jobs:
       - run: npm run build
       - run: npm run package
       - name: Comprobar el paquete
-        run: unzip -t "release/bloques-${GITHUB_REF_NAME}.zip"
+        run: unzip -t "release/tetris-${GITHUB_REF_NAME}.zip"
       - name: Crear la GitHub Release con el paquete
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" "release/bloques-${GITHUB_REF_NAME}.zip" \
-            --title "Bloques $GITHUB_REF_NAME" \
+          gh release create "$GITHUB_REF_NAME" "release/tetris-${GITHUB_REF_NAME}.zip" \
+            --title "ТЕТРИС $GITHUB_REF_NAME" \
             --generate-notes

@@ -61,9 +61,9 @@ describe('createZip', () => {
   const script = new TextEncoder().encode('#!/bin/sh\necho hola\n');
   const zip = createZip(
     [
-      { name: 'bloques/', data: new Uint8Array(0), mode: 0o40755 },
-      { name: 'bloques/index.html', data: html, mode: 0o100644 },
-      { name: 'bloques/Bloques.command', data: script, mode: 0o100755 },
+      { name: 'tetris/', data: new Uint8Array(0), mode: 0o40755 },
+      { name: 'tetris/index.html', data: html, mode: 0o100644 },
+      { name: 'tetris/Tetris.command', data: script, mode: 0o100755 },
     ],
     new Date(2026, 9, 1, 12, 30),
   );
@@ -71,9 +71,9 @@ describe('createZip', () => {
 
   it('incluye todas las entradas con su nombre y tamaño', () => {
     expect(entries.map((e) => [e.name, e.size])).toEqual([
-      ['bloques/', 0],
-      ['bloques/index.html', html.length],
-      ['bloques/Bloques.command', script.length],
+      ['tetris/', 0],
+      ['tetris/index.html', html.length],
+      ['tetris/Tetris.command', script.length],
     ]);
   });
 

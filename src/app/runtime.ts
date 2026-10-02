@@ -87,14 +87,14 @@ export function createAppRuntime(): AppRuntime {
       });
       loop.start();
       if (options.testApi) {
-        window.__bloques = createTestApi(controller, scene);
+        window.__tetris = createTestApi(controller, scene);
       }
       return () => {
         loop.stop();
         detachKeyboard();
         window.removeEventListener('keydown', unlockAudio);
         audio.stopMusic();
-        delete window.__bloques;
+        delete window.__tetris;
       };
     },
   };

@@ -8,7 +8,7 @@ export interface BlockColors {
   readonly shine: string;
 }
 
-/** Paleta propia de Bloques: un color por pieza (no sigue la paleta oficial de ninguna versión). */
+/** Paleta propia del juego: un color por pieza (no sigue la paleta oficial de ninguna versión). */
 export const PIECE_COLORS: Readonly<Record<PieceType, BlockColors>> = {
   I: { fill: '#d94a5c', highlight: '#f07a88', shadow: '#8e2636', shine: '#ffe3e6' },
   O: { fill: '#9a6ad6', highlight: '#bd95ec', shadow: '#5d3a8f', shine: '#f1e6ff' },

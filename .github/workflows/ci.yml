@@ -56,7 +56,7 @@ jobs:
         os: [macos-latest, ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     env:
-      BLOQUES_LAUNCHER_DRY_RUN: '1'
+      TETRIS_LAUNCHER_DRY_RUN: '1'
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -69,15 +69,15 @@ jobs:
         if: runner.os != 'Windows'
         shell: bash
         run: |
-          launcher=launchers/bloques.sh
-          if [ "$RUNNER_OS" = "macOS" ]; then launcher=launchers/Bloques.command; fi
+          launcher=launchers/tetris.sh
+          if [ "$RUNNER_OS" = "macOS" ]; then launcher=launchers/Tetris.command; fi
           if "$launcher"; then echo "El lanzador debería fallar sin build"; exit 1; fi
       - name: Sin build, el lanzador avisa y falla (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           $PSNativeCommandUseErrorActionPreference = $false
-          & .\launchers\Bloques.bat
+          & .\launchers\Tetris.bat
           if ($LASTEXITCODE -ne 1) { throw "El lanzador debería fallar sin build" }
           $global:LASTEXITCODE = 0
 
@@ -88,14 +88,14 @@ jobs:
         if: runner.os != 'Windows'
         shell: bash
         run: |
-          launcher=bloques.sh
-          if [ "$RUNNER_OS" = "macOS" ]; then launcher=Bloques.command; fi
+          launcher=tetris.sh
+          if [ "$RUNNER_OS" = "macOS" ]; then launcher=Tetris.command; fi
           out=$("launchers/$launcher")
           echo "$out"
           [[ "$out" == "$PWD/dist/index.html" ]]
           mkdir -p "$RUNNER_TEMP/paquete"
-          unzip -q release/bloques-v*.zip -d "$RUNNER_TEMP/paquete"
-          game_dir=$(echo "$RUNNER_TEMP"/paquete/bloques-v*)
+          unzip -q release/tetris-v*.zip -d "$RUNNER_TEMP/paquete"
+          game_dir=$(echo "$RUNNER_TEMP"/paquete/tetris-v*)
           [ -x "$game_dir/$launcher" ]
           out=$("$game_dir/$launcher")
           echo "$out"
@@ -104,12 +104,12 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $out = (& .\launchers\Bloques.bat | Out-String).Trim()
+          $out = (& .\launchers\Tetris.bat | Out-String).Trim()
           Write-Output $out
           if ($out -ne (Resolve-Path dist\index.html).Path) { throw "Ruta inesperada: $out" }
-          $zip = Get-ChildItem release\bloques-v*.zip | Select-Object -First 1
+          $zip = Get-ChildItem release\tetris-v*.zip | Select-Object -First 1
           Expand-Archive $zip.FullName -DestinationPath "$env:RUNNER_TEMP\paquete"
           $dir = Get-ChildItem "$env:RUNNER_TEMP\paquete" -Directory | Select-Object -First 1
-          $out = (& "$($dir.FullName)\Bloques.bat" | Out-String).Trim()
+          $out = (& "$($dir.FullName)\Tetris.bat" | Out-String).Trim()
           Write-Output $out
           if ($out -ne (Join-Path $dir.FullName 'index.html')) { throw "Ruta inesperada: $out" }

@@ -1,7 +1,7 @@
 #!/bin/sh
-# Abre Bloques en el navegador predeterminado (Linux).
+# Abre Tetris en el navegador predeterminado (Linux).
 # Busca index.html junto a este archivo (zip de la release) o en ../dist (repositorio).
-# Con BLOQUES_LAUNCHER_DRY_RUN=1 solo muestra la ruta del juego, sin abrir el navegador.
+# Con TETRIS_LAUNCHER_DRY_RUN=1 solo muestra la ruta del juego, sin abrir el navegador.
 set -eu
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -18,7 +18,7 @@ if [ -z "$GAME" ]; then
   exit 1
 fi
 
-if [ "${BLOQUES_LAUNCHER_DRY_RUN:-}" = "1" ]; then
+if [ "${TETRIS_LAUNCHER_DRY_RUN:-}" = "1" ]; then
   echo "$GAME"
   exit 0
 fi

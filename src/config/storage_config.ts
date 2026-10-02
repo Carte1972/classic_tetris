@@ -1,8 +1,8 @@
 /** Clave de localStorage de las preferencias. */
-export const PREFERENCES_STORAGE_KEY = 'bloques.preferences';
+export const PREFERENCES_STORAGE_KEY = 'tetris.preferences';
 
 /** Clave de localStorage de los récords. */
-export const RECORDS_STORAGE_KEY = 'bloques.records';
+export const RECORDS_STORAGE_KEY = 'tetris.records';
 
 /** Número de récords que se guardan. */
 export const MAX_RECORDS = 10;

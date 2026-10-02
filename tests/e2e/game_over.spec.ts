@@ -11,7 +11,7 @@ test('una partida forzada hasta game over muestra la pantalla final y guarda el 
   await expect(dialog).toBeVisible();
   await expect(page.getByTestId('result-score')).toHaveText('4321');
   await expect(dialog.getByText('¡NUEVO RÉCORD!')).toBeAttached();
-  const stored = await page.evaluate(() => localStorage.getItem('bloques.records'));
+  const stored = await page.evaluate(() => localStorage.getItem('tetris.records'));
   expect(JSON.parse(stored ?? '[]')).toMatchObject([{ score: 4321, lines: 7 }]);
 
   await tap(page, 'Escape');

@@ -22,10 +22,10 @@ test.describe('partida', () => {
 
   test('el teclado mueve, rota y baja la pieza', async ({ page }) => {
     await startGame(page);
-    const before = await page.evaluate(() => window.__bloques?.getGameState()?.activePiece);
+    const before = await page.evaluate(() => window.__tetris?.getGameState()?.activePiece);
     await tap(page, 'ArrowLeft');
     await tap(page, 'ArrowUp');
-    const after = await page.evaluate(() => window.__bloques?.getGameState()?.activePiece);
+    const after = await page.evaluate(() => window.__tetris?.getGameState()?.activePiece);
     expect(after?.x).toBe((before?.x ?? 0) - 1);
     expect(after?.rotation).not.toBe(before?.rotation);
     await page.keyboard.down('ArrowDown');
@@ -36,11 +36,11 @@ test.describe('partida', () => {
 
   test('la semilla fija hace la partida reproducible', async ({ page }) => {
     await startGame(page);
-    const first = await page.evaluate(() => window.__bloques?.getGameState()?.activePiece?.type);
+    const first = await page.evaluate(() => window.__tetris?.getGameState()?.activePiece?.type);
     const next = (await snapshot(page)).hud?.nextPiece;
     await openGame(page);
     await startGame(page);
-    expect(await page.evaluate(() => window.__bloques?.getGameState()?.activePiece?.type)).toBe(
+    expect(await page.evaluate(() => window.__tetris?.getGameState()?.activePiece?.type)).toBe(
       first,
     );
     expect((await snapshot(page)).hud?.nextPiece).toBe(next);
@@ -50,9 +50,9 @@ test.describe('partida', () => {
     await startGame(page);
     await tap(page, 'KeyP');
     await expect(page.getByRole('dialog', { name: 'PAUSA' })).toBeVisible();
-    const paused = await page.evaluate(() => window.__bloques?.getGameState());
+    const paused = await page.evaluate(() => window.__tetris?.getGameState());
     await page.waitForTimeout(1200);
-    expect(await page.evaluate(() => window.__bloques?.getGameState())).toEqual(paused);
+    expect(await page.evaluate(() => window.__tetris?.getGameState())).toEqual(paused);
     await tap(page, 'KeyP');
     await expect(page.getByRole('dialog', { name: 'PAUSA' })).toHaveCount(0);
     await expectScreen(page, 'playing');

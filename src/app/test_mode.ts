@@ -7,7 +7,7 @@ import type { ActivePiece, Board, BoardRow, GameState, PieceType } from '../engi
 export interface TestOptions {
   /** Semilla fija del generador (`?seed=N`), o `null` para partidas aleatorias. */
   readonly seed: number | null;
-  /** Si se expone `window.__bloques` para preparar estados (`?test=1`). */
+  /** Si se expone `window.__tetris` para preparar estados (`?test=1`). */
   readonly testApi: boolean;
 }
 

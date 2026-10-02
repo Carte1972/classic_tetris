@@ -1,6 +1,6 @@
 /** Textos de la interfaz (en español). */
 export const TEXTS = {
-  title: 'BLOQUES',
+  title: 'ТЕТРИС',
   pressAnyKey: 'PULSA CUALQUIER TECLA',
   menu: {
     start: 'INICIAR JUEGO',

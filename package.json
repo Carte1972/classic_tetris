@@ -1,5 +1,5 @@
 {
-  "name": "bloques",
+  "name": "tetris",
   "private": true,
   "version": "1.0.0",
   "description": "Juego de bloques clásico estilo NES hecho con TypeScript y React, jugable en el navegador",

@@ -17,7 +17,7 @@ test('el index.html autocontenido funciona abierto desde file://', async ({ page
   await expect(page.getByTestId('hud-level')).toHaveText('1');
 
   await expect
-    .poll(() => page.evaluate(() => localStorage.getItem('bloques.preferences')))
+    .poll(() => page.evaluate(() => localStorage.getItem('tetris.preferences')))
     .toContain('"startLevel":1');
   await page.reload();
   await expect(page.getByText('PULSA CUALQUIER TECLA')).toBeVisible();

@@ -38,7 +38,7 @@ export async function openGame(page: Page, query = '?seed=123&test=1'): Promise<
 /** Estado de la interfaz expuesto por el modo test. */
 export async function snapshot(page: Page): Promise<AppSnapshot> {
   return page.evaluate(() => {
-    const api = window.__bloques;
+    const api = window.__tetris;
     if (api === undefined) {
       throw new Error('El modo test no está activo');
     }
@@ -53,7 +53,7 @@ export async function expectScreen(page: Page, screen: ScreenName): Promise<void
 
 /** Modifica la partida en curso con el modo test. */
 export async function patchGame(page: Page, patch: TestGamePatch): Promise<void> {
-  await page.evaluate((changes) => window.__bloques?.patchGame(changes), patch);
+  await page.evaluate((changes) => window.__tetris?.patchGame(changes), patch);
 }
 
 /** Desde la pantalla inicial, entra al menú y empieza una partida. */

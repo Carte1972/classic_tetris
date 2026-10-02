@@ -1,4 +1,4 @@
-// Genera release/bloques-v<versión>.zip con el juego (index.html autocontenido), los
+// Genera release/tetris-v<versión>.zip con el juego (index.html autocontenido), los
 // lanzadores de macOS, Linux y Windows y el LEEME. Requiere haber ejecutado `npm run build`.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createZip } from './zip.mjs';
@@ -10,7 +10,7 @@ const MODE_DIRECTORY = 0o40755;
 
 const root = new URL('../', import.meta.url);
 const { version } = JSON.parse(readFileSync(new URL('package.json', root), 'utf8'));
-const folder = `bloques-v${version}/`;
+const folder = `tetris-v${version}/`;
 const game = new URL('dist/index.html', root);
 
 if (!existsSync(game)) {
@@ -22,12 +22,12 @@ if (!existsSync(game)) {
 const files = [
   { from: game, name: 'index.html', mode: MODE_FILE },
   {
-    from: new URL('launchers/Bloques.command', root),
-    name: 'Bloques.command',
+    from: new URL('launchers/Tetris.command', root),
+    name: 'Tetris.command',
     mode: MODE_EXECUTABLE,
   },
-  { from: new URL('launchers/bloques.sh', root), name: 'bloques.sh', mode: MODE_EXECUTABLE },
-  { from: new URL('launchers/Bloques.bat', root), name: 'Bloques.bat', mode: MODE_FILE },
+  { from: new URL('launchers/tetris.sh', root), name: 'tetris.sh', mode: MODE_EXECUTABLE },
+  { from: new URL('launchers/Tetris.bat', root), name: 'Tetris.bat', mode: MODE_FILE },
   { from: new URL('launchers/LEEME.txt', root), name: 'LEEME.txt', mode: MODE_FILE },
 ];
 
@@ -45,6 +45,6 @@ const zip = createZip(
 
 const outputDir = new URL('release/', root);
 mkdirSync(outputDir, { recursive: true });
-const output = new URL(`bloques-v${version}.zip`, outputDir);
+const output = new URL(`tetris-v${version}.zip`, outputDir);
 writeFileSync(output, zip);
-process.stdout.write(`Paquete creado: release/bloques-v${version}.zip (${zip.length} bytes)\n`);
+process.stdout.write(`Paquete creado: release/tetris-v${version}.zip (${zip.length} bytes)\n`);
