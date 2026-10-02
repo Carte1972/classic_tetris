@@ -21,7 +21,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "screenshots": "playwright test -c playwright.screenshots.config.ts"
+    "screenshots": "playwright test -c playwright.screenshots.config.ts",
+    "video": "node video/scripts/video.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",

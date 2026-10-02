@@ -43,7 +43,7 @@ const TETRIS_BOARD = [
 const GOAL_BOARD = ['.......O..', 'LLLLOOJJJ.', 'SSZZOOJTT.'];
 
 /** Tablero casi lleno: la siguiente pieza ya no cabe. */
-const FULL_BOARD = Array.from({ length: 18 }, (_, i) =>
+const FULL_BOARD = Array.from({ length: 17 }, (_, i) =>
   i % 3 === 0 ? 'OOOO.OOOOO' : 'OOOOOOOOO.',
 );
 
@@ -244,18 +244,18 @@ test('extracto_limpieza_4_lineas: una I limpia 4 líneas a la vez', async ({ pag
 
 test('extracto_fin_partida: la pila llega arriba y se acaba la partida', async ({ page }) => {
   await openRecording(page);
-  await startGame(page, 4);
+  await startGame(page, 0);
   await patchGame(page, {
     boardRows: FULL_BOARD,
-    activePiece: { type: 'O', rotation: 0, x: 4, y: 2 },
-    score: 27_380,
-    lines: 77,
-    level: 4,
+    activePiece: { type: 'O', rotation: 0, x: 4, y: 0 },
+    score: 2_840,
+    lines: 7,
+    level: 0,
     levelLines: 7,
-    levelGoal: 18,
+    levelGoal: 10,
   });
   const recorder = new Recorder(page, 'extracto_fin_partida');
-  await recorder.record(7);
+  await recorder.record(8);
   recorder.finish();
 });
 
@@ -283,12 +283,12 @@ test('extracto_objetivo_nivel: se cumple el objetivo y empieza el nivel 2 vacío
   });
   const recorder = new Recorder(page, 'extracto_objetivo_nivel');
   const player = new AutoPlayer(page, recorder);
-  // La I cae sola por la última columna y, a los 3,5 s, baja de golpe: completa las dos
+  // La I cae sola por la última columna y, a los 6 s, baja de golpe: completa las dos
   // filas (8 / 10 → 10 / 10). Ya en el nivel 2, juega el jugador automático.
   let dropped = false;
   let released = false;
-  await recorder.record(16, async () => {
-    if (!dropped && recorder.seconds >= 3.5) {
+  await recorder.record(18, async () => {
+    if (!dropped && recorder.seconds >= 6) {
       dropped = true;
       await recorder.key('ArrowDown', 'down');
       return;
@@ -405,7 +405,7 @@ test('extracto_records: pantalla RÉCORDS con un top 10 de ejemplo', async ({ pa
   await tap(page, 'ArrowUp');
   await tap(page, 'Enter');
   const recorder = new Recorder(page, 'extracto_records');
-  await recorder.record(8);
+  await recorder.record(12);
   recorder.finish();
 });
 

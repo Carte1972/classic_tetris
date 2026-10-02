@@ -176,6 +176,27 @@ export class AutoPlayer {
   }
 }
 
+/**
+ * Las animaciones CSS (parpadeo de PAUSA, rótulo de nivel) siguen el reloj real del
+ * navegador, no el simulado. Esta función las pausa y las coloca en el instante que les
+ * toca según el reloj simulado, contando desde que aparecieron.
+ * @param page Página.
+ */
+async function syncCssAnimations(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    const now = performance.now();
+    const holder = window as unknown as { __animationStarts?: WeakMap<Animation, number> };
+    holder.__animationStarts ??= new WeakMap();
+    const starts = holder.__animationStarts;
+    for (const animation of document.getAnimations()) {
+      const start = starts.get(animation) ?? now;
+      starts.set(animation, start);
+      animation.pause();
+      animation.currentTime = now - start;
+    }
+  });
+}
+
 /** Algo que ocurre en un extracto, con su instante (s desde el principio del extracto). */
 export interface ClipEvent {
   readonly t: number;
@@ -304,16 +325,12 @@ export class Recorder {
 
   /**
    * Captura el fotograma actual (a la resolución del dispositivo) y avanza el reloj
-   * 1/30 s, alternando 33 y 34 ms para que la suma sea exacta. Las animaciones CSS se
-   * fijan en su estado final.
+   * 1/30 s, alternando 33 y 34 ms para que la suma sea exacta.
    */
   async capture(): Promise<void> {
     await this.observe();
-    const png = await this.page.screenshot({
-      type: 'png',
-      animations: 'disabled',
-      scale: 'device',
-    });
+    await syncCssAnimations(this.page);
+    const png = await this.page.screenshot({ type: 'png', scale: 'device' });
     writeBytes(`${this.framesDir}frame_${String(this.frame).padStart(5, '0')}.png`, png);
     const from = Math.round((this.frame * 1000) / FPS);
     this.frame++;
