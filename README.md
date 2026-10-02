@@ -19,7 +19,7 @@ Incluye música chiptune sintetizada en tiempo real, efectos de sonido, récords
 - [Arquitectura](#arquitectura)
 - [Estructura de carpetas](#estructura-de-carpetas)
 - [Contribuir](#contribuir)
-- [Licencia y créditos](#licencia-y-créditos)
+- [Créditos](#créditos)
 
 ## Capturas de pantalla
 
@@ -341,9 +341,9 @@ flowchart LR
 
 El CI ejecuta las mismas comprobaciones, los e2e y la prueba de los lanzadores en cada push y pull request.
 
-## Licencia y créditos
+## Créditos
 
-Bloques se distribuye bajo la [licencia MIT](LICENSE). © 2026 Carte1972.
+© 2026 Carte1972. Todos los derechos reservados.
 
 - **"Korobeiniki"**: melodía tradicional rusa del siglo XIX, de dominio público. El arreglo chiptune (segunda voz y bajo) es original de este proyecto.
 - **"Kalinka"**: canción popular rusa de 1860, de dominio público. El arreglo chiptune (bajo y rasgueos) es original de este proyecto. La melodía se transcribió de una versión en [notación ABC](https://abcnotation.com/tunePage?a=trillian.mit.edu%2F%7Ejc%2Fmusic%2Fabc%2FRussia%2FKalinka%2F0000).

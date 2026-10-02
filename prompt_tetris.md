@@ -240,6 +240,34 @@ Decisiones tomadas con el autor antes de empezar el desarrollo (1 de octubre de 
 
 ### Repositorio y licencia
 - **Repositorio:** `classic_tetris` (público), en la cuenta Carte1972, con la descripción "Juego de bloques clásico estilo NES hecho con TypeScript y React, jugable en el navegador".
-- **Licencia MIT** a nombre de Carte1972.
+- ~~Licencia MIT a nombre de Carte1972.~~ Sustituido en la segunda iteración: sin licencia (ver abajo).
 - **Commits:** Conventional Commits con el tipo en inglés y la descripción en español (p. ej. `feat(engine): añade detección de colisiones`).
 - `prompt_tetris.md` se sube al repositorio; `CLAUDE.md` no (está en `.gitignore`).
+
+## Cambios acordados — segunda iteración (2 de octubre de 2026)
+
+Tras probar la versión 1.0.0 (aún sin publicar), el autor pide mejorar los gráficos y cambiar el sistema de niveles. Estos cambios prevalecen sobre todo lo anterior.
+
+### Niveles por objetivo de líneas
+- Cada nivel tiene un objetivo de líneas: 10 en el primer nivel de la partida y 2 más en cada nivel siguiente (10, 12, 14…). El marcador muestra el progreso del nivel (p. ej. "7 / 12") además de las líneas totales.
+- Al alcanzar el objetivo, la partida se detiene, se muestra la celebración (o, si están desactivadas, un rótulo "¡NIVEL N!" de 2 s) y el nivel siguiente empieza con el **tablero vacío** y más velocidad (tabla de gravedad de NES). Las líneas que sobrepasan el objetivo no se acumulan.
+- Sustituye a "subir de nivel cada 10 líneas" y a `nivel = max(nivel_inicial, floor(líneas / 10))`. El menú mantiene el nivel inicial (0–9). No hay final: se juega hasta perder.
+
+### Más dificultad en la llegada de bloques
+- **Piezas más difíciles**: sorteo ponderado por nivel. Peso de S y Z: 1 + 0,05 × nivel (máximo 2); peso de I: 1 − 0,025 × nivel (mínimo 0,5); el resto, 1. En el nivel 10 una S o una Z sale el doble que una I. Se mantiene la regla clásica de repetir el sorteo una vez si sale la misma pieza que la anterior (sustituye al generador de 8 caras de NES).
+- **Menos ayudas**: el retardo de entrada (ARE) baja 1 frame por nivel, con un mínimo de 4; desde el nivel 15 no se muestra la siguiente pieza.
+
+### Fondo: la Plaza Roja viva
+- Escena pixel-art a pantalla completa detrás del juego: catedral de San Basilio, torre Spásskaya con reloj, muralla del Kremlin, almacenes GUM y Museo Histórico.
+- Con vida para distraer al jugador: paseantes de varios tipos, palomas, nubes; ciclo de día (amanecer, día, atardecer, noche con ventanas encendidas, farolas y estrellas; una vuelta cada 3 minutos) y tiempo cambiante (despejado, nublado, lluvia, nieve) aproximadamente cada minuto.
+- El pozo y los paneles llevan fondo semiopaco para que el juego se lea bien.
+
+### Celebraciones nuevas
+- **Estilo**: pixel-art de alta resolución (figuras unas 3 veces más grandes), con contorno y sombreado; animación fluida mediante un esqueleto animado por código que se pinta en píxeles. Sustituye a "matrices de píxeles con 6 fotogramas por movimiento" (el resultado sigue siendo pixel-art definido por código, sin imágenes externas).
+- **Duración**: unos 10 segundos, con entrada, prisiadka con patadas alternas, giro, salto abierto tocándose las puntas de los pies, segunda tanda de patadas y reverencia final. Kalinka suena con estribillo y estrofa.
+- **9 bailarines** en rotación (`(nivel completado − 1) % 9`), cada uno con su escenario ruso reconocible: cosaco (estepa con isbas), matrioska (taller de artesanía), oso (taiga con abedules), babushka (cocina con samovar), cosmonauta (rampa de lanzamiento con cohete), gran maestro (salón de columnas con tablero gigante), gigante del baloncesto (pabellón de los Juegos Olímpicos de Moscú 1980, con los aros olímpicos y Misha), bailarina (escenario del Bolshói) y **Rasputín** (caricatura, en un salón del Kremlin).
+- Se levanta la prohibición de personas reales y personajes con copyright para Rasputín, los aros olímpicos y Misha, por decisión del autor.
+
+### Licencia
+- El repositorio **no lleva licencia** (todos los derechos reservados): se elimina `LICENSE` y `package.json` usa `"license": "UNLICENSED"`.
+

@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "description": "Juego de bloques clásico estilo NES hecho con TypeScript y React, jugable en el navegador",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "author": "Carte1972",
   "type": "module",
   "engines": {
