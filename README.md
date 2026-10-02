@@ -303,6 +303,10 @@ En unos minutos la release aparece en [Releases](https://github.com/Carte1972/cl
 
 ## Vídeo explicativo
 
+[![Miniatura del vídeo explicativo: el título ТЕТРИС sobre la Plaza Roja, con un pozo con piezas](docs/video/miniatura.png)](docs/video/tetris_video_explicativo.mp4)
+
+**[Ver el vídeo explicativo](docs/video/tetris_video_explicativo.mp4)** (2 min 11 s; también se puede descargar desde la [release v1.0.0](https://github.com/Carte1972/classic_tetris/releases/tag/v1.0.0)).
+
 El proyecto incluye un vídeo explicativo de unos 2 minutos, narrado en español, para quien nunca ha jugado. Cuenta de dónde viene el juego, cómo se juega, los controles, la Plaza Roja y sus eventos, las celebraciones y los récords. Todo lo que se ve son grabaciones reales del juego y rótulos con su misma estética.
 
 Se regenera desde cero con un solo comando:
@@ -324,7 +328,7 @@ Cómo se hace:
 4. **Rótulos** (`video/rotulos/`): páginas HTML que reutilizan los bloques y el título del juego, capturadas con fondo transparente.
 5. **Montaje** (`video/scripts/montaje.mjs`): ffmpeg une las escenas, baja la música bajo la voz y normaliza el volumen. Los tiempos se calculan a partir de la duración real de cada frase.
 
-El guion está en `video/guion.md`, los datos históricos con sus fuentes en `video/fuentes.md` y el informe de verificación en `video/informe_video.md`. Los vídeos, audios y grabaciones generados no se suben al repositorio.
+El guion está en `video/guion.md`, los datos históricos con sus fuentes en `video/fuentes.md` y el informe de verificación en `video/informe_video.md`. La versión publicada del vídeo y su miniatura están en `docs/video/`; si se regenera, hay que copiar ahí los archivos nuevos de `video/salida/`. Los audios, las grabaciones y los archivos intermedios no se suben al repositorio.
 
 ## Arquitectura
 
@@ -394,6 +398,7 @@ flowchart LR
 ├── launchers/                 Lanzadores para macOS, Linux y Windows, y el LEEME del zip
 ├── scripts/                   Empaquetado del zip de la release (sin dependencias)
 ├── docs/screenshots/          Capturas generadas para este README
+├── docs/video/                Vídeo explicativo publicado y su miniatura
 ├── video/                     Vídeo explicativo: guion, fuentes, narración, grabaciones, rótulos y montaje
 ├── .github/workflows/         CI (comprobaciones, e2e, lanzadores) y release
 ├── prompt_tetris.md           Especificación original del proyecto y cambios acordados

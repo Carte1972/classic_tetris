@@ -163,5 +163,6 @@ Estos cambios prevalecen sobre lo anterior:
 - **Récords de ejemplo:** se cargan en `localStorage` antes de abrir el juego.
 - **Miniatura:** sin ningún bailarín.
 - **Intermedios:** los fotogramas van a `video/tmp/`, ignorado por git.
+- **Vídeo en el repositorio:** a petición del autor, el vídeo final y su miniatura se suben a `docs/video/` (y se adjuntan a la release v1.0.0). Lo generado durante el proceso (`video/audio/`, `video/extractos/`, `video/salida/`, `video/tmp/`) sigue fuera del repositorio.
 - **Guion aprobado:** `video/guion.md`, borrador 2.
 - **Revisión de la primera versión:** el autor pidió que la voz fuera a una sola velocidad (170) salvo «¡Tetris!», más lenta y más fuerte; cambiar «Y con la P… ¡pausa!» por «Y con la P, pausas el juego»; quitar los puntos suspensivos leídos en «más sorpresas»; cambiar la pregunta final por «¡Atrévete a superarlas!»; y acortar la escena de controles tras la pausa. Todo está recogido en el guion.
