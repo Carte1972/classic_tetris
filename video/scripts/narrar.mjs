@@ -70,7 +70,7 @@ function narrarFrase(frase) {
   const bruto = new URL(`${nombre}.aiff`, clipsDir);
   const tratado = new URL(`${nombre}.wav`, clipsDir);
   // Nunca `-v`: la voz es la del sistema (Voz 1 de Siri).
-  run('say', ['-r', String(VELOCIDAD), '-o', bruto.pathname, frase.texto]);
+  run('say', ['-r', String(frase.velocidad ?? VELOCIDAD), '-o', bruto.pathname, frase.texto]);
   if (duration(bruto) < 0.3) {
     throw new Error(`La frase ${frase.id} ha salido vacía`);
   }
@@ -81,7 +81,7 @@ function narrarFrase(frase) {
     '-i',
     bruto.pathname,
     '-af',
-    VOICE_FILTER,
+    frase.ganancia === undefined ? VOICE_FILTER : `${VOICE_FILTER},volume=${frase.ganancia}dB`,
     '-ac',
     '1',
     tratado.pathname,

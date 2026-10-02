@@ -13,6 +13,9 @@ export const VELOCIDAD = 170;
  * @typedef {object} Frase
  * @property {string} id Número de la frase en el guion (por ejemplo, "3.4").
  * @property {string} texto Texto exacto para la síntesis de voz.
+ * @property {number} [velocidad] Velocidad propia (palabras por minuto), solo si se aparta
+ *   de la general.
+ * @property {number} [ganancia] Volumen extra de la frase (dB), para remarcarla.
  * @property {number} pausaMs Silencio después de la frase dentro de la escena (ms).
  */
 
@@ -37,7 +40,14 @@ export const NARRACION = [
         texto: 'En la Academia de Ciencias, Alexéi Páshitnov crea un juego de bloques que caen...',
         pausaMs: 250,
       },
-      { id: '2.3', texto: '¡Tetris!', pausaMs: 900 },
+      {
+        id: '2.3',
+        texto: '¡Tetris!',
+        // Más lenta y más fuerte para remarcar el nombre (elegida por el autor de oído).
+        velocidad: 120,
+        ganancia: 5,
+        pausaMs: 900,
+      },
       {
         id: '2.4',
         texto:

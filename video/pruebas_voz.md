@@ -42,3 +42,24 @@ El autor escuchó `narracion_03.aiff` y pidió que, entre frases, hubiera algo m
 ## Velocidad única
 
 Tras ver la primera versión montada, el autor pidió que todas las frases fueran a la misma velocidad, la de la primera frase del vídeo, porque las distintas velocidades rompían la continuidad. Todas se generan ahora con `say -r 170` (`VELOCIDAD` en `video/narracion.mjs`). El montaje recalcula sus puntos de sincronía a partir de los tiempos reales de cada frase.
+
+## «¡Tetris!» con más énfasis
+
+El autor pidió que «¡Tetris!» (frase 2.3) sonara más lenta y mucho más efusiva. Pruebas con esa palabra:
+
+| Variante                            | Resultado                                        |
+| ----------------------------------- | ------------------------------------------------ |
+| `[[pmod 80]]` (modulación del tono) | No tiene efecto (audio idéntico).                |
+| `[[volm 0.5]]` (volumen)            | No tiene efecto (audio idéntico).                |
+| `[[pbas 70]]` (tono base)           | Cambia el audio (tono más alto).                 |
+| «¡¡Tetris!!» frente a «¡Tetris...!» | Mismo audio: la puntuación extra no cambia nada. |
+| «¡Teeetris!» (vocal alargada)       | Cambia la entonación y alarga la palabra.        |
+
+Se generaron cuatro candidatas en contexto (precedidas de la frase 2.2):
+
+1. `-r 120` y +5 dB;
+2. igual con `[[pbas 70]]`;
+3. «¡Teeetris!» a `-r 110` y +5 dB;
+4. «¡Teeetris!» con `[[pbas 70]]` a `-r 115` y +5 dB.
+
+El autor eligió **la 1**. Está en `video/narracion.mjs` con `velocidad: 120` y `ganancia: 5` en la frase 2.3; el resto del vídeo sigue a 170.

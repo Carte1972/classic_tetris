@@ -5,6 +5,7 @@
 **Cambios tras la primera versión montada (pedidos por el autor):**
 
 - **Velocidad única:** todas las frases van a la misma velocidad, 170 palabras por minuto, la de la primera frase, para que la voz suene continua. Se mantienen los tonos de cada frase; las velocidades de las tablas pasan a ser todas 170.
+- **«¡Tetris!» (2.3), la única excepción:** más lenta (120) y 5 dB más fuerte, para remarcar el nombre con efusividad. El autor eligió esta versión de oído entre cuatro candidatas.
 - **Pausas:** 0,2 s más de pausa entre frases.
 - **Duración:** la narración real dura unos 111 s y el vídeo, 2 min 18 s.
 
@@ -32,7 +33,7 @@
 
 **Cómo leer las tablas**
 
-- **Narración** es el texto exacto que leerá la voz, con grafías pensadas para la síntesis (por eso aparecen palabras como «Páshitnov», «Guéim Boi», «zeta» o «pe»). Entre corchetes van el tono y la velocidad de `say -r` (palabras por minuto), que es 170 en todas las frases.
+- **Narración** es el texto exacto que leerá la voz, con grafías pensadas para la síntesis (por eso aparecen palabras como «Páshitnov», «Guéim Boi», «zeta» o «pe»). Entre corchetes van el tono y la velocidad de `say -r` (palabras por minuto), que es 170 en todas las frases salvo «¡Tetris!» (120).
 - **Pausas:** las pausas entre frases las controla el montaje, porque cada frase es un clip independiente.
 - **Volúmenes** (respecto a la voz, 0 dB):
   - música bajo la voz: −20 dB (ducking);
@@ -58,7 +59,7 @@
 | --- | ---------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ----------------------- | --------------------------------------------------- |
 | 2.1 | _[intriga · −r 170]_ Moscú... mil novecientos ochenta y cuatro.                                                        | Plaza limpia al amanecer; la luz sube poco a poco (`extracto_plaza_dia_noche`, primer tramo). | «MOSCÚ · 1984»          | Korobéiniki baja a −20 dB al empezar la voz.        |
 | 2.2 | _[intriga · −r 170]_ En la Academia de Ciencias, Alexéi Páshitnov crea un juego de bloques que caen...                 | Sigue la plaza amaneciendo; se encienden las nubes y el sol.                                  | —                       | Igual.                                              |
-| 2.3 | _[energía · −r 170]_ ¡Tetris!                                                                                          | Corte a una partida en curso con la interfaz (`extracto_partida_en_curso`, 2 s).              | —                       | La música sube a −8 dB durante 1 s tras la palabra. |
+| 2.3 | _[mucha energía · −r 120 · +5 dB]_ ¡Tetris!                                                                            | Corte a una partida en curso con la interfaz (`extracto_partida_en_curso`, 2 s).              | —                       | La música sube a −8 dB durante 1 s tras la palabra. |
 | 2.4 | _[narrativo · −r 170]_ En mil novecientos ochenta y nueve, las versiones de Guéim Boi y Nes lo llevan a todo el mundo. | Plaza limpia de día con mucha gente paseando.                                                 | «1989 · GAME BOY Y NES» | −20 dB bajo la voz.                                 |
 | 2.5 | _[cálido · −r 170]_ Por eso este Tetris se juega en su casa: ¡la Plaza Roja de Moscú!                                  | Plaza limpia al atardecer, con la Spásskaya y San Basilio iluminados.                         | —                       | La música sube a −8 dB al acabar la frase.          |
 
