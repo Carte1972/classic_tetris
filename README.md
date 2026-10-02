@@ -17,6 +17,7 @@ Se juega delante de una **Plaza Roja viva** en pixel-art, vista desde San Basili
 - [La Plaza Roja](#la-plaza-roja)
 - [Desarrollo](#desarrollo)
 - [Lanzadores y publicación de una release](#lanzadores-y-publicación-de-una-release)
+- [Vídeo explicativo](#vídeo-explicativo)
 - [Arquitectura](#arquitectura)
 - [Estructura de carpetas](#estructura-de-carpetas)
 - [Contribuir](#contribuir)
@@ -240,6 +241,7 @@ npm ci
 | `npm run test:e2e`      | Tests end-to-end (Playwright) en Chromium y WebKit, contra el build de producción                             |
 | `npm run package`       | Genera `release/tetris-vX.Y.Z.zip` con el juego y los lanzadores (requiere `npm run build`)                   |
 | `npm run screenshots`   | Regenera las capturas y el GIF de `docs/screenshots/`                                                         |
+| `npm run video`         | Regenera desde cero el vídeo explicativo (ver [Vídeo explicativo](#vídeo-explicativo))                        |
 
 Antes de ejecutar los tests e2e o las capturas por primera vez, instala los navegadores de Playwright:
 
@@ -260,7 +262,7 @@ npx playwright test tests/e2e/menu.spec.ts --project=chromium
 Para los tests e2e y las capturas, el juego admite dos parámetros en la URL:
 
 - `?seed=123` fija la semilla del generador aleatorio y de la escena de fondo, así todas las partidas son reproducibles.
-- `?test=1` expone `window.__tetris`, que permite leer el estado y preparar situaciones como un tablero casi lleno, un nivel a punto de superarse, un fotograma concreto de la celebración, o una hora, un tiempo y un evento concretos en la Plaza Roja.
+- `?test=1` expone `window.__tetris`, que permite leer el estado y preparar situaciones como un tablero casi lleno, un nivel a punto de superarse, un fotograma concreto de la celebración, o una hora, un tiempo y un evento concretos en la Plaza Roja. También puede ocultar la interfaz para ver solo la plaza (lo usa el vídeo explicativo).
 
 Sin esos parámetros el juego funciona con normalidad.
 
@@ -297,6 +299,31 @@ git push origin v1.2.0
 ```
 
 En unos minutos la release aparece en [Releases](https://github.com/Carte1972/classic_tetris/releases) con `tetris-v1.2.0.zip`. No hace falta compilar en cada sistema operativo: el mismo zip sirve para los tres. El workflow de CI ([`ci.yml`](.github/workflows/ci.yml)) prueba los lanzadores en macOS, Ubuntu y Windows en cada push.
+
+## Vídeo explicativo
+
+El proyecto incluye un vídeo explicativo de unos 2 minutos, narrado en español, para quien nunca ha jugado. Cuenta de dónde viene el juego, cómo se juega, los controles, la Plaza Roja y sus eventos, las celebraciones y los récords. Todo lo que se ve son grabaciones reales del juego y rótulos con su misma estética.
+
+Se regenera desde cero con un solo comando:
+
+```bash
+npm run video
+```
+
+Requisitos: **macOS** (la narración usa `say` con la voz del sistema; se grabó con la Voz 1 de Siri), **ffmpeg** (`brew install ffmpeg`) y Chromium de Playwright (`npx playwright install chromium`). Tarda unos 10 minutos y deja el resultado en `video/salida/`:
+
+- `tetris_video_explicativo.mp4` (1920 × 1080, 30 fps, H.264 y AAC, a −16 LUFS);
+- `miniatura.png` (1280 × 720).
+
+Cómo se hace:
+
+1. **Narración** (`video/scripts/narrar.mjs`): cada frase del guion (`video/narracion.mjs`) se genera con `say` como un clip independiente, con un tratamiento ligero de voz.
+2. **Música y efectos** (`video/scripts/audio.spec.ts`): se renderizan con `OfflineAudioContext` usando el mismo código de `src/audio/` que suena al jugar.
+3. **Grabaciones** (`video/scripts/grabaciones.spec.ts`): se graban fotograma a fotograma contra el build de producción, con el modo test, la semilla fija y el reloj simulado, así que son reproducibles. Cada grabación guarda en un JSON lo que ocurre en el juego (líneas, fin de partida, teclas…) para colocar los efectos y sincronizar la voz.
+4. **Rótulos** (`video/rotulos/`): páginas HTML que reutilizan los bloques y el título del juego, capturadas con fondo transparente.
+5. **Montaje** (`video/scripts/montaje.mjs`): ffmpeg une las escenas, baja la música bajo la voz y normaliza el volumen. Los tiempos se calculan a partir de la duración real de cada frase.
+
+El guion está en `video/guion.md`, los datos históricos con sus fuentes en `video/fuentes.md` y el informe de verificación en `video/informe_video.md`. Los vídeos, audios y grabaciones generados no se suben al repositorio.
 
 ## Arquitectura
 
@@ -366,8 +393,10 @@ flowchart LR
 ├── launchers/                 Lanzadores para macOS, Linux y Windows, y el LEEME del zip
 ├── scripts/                   Empaquetado del zip de la release (sin dependencias)
 ├── docs/screenshots/          Capturas generadas para este README
+├── video/                     Vídeo explicativo: guion, fuentes, narración, grabaciones, rótulos y montaje
 ├── .github/workflows/         CI (comprobaciones, e2e, lanzadores) y release
-└── prompt_tetris.md           Especificación original del proyecto y cambios acordados
+├── prompt_tetris.md           Especificación original del proyecto y cambios acordados
+└── prompt_video.md            Especificación del vídeo explicativo y cambios acordados
 ```
 
 ## Contribuir
