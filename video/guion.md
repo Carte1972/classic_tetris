@@ -7,6 +7,7 @@
 - **Velocidad única:** todas las frases van a la misma velocidad, 170 palabras por minuto, la de la primera frase, para que la voz suene continua. Se mantienen los tonos de cada frase; las velocidades de las tablas pasan a ser todas 170.
 - **Frase 4.3:** ahora dice «Y con la P, pausas el juego» (antes «Y con la P… ¡pausa!»).
 - **Frase 6.3:** sin los puntos suspensivos iniciales, porque la voz los leía como «punto». Queda «Y hay más sorpresas por descubrir».
+- **Frase 6.4 dividida:** «¿Te atreves a superarlas?» pasa a ser **«¡Atrévete a superarlas!»** (frase 6.5). La voz no sube el tono al final de las preguntas: medido, baja entre un 20 y un 29 %, y las variantes con `[[pbas]]` tampoco convencieron al autor.
 - **«¡Tetris!» (2.3), la única excepción:** más lenta (120) y 5 dB más fuerte, para remarcar el nombre con efusividad. El autor eligió esta versión de oído entre cuatro candidatas.
 - **Pausas:** 0,2 s más de pausa entre frases.
 - **Duración:** la narración real dura unos 111 s y el vídeo, 2 min 18 s.
@@ -99,12 +100,13 @@ _Las grafías «Páshitnov» y «Guéim Boi» se probarán en la prueba de voz. 
 
 ## Escena 6 — Premios y ranking (≈18 s)
 
-| #   | Narración                                                                                       | Imagen                                                                                                                        | Rótulos | Música y sonido                      |
-| --- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------- | ------------------------------------ |
-| 6.1 | _[intriga · −r 170]_ ¿Y al superar cada nivel?                                                  | Pozo con una I a punto de completar el objetivo del nivel 1.                                                                  | —       | Kalinka a −20 dB.                    |
-| 6.2 | _[intriga · −r 170]_ Te espera una celebración...                                               | Adelanto de unos 4 s del cosaco en plena prisiadka, en la estepa (`extracto_baile_cosaco`). Es el único bailarín que aparece. | —       | Kalinka sube a −8 dB mientras baila. |
-| 6.3 | _[misterio · −r 170]_ Y hay más sorpresas por descubrir.                                        | Fundido corto a negro desde el baile.                                                                                         | —       | Kalinka baja y se funde.             |
-| 6.4 | _[energía · −r 170]_ Tus diez mejores partidas quedan en los récords. ¿Te atreves a superarlas? | Pantalla RÉCORDS con un top 10 de ejemplo (`extracto_records`).                                                               | —       | Vuelve Korobéiniki a −20 dB.         |
+| #   | Narración                                                             | Imagen                                                                                                                        | Rótulos | Música y sonido                      |
+| --- | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------- | ------------------------------------ |
+| 6.1 | _[intriga · −r 170]_ ¿Y al superar cada nivel?                        | Pozo con una I a punto de completar el objetivo del nivel 1.                                                                  | —       | Kalinka a −20 dB.                    |
+| 6.2 | _[intriga · −r 170]_ Te espera una celebración...                     | Adelanto de unos 4 s del cosaco en plena prisiadka, en la estepa (`extracto_baile_cosaco`). Es el único bailarín que aparece. | —       | Kalinka sube a −8 dB mientras baila. |
+| 6.3 | _[misterio · −r 170]_ Y hay más sorpresas por descubrir.              | Fundido corto a negro desde el baile.                                                                                         | —       | Kalinka baja y se funde.             |
+| 6.4 | _[energía · −r 170]_ Tus diez mejores partidas quedan en los récords. | Pantalla RÉCORDS con un top 10 de ejemplo (`extracto_records`).                                                               | —       | Vuelve Korobéiniki a −20 dB.         |
+| 6.5 | _[reto, exclamación · −r 170]_ ¡Atrévete a superarlas!                | Sigue la pantalla RÉCORDS.                                                                                                    | —       | Korobéiniki a −20 dB.                |
 
 ## Escena 7 — Cierre (≈8 s)
 

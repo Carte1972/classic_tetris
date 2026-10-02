@@ -63,3 +63,9 @@ Se generaron cuatro candidatas en contexto (precedidas de la frase 2.2):
 4. «¡Teeetris!» con `[[pbas 70]]` a `-r 115` y +5 dB.
 
 El autor eligió **la 1**. Está en `video/narracion.mjs` con `velocidad: 120` y `ganancia: 5` en la frase 2.3; el resto del vídeo sigue a 170.
+
+## La pregunta final
+
+Al autor «¿Te atreves a superarlas?» le sonaba plana. Midiendo la frecuencia fundamental, la Voz 1 de Siri **baja** el tono al final, entre un 20 y un 29 %, en todas las redacciones probadas: con y sin «¿», con «¿Y tú?», «¿Eh?» o «¿De verdad…?». Ignora la entonación interrogativa.
+
+Solo `[[pbas]]` antes de «superarlas» lo hace subir: +30 % con 60 o más (60, 70 y 85 dan el mismo audio), +19 % en dos escalones y +12 % con 55. Ninguna de esas versiones convenció al autor, que decidió cambiar el texto por la exclamación **«¡Atrévete a superarlas!»** (frase 6.5), que la voz entona bien.

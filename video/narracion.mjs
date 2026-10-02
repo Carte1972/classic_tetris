@@ -137,9 +137,12 @@ export const NARRACION = [
       { id: '6.3', texto: 'Y hay más sorpresas por descubrir.', pausaMs: 700 },
       {
         id: '6.4',
-        texto: 'Tus diez mejores partidas quedan en los récords. ¿Te atreves a superarlas?',
-        pausaMs: 0,
+        texto: 'Tus diez mejores partidas quedan en los récords.',
+        pausaMs: 250,
       },
+      // Exclamación en vez de pregunta: la voz no sube el tono al final de las preguntas
+      // (medido), así que el autor eligió esta frase.
+      { id: '6.5', texto: '¡Atrévete a superarlas!', pausaMs: 0 },
     ],
   },
   {

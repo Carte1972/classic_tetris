@@ -181,7 +181,7 @@ function escenas() {
   const d5 = Math.max(eventosEn + eventos.length * EVENTO_S, fin(5, '5.2') + 0.6);
 
   // Escena 6: la I completa el nivel, el cosaco en la prisiadka, fundido y récords.
-  const d6 = fin(6, '6.4');
+  const d6 = fin(6, '6.5');
 
   return [
     {
