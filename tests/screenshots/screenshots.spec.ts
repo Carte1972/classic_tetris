@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import type {} from '../../src/app/test_api';
 import type { ScreenName } from '../../src/app/app_controller';
 import type { TestGamePatch } from '../../src/app/test_mode';
+import type { SceneConditions } from '../../src/scene/red_square_scene';
 import type { GameState } from '../../src/engine/types';
 import { choosePlacement } from './demo_player';
 import { captureFrame, encodeGif, type GifFrame } from './gif';
@@ -21,9 +22,6 @@ const PRISIADKA_KICK_MS = 2130;
 
 /** Momento de la celebración con el gigante en el salto abierto. */
 const SPLIT_JUMP_MS = 5500;
-
-/** Momento del día de la captura nocturna (0 = medianoche). */
-const NIGHT_TIME_OF_DAY = 0.93;
 
 /** Tablero de media partida: una pila irregular con huecos para que se vea "jugada". */
 const MID_GAME_BOARD = [
@@ -248,26 +246,100 @@ test('celebracion_moscu_1980.png: el gigante en el pabellón olímpico', async (
   await save(page, 'celebracion_moscu_1980.png');
 });
 
-test('plaza_roja_noche.png: la Plaza Roja nevada de noche durante la partida', async ({ page }) => {
-  await page.evaluate(
-    (timeOfDay) =>
-      window.__tetris?.setScene({ timeOfDay, weather: 'snow', snowCover: 1, wetness: 0 }),
-    NIGHT_TIME_OF_DAY,
-  );
-  await startGame(page, 2);
-  await patchGame(page, {
-    boardRows: MID_GAME_BOARD.slice(3),
-    activePiece: { type: 'L', rotation: 0, x: 5, y: 6 },
-    nextPiece: 'Z',
-    score: 7_240,
-    level: 4,
-    lines: 27,
-    levelLines: 5,
-    levelGoal: 14,
+/** Capturas de los eventos de la plaza durante una partida. */
+const EVENT_SHOTS: readonly { file: string; title: string; conditions: SceneConditions }[] = [
+  {
+    file: 'evento_desfile.png',
+    title: 'el desfile de la Victoria',
+    conditions: {
+      event: 'parade',
+      eventElapsedMs: 40_000,
+      timeOfDay: 0.42,
+      weather: 'clear',
+      snowCover: 0,
+      wetness: 0,
+    },
+  },
+  {
+    file: 'evento_pascua.png',
+    title: 'la procesión de Pascua',
+    conditions: {
+      event: 'easter',
+      eventElapsedMs: 36_000,
+      timeOfDay: 0.88,
+      weather: 'clear',
+      snowCover: 0,
+      wetness: 0,
+    },
+  },
+  {
+    file: 'evento_navidad.png',
+    title: 'el mercadillo de Navidad',
+    conditions: {
+      event: 'christmas',
+      eventElapsedMs: 30_000,
+      timeOfDay: 0.88,
+      weather: 'snow',
+      snowCover: 1,
+      wetness: 0,
+    },
+  },
+  {
+    file: 'evento_fuegos.png',
+    title: 'los fuegos artificiales',
+    conditions: {
+      event: 'fireworks',
+      eventElapsedMs: 30_400,
+      timeOfDay: 0.9,
+      weather: 'clear',
+      snowCover: 0,
+      wetness: 0,
+    },
+  },
+  {
+    file: 'evento_maslenitsa.png',
+    title: 'la quema del muñeco de Maslenitsa',
+    conditions: {
+      event: 'maslenitsa',
+      eventElapsedMs: 378_000,
+      timeOfDay: 0.42,
+      weather: 'clear',
+      snowCover: 0.85,
+      wetness: 0,
+    },
+  },
+  {
+    file: 'evento_olimpiadas.png',
+    title: 'la fiesta de los campeones olímpicos',
+    conditions: {
+      event: 'olympics',
+      eventElapsedMs: 20_000,
+      timeOfDay: 0.42,
+      weather: 'clear',
+      snowCover: 0,
+      wetness: 0,
+    },
+  },
+];
+
+for (const shot of EVENT_SHOTS) {
+  test(`${shot.file}: ${shot.title} durante la partida`, async ({ page }) => {
+    await page.evaluate((conditions) => window.__tetris?.setScene(conditions), shot.conditions);
+    await startGame(page, 2);
+    await patchGame(page, {
+      boardRows: MID_GAME_BOARD.slice(3),
+      activePiece: { type: 'L', rotation: 0, x: 5, y: 6 },
+      nextPiece: 'Z',
+      score: 7_240,
+      level: 4,
+      lines: 27,
+      levelLines: 5,
+      levelGoal: 14,
+    });
+    await runFrames(page, 30);
+    await save(page, shot.file);
   });
-  await runFrames(page, 30);
-  await save(page, 'plaza_roja_noche.png');
-});
+}
 
 test('partida_demo.gif: unos segundos de juego', async ({ page }) => {
   test.setTimeout(180_000);
