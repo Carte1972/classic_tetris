@@ -130,7 +130,7 @@ export const NARRACION = [
     escena: 6,
     frases: [
       { id: '6.1', texto: '¿Y al superar cada nivel?', velocidad: 175, pausaMs: 300 },
-      { id: '6.2', texto: 'Te espera una celebración...', velocidad: 175, pausaMs: 4000 },
+      { id: '6.2', texto: 'Te espera una celebración...', velocidad: 175, pausaMs: 2800 },
       { id: '6.3', texto: '...y hay más sorpresas por descubrir.', velocidad: 170, pausaMs: 700 },
       {
         id: '6.4',
