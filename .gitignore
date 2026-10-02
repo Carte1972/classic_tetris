@@ -50,3 +50,9 @@ $RECYCLE.BIN/
 # Claude Code (solo local)
 CLAUDE.md
 .claude/settings.local.json
+
+# Vídeo explicativo: solo se suben guion, fuentes, scripts y rótulos
+video/audio/
+video/extractos/
+video/salida/
+video/tmp/
