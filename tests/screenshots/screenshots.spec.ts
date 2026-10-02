@@ -16,8 +16,14 @@ const FRAME_MS = 1000 / 60;
 /** Instante fijo del reloj simulado (también fecha los récords). */
 const FIXED_TIME = new Date('2026-10-01T12:00:00');
 
-/** Momento de la celebración con el cosaco en plena patada de la prisiadka. */
-const PRISIADKA_KICK_MS = 1330;
+/** Momento de la celebración con el bailarín en plena patada de la prisiadka. */
+const PRISIADKA_KICK_MS = 2130;
+
+/** Momento de la celebración con el gigante en el salto abierto. */
+const SPLIT_JUMP_MS = 5500;
+
+/** Momento del día de la captura nocturna (0 = medianoche). */
+const NIGHT_TIME_OF_DAY = 0.93;
 
 /** Tablero de media partida: una pila irregular con huecos para que se vea "jugada". */
 const MID_GAME_BOARD = [
@@ -47,6 +53,9 @@ const TETRIS_BOARD = [
 
 /** Frames que quedan de la animación de 4 líneas en el capturado: fondo destellando y las columnas centrales ya borradas. */
 const TETRIS_FLASH_FRAMES_REMAINING = 14;
+
+/** Líneas al empezar el GIF: lejos del objetivo para que no salte la celebración. */
+const DEMO_START_LINES = 3;
 
 /** Resolución y ritmo del GIF de demostración. */
 const GIF = { width: 640, height: 360, frameEvery: 6, seconds: 8, maxBytes: 5 * 1024 * 1024 };
@@ -80,6 +89,9 @@ async function patchGame(page: Page, patch: TestGamePatch): Promise<void> {
 /** Margen tras instalar el reloj simulado antes de pausarlo (ms). */
 const CLOCK_PAUSE_OFFSET_MS = 1000;
 
+/** Valor de `performance.now()` en el que empieza cada captura (ms). */
+const ALIGNED_START_MS = 200;
+
 /**
  * Abre el juego con el reloj simulado en pausa (solo avanza con `runFrames`, así las
  * capturas salen idénticas en cada ejecución), la semilla fija y sin datos guardados.
@@ -87,10 +99,13 @@ const CLOCK_PAUSE_OFFSET_MS = 1000;
 async function openGame(page: Page): Promise<void> {
   await page.clock.install({ time: FIXED_TIME });
   await page.clock.pauseAt(new Date(FIXED_TIME.getTime() + CLOCK_PAUSE_OFFSET_MS));
+  // Cada test tiene un contexto nuevo, así que no hay datos guardados que borrar.
   await page.goto('/?seed=123&test=1');
-  await page.evaluate(() => localStorage.clear());
-  await page.reload();
-  await runFrames(page, 6);
+  await page.waitForFunction(() => window.__bloques !== undefined);
+  // El origen de `performance.now()` del documento varía ±1 ms entre ejecuciones;
+  // alinearlo evita que la rejilla de frames (y con ella alguna captura) cambie.
+  const offset = await page.evaluate(() => performance.now());
+  await page.clock.runFor(ALIGNED_START_MS - offset);
 }
 
 /** Empieza una partida desde la pantalla inicial. */
@@ -154,7 +169,10 @@ test('partida_en_curso.png y pausa.png: tablero a media partida', async ({ page 
     activePiece: { type: 'T', rotation: 1, x: 4, y: 9 },
     nextPiece: 'S',
     score: 18_460,
-    lines: 37,
+    level: 5,
+    lines: 30,
+    levelLines: 8,
+    levelGoal: 14,
   });
   await runFrames(page, 2);
   await save(page, 'partida_en_curso.png');
@@ -170,7 +188,10 @@ test('limpieza_lineas.png: momento de limpiar varias líneas', async ({ page }) 
     activePiece: { type: 'I', rotation: 1, x: 9, y: 14 },
     nextPiece: 'L',
     score: 9_120,
-    lines: 51,
+    level: 8,
+    lines: 45,
+    levelLines: 9,
+    levelGoal: 16,
   });
   await runUntil(
     page,
@@ -186,8 +207,10 @@ test('game_over.png: pantalla final con la puntuación', async ({ page }) => {
     boardRows: Array.from({ length: 20 }, (_, i) => (i % 3 === 0 ? 'OOOO.OOOOO' : 'OOOOOOOOO.')),
     activePiece: { type: 'O', rotation: 0, x: 1, y: 0 },
     score: 27_380,
-    lines: 58,
     level: 9,
+    lines: 77,
+    levelLines: 7,
+    levelGoal: 20,
   });
   await runUntil(page, (state) => state.phase === 'gameOver');
   await runFrames(page, 2);
@@ -195,25 +218,66 @@ test('game_over.png: pantalla final con la puntuación', async ({ page }) => {
   await save(page, 'game_over.png');
 });
 
-test('celebracion_nivel.png: un personaje en plena prisiadka', async ({ page }) => {
+/**
+ * Completa el nivel indicado (con nivel inicial 0) y congela la celebración en un
+ * instante: el bailarín depende de cuántos niveles se han superado.
+ */
+async function celebrateLevel(page: Page, level: number, atMs: number): Promise<void> {
   await startGame(page);
   await patchGame(page, {
     boardRows: ['OOOOOOOOO.'],
+    level: level - 1,
     levelLines: 9,
+    levelGoal: 10,
     activePiece: { type: 'I', rotation: 1, x: 9, y: 19 },
   });
   for (let frame = 0; frame < 600 && (await screen(page)) !== 'celebrating'; frame++) {
     await runFrames(page, 1);
   }
-  await page.evaluate((ms) => window.__bloques?.freezeCelebration(ms), PRISIADKA_KICK_MS);
+  await page.evaluate((ms) => window.__bloques?.freezeCelebration(ms), atMs);
   await runFrames(page, 2);
+}
+
+test('celebracion_nivel.png: un personaje en plena prisiadka', async ({ page }) => {
+  await celebrateLevel(page, 1, PRISIADKA_KICK_MS);
   await save(page, 'celebracion_nivel.png');
+});
+
+test('celebracion_moscu_1980.png: el gigante en el pabellón olímpico', async ({ page }) => {
+  await celebrateLevel(page, 7, SPLIT_JUMP_MS);
+  await save(page, 'celebracion_moscu_1980.png');
+});
+
+test('plaza_roja_noche.png: la Plaza Roja nevada de noche durante la partida', async ({ page }) => {
+  await page.evaluate(
+    (timeOfDay) =>
+      window.__bloques?.setScene({ timeOfDay, weather: 'snow', snowCover: 1, wetness: 0 }),
+    NIGHT_TIME_OF_DAY,
+  );
+  await startGame(page, 2);
+  await patchGame(page, {
+    boardRows: MID_GAME_BOARD.slice(3),
+    activePiece: { type: 'L', rotation: 0, x: 5, y: 6 },
+    nextPiece: 'Z',
+    score: 7_240,
+    level: 4,
+    lines: 27,
+    levelLines: 5,
+    levelGoal: 14,
+  });
+  await runFrames(page, 30);
+  await save(page, 'plaza_roja_noche.png');
 });
 
 test('partida_demo.gif: unos segundos de juego', async ({ page }) => {
   test.setTimeout(180_000);
   await startGame(page, 6);
-  await patchGame(page, { boardRows: CLEAR_BOARD.slice(1), score: 4_200, lines: 66 });
+  await patchGame(page, {
+    boardRows: CLEAR_BOARD.slice(1),
+    score: 4_200,
+    lines: DEMO_START_LINES,
+    levelLines: DEMO_START_LINES,
+  });
   const frames: GifFrame[] = [];
   const totalFrames = GIF.seconds * 60;
   let elapsed = 0;
@@ -253,7 +317,7 @@ test('partida_demo.gif: unos segundos de juego', async ({ page }) => {
     await page.keyboard.up('ArrowDown');
   }
 
-  expect((await gameState(page))?.lines ?? 0).toBeGreaterThan(66);
+  expect((await gameState(page))?.lines ?? 0).toBeGreaterThan(DEMO_START_LINES);
   const size = writeBytes(
     new URL('partida_demo.gif', OUTPUT_DIR).pathname,
     encodeGif(frames, GIF.frameEvery * FRAME_MS),
