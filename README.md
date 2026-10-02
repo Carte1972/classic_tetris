@@ -432,20 +432,24 @@ El CI ejecuta las mismas comprobaciones, los e2e y la prueba de los lanzadores e
 
 ## Tiempo y tokens
 
-El juego y el vídeo explicativo se desarrollaron en una sola sesión de desarrollo asistido por IA, entre el 1 y el 2 de octubre de 2026. Las cifras salen del registro de esa sesión y del historial de git (89 commits).
+El juego y el vídeo explicativo se desarrollaron en una sola sesión de desarrollo asistido por IA, entre el 1 y el 2 de octubre de 2026. Las cifras salen del registro de esa sesión.
 
-|                          | Juego       | Vídeo explicativo | Total       |
-| ------------------------ | ----------- | ----------------- | ----------- |
-| Tiempo con actividad     | 5,5 h       | 2,8 h             | 8,3 h       |
-| Respuestas del asistente | 617         | 178               | 795         |
-| Tokens de entrada        | 255,2 M     | 135,5 M           | 390,7 M     |
-| Tokens de salida         | 1,04 M      | 0,22 M            | 1,26 M      |
-| **Total de tokens**      | **256,2 M** | **135,8 M**       | **392,0 M** |
+|                      | Juego                            | Vídeo explicativo                | Total                            |
+| -------------------- | -------------------------------- | -------------------------------- | -------------------------------- |
+| Tiempo con actividad | 5,5 h                            | 2,9 h                            | 8,4 h                            |
+| Tokens de entrada    | 1.236                            | 426                              | 1.662                            |
+| Tokens de caché      | 3,28 M escritos + 251,9 M leídos | 1,52 M escritos + 146,0 M leídos | 4,80 M escritos + 397,9 M leídos |
+| Tokens de salida     | 1,04 M                           | 0,23 M                           | 1,27 M                           |
+| **Precio estimado**  | **97,41 $**                      | **45,97 $**                      | **143,38 $**                     |
 
-- El **vídeo** se cuenta desde que se pidió; lo anterior es el **juego**: especificación, tres iteraciones, tests, capturas y release.
+- El **vídeo** se cuenta desde que se pidió, incluidos sus ajustes y su documentación. Lo anterior es el **juego**: especificación, tres iteraciones, tests, capturas y release.
 - El **tiempo con actividad** suma solo los intervalos de menos de 15 minutos sin actividad, así que no cuenta las pausas largas. Sí incluye el tiempo de revisar, escuchar y responder.
-- Los **tokens de salida** son todo lo que generó el asistente: respuestas, código, órdenes y razonamiento.
-- Los **tokens de entrada** son todo lo que leyó para generarlo. En cada respuesta vuelve a leer la conversación entera, así que el 98 % de la entrada es contexto releído de la caché; lo nuevo (mensajes, archivos leídos y resultados de comandos) son unos 4,8 M.
+- Los **tokens de entrada** son el texto nuevo que no estaba en caché. Los **de caché** son la conversación que se guarda (escritos) y se vuelve a leer en cada respuesta (leídos). Los **de salida**, todo lo que generó el asistente: respuestas, código, órdenes y razonamiento.
+- El **precio estimado** es el que costaría con la API de Claude Opus 5.5 pagando por uso. No es lo que se paga con una suscripción (Pro o Max), que tiene cuota fija. Precios por millón de tokens, de [claude.com/pricing](https://claude.com/pricing) y de la [documentación de caché](https://platform.claude.com/docs/en/build-with-claude/prompt-caching), consultados el 2 de octubre de 2026:
+
+| Entrada | Escritura en caché (1 h) | Lectura de caché | Salida |
+| ------- | ------------------------ | ---------------- | ------ |
+| 4 $     | 8 $                      | 0,20 $           | 20 $   |
 
 ## Créditos
 
