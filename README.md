@@ -2,11 +2,11 @@
 
 [![CI](https://github.com/Carte1972/classic_tetris/actions/workflows/ci.yml/badge.svg)](https://github.com/Carte1972/classic_tetris/actions/workflows/ci.yml)
 
-![Partida de Bloques en movimiento: las piezas caen, se completan cuatro líneas a la vez y, al subir de nivel, un gigante del baloncesto baila sobre el tablero](docs/screenshots/partida_demo.gif)
+![Partida de Bloques en movimiento: las piezas caen y se completan líneas en un pozo semitransparente, con la Plaza Roja de fondo y sus paseantes](docs/screenshots/partida_demo.gif)
 
 **Bloques** es un juego de bloques que caen, fiel a las reglas del clásico de NES (1989), hecho con TypeScript, React y Canvas. Se juega en el navegador. Todo el juego cabe en un único archivo `index.html` que funciona abierto con doble clic, sin servidor ni conexión, y viene con lanzadores para macOS, Linux y Windows.
 
-Incluye música chiptune sintetizada en tiempo real, efectos de sonido, récords, preferencias guardadas y, cada vez que subes de nivel, un personaje distinto que sale a bailar la danza cosaca.
+Se juega delante de una **Plaza Roja viva** en pixel-art, con paseantes, palomas, ciclo de día y noche y tiempo cambiante. Cada nivel tiene un **objetivo de líneas**; al superarlo, uno de los 9 personajes sale a bailar la danza cosaca durante 10 segundos en su propio escenario ruso. Incluye música chiptune sintetizada en tiempo real, efectos de sonido, récords y preferencias guardadas.
 
 ## Índice
 
@@ -23,16 +23,18 @@ Incluye música chiptune sintetizada en tiempo real, efectos de sonido, récords
 
 ## Capturas de pantalla
 
-|                                                                                                                                                  |                                                                                                                                                |
-| :----------------------------------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------------: |
-|      ![Pantalla de inicio con el título BLOQUES dibujado con bloques de colores y el menú principal](docs/screenshots/pantalla_inicio.png)       | ![Partida a media pila con una T cayendo, el marcador a la izquierda y la siguiente pieza a la derecha](docs/screenshots/partida_en_curso.png) |
-|                                                        Pantalla de inicio: título y menú.                                                        |                                              Partida en curso: marcador, pozo y siguiente pieza.                                               |
-| ![Limpieza de cuatro líneas: el fondo del pozo destella y las filas completas desaparecen desde el centro](docs/screenshots/limpieza_lineas.png) |                             ![Partida en pausa con el tablero oculto y el texto PAUSA](docs/screenshots/pausa.png)                             |
-|                                                 Limpieza de 4 líneas a la vez: el pozo destella.                                                 |                                                   Pausa: el tablero se oculta, como en NES.                                                    |
-|         ![Pantalla de fin de partida con la puntuación, las líneas, el nivel y el aviso de nuevo récord](docs/screenshots/game_over.png)         |                                ![Tabla de controles con cada tecla y su acción](docs/screenshots/controles.png)                                |
-|                                                    Fin de la partida con la puntuación final.                                                    |                                                             Pantalla de controles.                                                             |
-|    ![Celebración del nivel 1: un cosaco con bigote y botas rojas lanza una patada en plena prisiadka](docs/screenshots/celebracion_nivel.png)    |                                                                                                                                                |
-|                                           Celebración al subir de nivel: el cosaco en plena prisiadka.                                           |                                                                                                                                                |
+|                                                                                                                                                                                       |                                                                                                                                                                                           |
+| :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+|               ![Pantalla de inicio con el título BLOQUES dibujado con bloques de colores y el menú principal sobre la Plaza Roja](docs/screenshots/pantalla_inicio.png)               |         ![Partida a media pila con una T cayendo, el marcador con el objetivo del nivel a la izquierda y la siguiente pieza a la derecha](docs/screenshots/partida_en_curso.png)          |
+|                                                                          Pantalla de inicio: título y menú.                                                                           |                                                       Partida en curso: marcador con el objetivo del nivel, pozo y siguiente pieza.                                                       |
+|                   ![Limpieza de cuatro líneas: el fondo del pozo destella y las filas completas desaparecen desde el centro](docs/screenshots/limpieza_lineas.png)                    |                            ![Partida de noche con la Plaza Roja nevada, ventanas y farolas encendidas y copos cayendo](docs/screenshots/plaza_roja_noche.png)                             |
+|                                                                   Limpieza de 4 líneas a la vez: el pozo destella.                                                                    |                                                         De noche y nevando: la plaza cambia de hora y de tiempo mientras juegas.                                                          |
+|                                                ![Partida en pausa con el tablero oculto y el texto PAUSA](docs/screenshots/pausa.png)                                                 |                             ![Pantalla de fin de partida con la puntuación, las líneas, el nivel y el aviso de nuevo récord](docs/screenshots/game_over.png)                              |
+|                                                                       Pausa: el tablero se oculta, como en NES.                                                                       |                                                                        Fin de la partida con la puntuación final.                                                                         |
+| ![Celebración del primer nivel: un cosaco con bigote y botas rojas lanza una patada en plena prisiadka en la estepa, entre isbas y girasoles](docs/screenshots/celebracion_nivel.png) | ![Celebración del séptimo nivel: el gigante del baloncesto hace el salto abierto en el pabellón de Moscú-80, con los aros olímpicos y Misha](docs/screenshots/celebracion_moscu_1980.png) |
+|                                                                      El cosaco en plena prisiadka, en la estepa.                                                                      |                                                                   El gigante del baloncesto en el pabellón de Moscú-80.                                                                   |
+|                                                   ![Tabla de controles con cada tecla y su acción](docs/screenshots/controles.png)                                                    |                                                                                                                                                                                           |
+|                                                                                Pantalla de controles.                                                                                 |                                                                                                                                                                                           |
 
 Las capturas se generan automáticamente con `npm run screenshots` (ver [Capturas reproducibles](#capturas-reproducibles)).
 
@@ -98,7 +100,7 @@ O activa _"Permitir ejecutar el archivo como un programa"_ en sus propiedades. E
 | M               | Silenciar / activar todo el sonido                                          |
 | Esc             | Volver al menú (o atrás en las pantallas del menú)                          |
 | Enter           | Empezar / reiniciar (y aceptar en el menú)                                  |
-| Enter o Espacio | Saltar la celebración de subida de nivel                                    |
+| Enter o Espacio | Saltar la celebración al superar un nivel                                   |
 
 En el menú: ↑ ↓ para elegir, ← → para cambiar el valor de una opción y Enter para aceptar.
 
@@ -107,7 +109,7 @@ En el menú: ↑ ↓ para elegir, ← → para cambiar el valor de una opción y
 - **Iniciar juego**.
 - **Nivel inicial**: de 0 a 9, como en NES.
 - **Música**: activada o desactivada (los efectos siguen sonando).
-- **Celebraciones**: activa o desactiva los bailarines al subir de nivel.
+- **Celebraciones**: activa o desactiva los bailarines al superar un nivel (si están desactivadas, solo aparece el rótulo «¡NIVEL N!» durante 2 segundos).
 - **Controles**: la tabla de teclas.
 - **Récords**: las 10 mejores partidas con puntuación, líneas, nivel y fecha.
 
@@ -115,14 +117,14 @@ El nivel inicial, la música, las celebraciones y el silencio (M) se guardan ent
 
 ## Reglas y puntuación
 
-Bloques sigue las reglas del juego clásico de NES, no las de las versiones modernas:
+Bloques parte de las reglas del juego clásico de NES, no de las versiones modernas, con un sistema de niveles por objetivos y una dificultad que crece en cada nivel:
 
 - **Tablero** de 10 columnas × 20 filas visibles, más 2 filas ocultas encima. Las piezas aparecen en las dos primeras filas visibles; las ocultas dejan sitio para girarlas en vertical nada más aparecer.
 - **7 piezas**: I, O, T, S, Z, J, L.
-- **Generador aleatorio clásico**, sin "bolsa de 7": se tira un dado de 8 caras (7 piezas + 1 valor inválido). Si sale el valor inválido o la misma pieza que la anterior, se vuelve a tirar entre las 7, y ese resultado se acepta siempre. Así se repite pieza un 3,6 % de las veces.
+- **Generador aleatorio clásico**, sin "bolsa de 7": se sortea una pieza y, si sale la misma que la anterior, se sortea otra vez y ese resultado se acepta siempre. En el nivel 0 todas las piezas tienen la misma probabilidad; después, el sorteo se va inclinando hacia las piezas difíciles (ver [Dificultad](#dificultad)).
 - **Rotación de NES**, sin _wall kicks_: si la pieza girada choca con una pared o con otros bloques, simplemente no gira.
-- **Una sola pieza de vista previa**. No hay _hold_ ni _hard drop_.
-- **Retardos de NES**: entre una pieza y la siguiente hay una espera de 10 a 18 frames según la altura a la que se fijó. Al completar líneas, las filas desaparecen desde el centro durante unos 20 frames.
+- **Una sola pieza de vista previa** (hasta el nivel 14). No hay _hold_ ni _hard drop_.
+- **Retardos de NES**: entre una pieza y la siguiente hay una espera de 10 a 18 frames según la altura a la que se fijó, que se acorta en cada nivel. Al completar líneas, las filas desaparecen desde el centro durante unos 20 frames.
 - **Fin de la partida** cuando una pieza nueva no cabe al aparecer.
 
 ### Puntuación
@@ -138,7 +140,9 @@ El nivel que cuenta es el que tenías antes de completar las líneas. Por ejempl
 
 ### Niveles y velocidad
 
-- Se sube de nivel cada 10 líneas: `nivel = máx(nivel inicial, ⌊líneas / 10⌋)`. Si empiezas en el nivel 5, el primer cambio llega a las 60 líneas, como en NES.
+- Cada nivel tiene un **objetivo de líneas**: 10 en el primer nivel de la partida y 2 más en cada nivel siguiente (10, 12, 14…). El marcador muestra el progreso en **OBJETIVO** (por ejemplo, `7 / 12`) y las líneas totales en **LÍNEAS**.
+- Al alcanzar el objetivo, la partida se detiene, se celebra el nivel y el siguiente empieza con el **tablero vacío** y más velocidad. Las líneas que sobrepasan el objetivo no cuentan para el nivel siguiente.
+- El nivel inicial (0–9) se elige en el menú. No hay final: se juega hasta perder.
 - La velocidad de caída sigue la tabla de NES a 60 fps (frames por fila):
 
 | Nivel  | 0   | 1   | 2   | 3   | 4   | 5   | 6   | 7   | 8   | 9   | 10–12 | 13–15 | 16–18 | 19–28 | 29+ |
@@ -147,9 +151,31 @@ El nivel que cuenta es el que tenías antes de completar las líneas. Por ejempl
 
 - La música se acelera un 15 % cuando hay bloques en las 5 filas superiores.
 
+### Dificultad
+
+Además de caer más rápido, cada nivel pone las piezas más difíciles y da menos ayudas:
+
+- **Piezas más difíciles**: la S y la Z pesan 1 + 0,05 × nivel en el sorteo (hasta 2) y la I, 1 − 0,025 × nivel (hasta 0,5); el resto pesa 1. En el nivel 10, una S o una Z sale el doble que una I.
+- **Menos tiempo entre piezas**: la espera de entrada baja 1 frame por nivel, sin bajar de 4.
+- **Sin vista previa** desde el nivel 15: el panel de la siguiente pieza muestra «OCULTA».
+
 ### Celebraciones
 
-Cada vez que subes de nivel, la partida se congela y sale a bailar un personaje distinto, en este orden y en rotación (`(nivel − 1) % 8`): el cosaco, la matrioska (que se abre a mitad del baile y de dentro sale otra más pequeña), el oso pardo con balalaika, la babushka, la cosmonauta, el gran maestro de ajedrez, el gigante del baloncesto y la bailarina. La coreografía dura 4 segundos: entrada, _prisiadka_ con patadas alternas, salto abierto tocándose las puntas de los pies y salida saludando, al ritmo de un fragmento acelerado de _Kalinka_. Enter o Espacio la saltan.
+Cada vez que superas un nivel, la partida se congela y sale a bailar un personaje, en este orden y en rotación (`(niveles superados − 1) % 9`), cada uno en su escenario:
+
+| Nivel superado | Personaje                                     | Escenario                                               |
+| -------------- | --------------------------------------------- | ------------------------------------------------------- |
+| 1.º, 10.º…     | El cosaco                                     | La estepa, con isbas y girasoles                        |
+| 2.º, 11.º…     | La matrioska, que se abre y saca otra pequeña | Un taller de artesanía                                  |
+| 3.º, 12.º…     | El oso pardo con su balalaika                 | La taiga, con abedules                                  |
+| 4.º, 13.º…     | La babushka                                   | La cocina de una isba, con samovar                      |
+| 5.º, 14.º…     | El cosmonauta                                 | La rampa de lanzamiento, con un cohete que despega      |
+| 6.º, 15.º…     | El gran maestro de ajedrez                    | El salón de columnas, con un tablero gigante            |
+| 7.º, 16.º…     | El gigante del baloncesto                     | El pabellón de Moscú-80, con los aros olímpicos y Misha |
+| 8.º, 17.º…     | La bailarina                                  | El escenario del teatro Bolshói                         |
+| 9.º, 18.º…     | Rasputín (caricatura)                         | Un salón del Kremlin                                    |
+
+La coreografía dura unos 10 segundos: entrada, _prisiadka_ con patadas alternas, giro, salto abierto tocándose las puntas de los pies, otra tanda de patadas con palmas, reverencia y salida, mientras suena _Kalinka_ con estribillo y estrofa. Enter o Espacio la saltan.
 
 ## Desarrollo
 
@@ -205,14 +231,14 @@ npx playwright test tests/e2e/menu.spec.ts --project=chromium
 
 Para los tests e2e y las capturas, el juego admite dos parámetros en la URL:
 
-- `?seed=123` fija la semilla del generador aleatorio, así todas las partidas son reproducibles.
-- `?test=1` expone `window.__bloques`, que permite leer el estado y preparar situaciones como un tablero casi lleno, una subida de nivel o un fotograma concreto de la celebración.
+- `?seed=123` fija la semilla del generador aleatorio y de la escena de fondo, así todas las partidas son reproducibles.
+- `?test=1` expone `window.__bloques`, que permite leer el estado y preparar situaciones como un tablero casi lleno, un nivel a punto de superarse, un fotograma concreto de la celebración o una hora y un tiempo concretos en la Plaza Roja.
 
 Sin esos parámetros el juego funciona con normalidad.
 
 ### Capturas reproducibles
 
-`npm run screenshots` arranca el build de producción y genera las capturas con Playwright, usando la semilla fija, estados preparados con el modo test y el reloj del navegador simulado y en pausa. Así cada ejecución produce exactamente las mismas imágenes. El GIF lo juega un jugador automático que elige dónde colocar cada pieza. Si cambias el aspecto del juego, vuelve a generarlas y revísalas antes de hacer commit.
+`npm run screenshots` arranca el build de producción y genera las capturas con Playwright, usando la semilla fija, estados preparados con el modo test y el reloj del navegador simulado y en pausa (el juego y la escena de fondo solo avanzan cuando el script lo pide). Así cada ejecución produce exactamente las mismas imágenes. El GIF lo juega un jugador automático que elige dónde colocar cada pieza. Si cambias el aspecto del juego, vuelve a generarlas y revísalas antes de hacer commit.
 
 ## Lanzadores y publicación de una release
 
@@ -256,12 +282,14 @@ flowchart LR
   session --> engine["src/engine<br/>step(state, input, dt)"]
   engine -- "estado + eventos" --> controller
   controller -- eventos --> audio["src/audio<br/>Web Audio chiptune"]
-  controller -- levelUp --> celebration["src/celebration<br/>bailarines"]
+  controller -- levelUp --> celebration["src/celebration<br/>bailarines y escenarios"]
+  loop --> scene["src/scene<br/>Plaza Roja de fondo"]
   controller <--> storage["src/storage<br/>localStorage"]
   controller -- snapshot --> ui["src/ui<br/>React: menús y HUD"]
   loop --> render["src/render<br/>Canvas"]
   engine -. estado .-> render
   celebration -. fotogramas .-> render
+  scene -. fondo .-> render
   config["src/config<br/>constantes"] -.-> engine
 ```
 
@@ -270,19 +298,21 @@ flowchart LR
 1. `requestAnimationFrame` llama al bucle (`src/app/game_loop.ts`) en cada refresco de pantalla con el tiempo transcurrido, limitado a 250 ms para no dar saltos al volver de otra pestaña.
 2. El controlador (`src/app/app_controller.ts`) lee las teclas que tocan en la pantalla actual: menú, partida, pausa, celebración o fin de partida.
 3. Durante la partida, `game_session` reparte el tiempo en **frames fijos de 1/60 s**. En cada frame lee el teclado (desplazamiento con DAS y rotaciones) y llama a `step(state, input, dt)` del motor. Así el juego va igual de rápido en pantallas de 60, 120 o 144 Hz y no se pierden pulsaciones.
-4. Después se dibuja el estado en los canvas (`src/render/`), y React actualiza menús y marcador solo cuando cambia algo visible.
+4. La escena de fondo (`src/scene/`) avanza su propio reloj: hora del día, tiempo atmosférico y gente.
+5. Después se dibujan el fondo, el pozo y, si toca, la celebración en sus canvas, y React actualiza menús y marcador solo cuando cambia algo visible.
 
 ### Flujo de estado
 
-- **El motor (`src/engine/`) es puro**: no sabe nada de React, del DOM ni del audio. `step` recibe el estado anterior y devuelve un estado nuevo, inmutable, junto con una lista de **eventos** (`pieceMoved`, `pieceRotated`, `pieceLocked`, `linesCleared`, `levelUp`, `gameOver`). Una partida pasa por las fases `falling` → `lineClear` → `entryDelay` → `falling`… hasta `gameOver`. La semilla del generador forma parte del estado, así que la misma semilla da siempre la misma partida.
-- **El controlador reparte los eventos**: los efectos de sonido, la aceleración de la música, la celebración al recibir `levelUp` y el récord al recibir `gameOver`. La pausa y la celebración congelan la partida dejando de llamar a `step`.
+- **El motor (`src/engine/`) es puro**: no sabe nada de React, del DOM ni del audio. `step` recibe el estado anterior y devuelve un estado nuevo, inmutable, junto con una lista de **eventos** (`pieceMoved`, `pieceRotated`, `pieceLocked`, `linesCleared`, `levelUp`, `gameOver`). Una partida pasa por las fases `falling` → `lineClear` → `entryDelay` → `falling`… Al alcanzar el objetivo pasa a `levelComplete`, y `startNextLevel` empieza el nivel siguiente con el tablero vacío; así hasta `gameOver`. La semilla del generador forma parte del estado, así que la misma semilla da siempre la misma partida.
+- **El controlador reparte los eventos**: los efectos de sonido, la aceleración de la música, la celebración al recibir `levelUp` y el récord al recibir `gameOver`. La pausa y la celebración congelan la partida dejando de llamar a `step`; al terminar la celebración, el controlador empieza el nivel siguiente.
 - **La interfaz solo pinta**: los componentes de `src/ui/` reciben una "foto" (`snapshot`) del controlador mediante `useSyncExternalStore` y no contienen lógica de juego. La navegación del menú es una función pura (`menu_navigation.ts`).
 - **Todo lo configurable está en `src/config/`**: tablero, piezas y rotaciones, tablas de gravedad y puntuación, retardos, teclas, colores, textos, sonido y celebraciones.
 
-### Audio y celebraciones
+### Audio, fondo y celebraciones
 
 - La música y los efectos se sintetizan con osciladores de onda cuadrada y triangular. No hay archivos de audio. Un secuenciador programa las notas por adelantado sobre el reloj de audio para que el ritmo sea estable. Las canciones están escritas como texto (`NOTA:pasos`) en `src/audio/songs/`. El audio arranca con la primera tecla ("PULSA CUALQUIER TECLA") porque los navegadores lo bloquean hasta que hay interacción.
-- Los bailarines están definidos por código: cada uno tiene su cabeza, su torso y sus accesorios como matrices de píxeles en `src/celebration/sprites/`, y comparte con los demás las poses de piernas y brazos (6 fotogramas por movimiento). Una máquina de estados pura decide qué personaje sale y en qué fotograma va.
+- La Plaza Roja (`src/scene/`) se dibuja con formas de píxeles nítidos a 320 × 180 píxeles lógicos y se escala a pantalla completa. Los edificios se pintan una vez en capas de día, de noche y con nieve, y cada fotograma las mezcla según la hora; el cielo, las nubes, la gente, las palomas y la lluvia o la nieve se calculan en cada fotograma. Un día dura 3 minutos y el tiempo cambia más o menos cada minuto.
+- Los bailarines (`src/celebration/`) son pixel-art de alta resolución animado con un **esqueleto**: la coreografía da los ángulos de cada articulación en cada instante, un cálculo de cinemática directa coloca huesos y manos, y cada personaje viste ese esqueleto con su ropa, su cabeza y sus accesorios, con contorno y sombreado. Cada escenario es una función de dibujo con sus propias animaciones (el cohete que despega, el público del pabellón…). Una máquina de estados pura decide qué personaje sale y en qué momento del baile va.
 
 ## Estructura de carpetas
 
@@ -296,7 +326,8 @@ flowchart LR
 │   ├── input/                 Teclado: teclas mantenidas y pulsadas, DAS
 │   ├── render/                Dibujo en Canvas: pozo, siguiente pieza, animación de limpieza, título
 │   ├── audio/                 Sintetizador, secuenciador, efectos y canciones (Korobeiniki, Kalinka)
-│   ├── celebration/           Bailarines: máquina de estados, coreografía, sprites y su dibujo
+│   ├── scene/                 Plaza Roja de fondo: edificios, cielo, gente, día y noche, tiempo
+│   ├── celebration/           Celebraciones: esqueleto y coreografía, 9 bailarines y sus escenarios
 │   ├── storage/               Preferencias y récords en localStorage
 │   ├── app/                   Bucle de juego, controlador de pantallas, sesión de partida, modo test
 │   └── ui/                    Componentes React: inicio, menú, HUD, pausa, fin de partida, celebración
@@ -347,6 +378,6 @@ El CI ejecuta las mismas comprobaciones, los e2e y la prueba de los lanzadores e
 
 - **"Korobeiniki"**: melodía tradicional rusa del siglo XIX, de dominio público. El arreglo chiptune (segunda voz y bajo) es original de este proyecto.
 - **"Kalinka"**: canción popular rusa de 1860, de dominio público. El arreglo chiptune (bajo y rasgueos) es original de este proyecto. La melodía se transcribió de una versión en [notación ABC](https://abcnotation.com/tunePage?a=trillian.mit.edu%2F%7Ejc%2Fmusic%2Fabc%2FRussia%2FKalinka%2F0000).
-- Gráficos, personajes, paleta de colores, efectos de sonido y código son originales del proyecto. Todos los personajes son inventados y no representan a ninguna persona real.
+- Gráficos, personajes, escenarios, paleta de colores, efectos de sonido y código son originales del proyecto. Rasputín aparece como caricatura del personaje histórico. Los aros olímpicos y Misha, la mascota de los Juegos Olímpicos de Moscú 1980, aparecen como homenaje en el escenario del pabellón; sus titulares no están afiliados a este proyecto ni lo respaldan.
 
 Bloques es un homenaje independiente al juego de bloques clásico de NES. No está afiliado ni respaldado por los titulares de ninguna marca comercial.
