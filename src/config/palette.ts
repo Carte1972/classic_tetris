@@ -19,14 +19,14 @@ export const PIECE_COLORS: Readonly<Record<PieceType, BlockColors>> = {
   L: { fill: '#9ccc4a', highlight: '#c2e77f', shadow: '#5f8424', shine: '#f4ffe2' },
 };
 
-/** Color de fondo del pozo: semitransparente para que se intuya la plaza detrás. */
-export const BOARD_BACKGROUND_COLOR = 'rgba(11, 13, 23, 0.86)';
+/** Color de fondo del pozo: opaco para que las piezas se lean bien sobre la plaza. */
+export const BOARD_BACKGROUND_COLOR = '#0b0d17';
 
 /** Color de fondo del pozo durante el destello de 4 líneas. */
 export const BOARD_FLASH_COLOR = '#e9e4d4';
 
-/** Color de fondo del recuadro de la siguiente pieza (semitransparente). */
-export const PREVIEW_BACKGROUND_COLOR = 'rgba(11, 13, 23, 0.6)';
+/** Color de fondo del recuadro de la siguiente pieza (opaco). */
+export const PREVIEW_BACKGROUND_COLOR = '#0b0d17';
 
 /** Colores de la interfaz (se aplican como variables CSS). */
 export const UI_COLORS = {

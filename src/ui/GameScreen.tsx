@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, type CSSProperties } from 'react';
 import type { AppSnapshot, HudData } from '../app/app_controller';
 import type { RenderTargets } from '../app/game_renderer';
 import { RENDER_SCALE } from '../config/render_config';
@@ -7,6 +7,7 @@ import { getBoardCanvasSize, getPreviewCanvasSize } from '../render/layout';
 import { CelebrationOverlay } from './CelebrationOverlay';
 import { Hud } from './Hud';
 import { PixelCanvas } from './PixelCanvas';
+import { useRenderScale } from './use_render_scale';
 
 /** Propiedades de la pantalla de partida. */
 export interface GameScreenProps {
@@ -34,14 +35,17 @@ export function GameScreen(props: GameScreenProps): React.JSX.Element {
     [targets],
   );
   const result = snapshot.lastResult;
+  const scale = useRenderScale();
+  // Los tamaños del CSS están pensados para la escala de referencia y se multiplican por esto.
+  const style = { '--ui-scale': scale / RENDER_SCALE } as CSSProperties;
 
   return (
-    <section className="game" aria-label="Partida">
+    <section className="game" aria-label="Partida" style={style}>
       <Hud hud={hud} muted={snapshot.preferences.muted} />
       <div className="board-frame">
         <PixelCanvas
           size={getBoardCanvasSize()}
-          scale={RENDER_SCALE}
+          scale={scale}
           label="Tablero"
           canvasRef={registerBoard}
         />
@@ -79,7 +83,7 @@ export function GameScreen(props: GameScreenProps): React.JSX.Element {
         {!hud.nextVisible && <p className="hint next-hidden">{TEXTS.hud.nextHidden}</p>}
         <PixelCanvas
           size={getPreviewCanvasSize()}
-          scale={RENDER_SCALE}
+          scale={scale}
           label={TEXTS.hud.next}
           canvasRef={registerPreview}
         />

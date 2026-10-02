@@ -5,7 +5,7 @@ import { drawTitle, getTitleCanvasSize } from '../render/title_renderer';
 import { PixelCanvas } from './PixelCanvas';
 
 /**
- * Título "BLOQUES" dibujado con bloques del juego.
+ * Título "ТЕТРИС" dibujado con bloques del juego.
  * @returns El título.
  */
 export function TitleLogo(): React.JSX.Element {
