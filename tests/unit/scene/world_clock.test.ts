@@ -16,6 +16,7 @@ import {
   getTimeOfDay,
   getWeatherIntensity,
   pickNextWeather,
+  requestWeather,
   type WorldState,
 } from '../../../src/scene/world_clock';
 
@@ -124,5 +125,38 @@ describe('tiempo atmosférico', () => {
       expect(pickNextWeather('rain', value)).not.toBe('rain');
     }
     expect(pickNextWeather('clear', 0.999_999)).not.toBe('clear');
+  });
+});
+
+describe('tiempo pedido por un evento', () => {
+  it('si ya hace ese tiempo, lo alarga', () => {
+    const world: WorldState = {
+      ...createWorld(1),
+      weather: 'snow',
+      weatherElapsedMs: 20_000,
+      weatherDurationMs: 30_000,
+    };
+    const held = requestWeather(world, 'snow', 60_000);
+    expect(held.weather).toBe('snow');
+    expect(held.weatherDurationMs).toBe(20_000 + 60_000 + WEATHER_FADE_MS);
+    expect(held.pendingWeather).toBeNull();
+  });
+
+  it('si no, el actual amaina y después llega el pedido, que dura lo necesario', () => {
+    const world: WorldState = {
+      ...createWorld(1),
+      weather: 'rain',
+      weatherElapsedMs: 20_000,
+      weatherDurationMs: 60_000,
+    };
+    const asked = requestWeather(world, 'snow', 50_000);
+    expect(asked.weather).toBe('rain');
+    expect(asked.weatherDurationMs).toBe(20_000 + WEATHER_FADE_MS);
+    expect(asked.pendingWeather).toEqual({ kind: 'snow', durationMs: 50_000 + WEATHER_FADE_MS });
+    expect(getWeatherIntensity(advanceWorld(asked, WEATHER_FADE_MS / 2))).toBeCloseTo(0.5);
+    const after = advanceWorld(asked, WEATHER_FADE_MS + 1000);
+    expect(after.weather).toBe('snow');
+    expect(after.weatherDurationMs).toBe(50_000 + WEATHER_FADE_MS);
+    expect(after.pendingWeather).toBeNull();
   });
 });

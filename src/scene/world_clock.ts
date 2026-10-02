@@ -39,6 +39,11 @@ export interface WorldState {
   readonly snowCover: number;
   /** Humedad del suelo (charcos), de 0 a 1. */
   readonly wetness: number;
+  /**
+   * Tiempo pedido por un evento de la plaza para cuando acabe el actual (en vez de
+   * sortearlo), o `null`.
+   */
+  readonly pendingWeather: { readonly kind: WeatherKind; readonly durationMs: number } | null;
   /** Estado del generador pseudoaleatorio. */
   readonly rngState: number;
 }
@@ -63,7 +68,34 @@ export function createWorld(seed: number): WorldState {
     weatherDurationMs: WEATHER_MIN_MS + roll.value * (WEATHER_MAX_MS - WEATHER_MIN_MS),
     snowCover: 0,
     wetness: 0,
+    pendingWeather: null,
     rngState: roll.state,
+  };
+}
+
+/**
+ * Pide un tiempo atmosférico durante un rato (lo usan los eventos de la plaza): si ya
+ * hace ese tiempo, se alarga; si no, el actual amaina y después llega el pedido.
+ * @param world Estado actual.
+ * @param kind Tiempo pedido.
+ * @param holdMs Tiempo mínimo que debe durar a partir de ahora (ms).
+ * @returns Nuevo estado.
+ */
+export function requestWeather(world: WorldState, kind: WeatherKind, holdMs: number): WorldState {
+  if (world.weather === kind) {
+    return {
+      ...world,
+      weatherDurationMs: Math.max(
+        world.weatherDurationMs,
+        world.weatherElapsedMs + holdMs + WEATHER_FADE_MS,
+      ),
+      pendingWeather: null,
+    };
+  }
+  return {
+    ...world,
+    weatherDurationMs: Math.min(world.weatherDurationMs, world.weatherElapsedMs + WEATHER_FADE_MS),
+    pendingWeather: { kind, durationMs: holdMs + WEATHER_FADE_MS },
   };
 }
 
@@ -111,10 +143,14 @@ export function advanceWorld(world: WorldState, dtMs: number): WorldState {
     weatherElapsedMs -= state.weatherDurationMs;
     const kindRoll = nextRandom(state.rngState);
     const durationRoll = nextRandom(kindRoll.state);
+    const pending = state.pendingWeather;
     state = {
       ...state,
-      weather: pickNextWeather(state.weather, kindRoll.value),
-      weatherDurationMs: WEATHER_MIN_MS + durationRoll.value * (WEATHER_MAX_MS - WEATHER_MIN_MS),
+      weather: pending?.kind ?? pickNextWeather(state.weather, kindRoll.value),
+      weatherDurationMs:
+        pending?.durationMs ??
+        WEATHER_MIN_MS + durationRoll.value * (WEATHER_MAX_MS - WEATHER_MIN_MS),
+      pendingWeather: null,
       rngState: durationRoll.state,
     };
   }
