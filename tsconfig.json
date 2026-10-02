@@ -26,6 +26,8 @@
     "vite.config.ts",
     "vitest.config.ts",
     "playwright.config.ts",
-    "playwright.screenshots.config.ts"
+    "playwright.screenshots.config.ts",
+    "playwright.video.config.ts",
+    "video"
   ]
 }
