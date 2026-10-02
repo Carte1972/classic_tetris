@@ -110,7 +110,7 @@ export const NARRACION = [
     frases: [
       { id: '4.1', texto: 'Las flechas mueven y bajan la pieza.', pausaMs: 400 },
       { id: '4.2', texto: 'La flecha arriba y la zeta, la giran.', pausaMs: 400 },
-      { id: '4.3', texto: 'Y con la pe... ¡pausa!', pausaMs: 0 },
+      { id: '4.3', texto: 'Y con la pe, pausas el juego.', pausaMs: 0 },
     ],
   },
   {
@@ -134,7 +134,7 @@ export const NARRACION = [
     frases: [
       { id: '6.1', texto: '¿Y al superar cada nivel?', pausaMs: 300 },
       { id: '6.2', texto: 'Te espera una celebración...', pausaMs: 2800 },
-      { id: '6.3', texto: '...y hay más sorpresas por descubrir.', pausaMs: 700 },
+      { id: '6.3', texto: 'Y hay más sorpresas por descubrir.', pausaMs: 700 },
       {
         id: '6.4',
         texto: 'Tus diez mejores partidas quedan en los récords. ¿Te atreves a superarlas?',

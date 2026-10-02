@@ -5,6 +5,8 @@
 **Cambios tras la primera versión montada (pedidos por el autor):**
 
 - **Velocidad única:** todas las frases van a la misma velocidad, 170 palabras por minuto, la de la primera frase, para que la voz suene continua. Se mantienen los tonos de cada frase; las velocidades de las tablas pasan a ser todas 170.
+- **Frase 4.3:** ahora dice «Y con la P, pausas el juego» (antes «Y con la P… ¡pausa!»).
+- **Frase 6.3:** sin los puntos suspensivos iniciales, porque la voz los leía como «punto». Queda «Y hay más sorpresas por descubrir».
 - **«¡Tetris!» (2.3), la única excepción:** más lenta (120) y 5 dB más fuerte, para remarcar el nombre con efusividad. El autor eligió esta versión de oído entre cuatro candidatas.
 - **Pausas:** 0,2 s más de pausa entre frases.
 - **Duración:** la narración real dura unos 111 s y el vídeo, 2 min 18 s.
@@ -85,7 +87,7 @@ _Las grafías «Páshitnov» y «Guéim Boi» se probarán en la prueba de voz. 
 | --- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------ |
 | 4.1 | _[ágil · −r 170]_ Las flechas mueven y bajan la pieza.  | Grabación guionizada (`extracto_controles`): la pieza va a la izquierda, a la derecha y baja con soft drop. | Tabla de teclas (`rotulo_controles`) a un lado; se resalta cada tecla cuando se usa: ← → MOVER · ↓ BAJAR · ↑ GIRAR · Z GIRAR AL REVÉS · P PAUSA. | Efectos de mover a −6 dB; música a −20 dB. |
 | 4.2 | _[ágil · −r 170]_ La flecha arriba y la zeta, la giran. | La pieza gira en un sentido y en el otro.                                                                   | Se resaltan ↑ y Z.                                                                                                                               | Efecto de girar.                           |
-| 4.3 | _[ágil · −r 170]_ Y con la pe... ¡pausa!                | El juego entra en PAUSA (el pozo se oculta) y vuelve.                                                       | Se resalta P.                                                                                                                                    | La música se corta en la pausa y vuelve.   |
+| 4.3 | _[ágil · −r 170]_ Y con la pe, pausas el juego.         | El juego entra en PAUSA (el pozo se oculta) y vuelve.                                                       | Se resalta P.                                                                                                                                    | La música se corta en la pausa y vuelve.   |
 
 ## Escena 5 — La Plaza Roja y su música (≈26 s)
 
@@ -101,7 +103,7 @@ _Las grafías «Páshitnov» y «Guéim Boi» se probarán en la prueba de voz. 
 | --- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------- | ------------------------------------ |
 | 6.1 | _[intriga · −r 170]_ ¿Y al superar cada nivel?                                                  | Pozo con una I a punto de completar el objetivo del nivel 1.                                                                  | —       | Kalinka a −20 dB.                    |
 | 6.2 | _[intriga · −r 170]_ Te espera una celebración...                                               | Adelanto de unos 4 s del cosaco en plena prisiadka, en la estepa (`extracto_baile_cosaco`). Es el único bailarín que aparece. | —       | Kalinka sube a −8 dB mientras baila. |
-| 6.3 | _[misterio · −r 170]_ ...y hay más sorpresas por descubrir.                                     | Fundido corto a negro desde el baile.                                                                                         | —       | Kalinka baja y se funde.             |
+| 6.3 | _[misterio · −r 170]_ Y hay más sorpresas por descubrir.                                        | Fundido corto a negro desde el baile.                                                                                         | —       | Kalinka baja y se funde.             |
 | 6.4 | _[energía · −r 170]_ Tus diez mejores partidas quedan en los récords. ¿Te atreves a superarlas? | Pantalla RÉCORDS con un top 10 de ejemplo (`extracto_records`).                                                               | —       | Vuelve Korobéiniki a −20 dB.         |
 
 ## Escena 7 — Cierre (≈8 s)
