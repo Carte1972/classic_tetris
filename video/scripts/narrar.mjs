@@ -5,7 +5,7 @@
 // Uso: node video/scripts/narrar.mjs [número de escena ...]  (sin argumentos, todas)
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { NARRACION } from '../narracion.mjs';
+import { NARRACION, VELOCIDAD } from '../narracion.mjs';
 
 const root = new URL('../../', import.meta.url);
 const audioDir = new URL('video/audio/', root);
@@ -70,7 +70,7 @@ function narrarFrase(frase) {
   const bruto = new URL(`${nombre}.aiff`, clipsDir);
   const tratado = new URL(`${nombre}.wav`, clipsDir);
   // Nunca `-v`: la voz es la del sistema (Voz 1 de Siri).
-  run('say', ['-r', String(frase.velocidad), '-o', bruto.pathname, frase.texto]);
+  run('say', ['-r', String(VELOCIDAD), '-o', bruto.pathname, frase.texto]);
   if (duration(bruto) < 0.3) {
     throw new Error(`La frase ${frase.id} ha salido vacía`);
   }

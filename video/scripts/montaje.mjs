@@ -115,17 +115,74 @@ function frase(escena, id) {
  */
 
 /**
- * Escenas del guion aprobado con sus tiempos, ajustados a la narración real.
+ * Primer suceso de un tipo en un extracto.
+ * @param {string} clip Extracto.
+ * @param {string} tipo Tipo de suceso.
+ * @param {string} [detalle] Detalle (por ejemplo, la tecla).
+ * @returns {number} Instante (s).
+ */
+function suceso(clip, tipo, detalle) {
+  const found = readJson(`${CLIPS}${clip}.json`).eventos.find(
+    (e) => e.tipo === tipo && (detalle === undefined || e.detalle === detalle),
+  );
+  if (found === undefined) {
+    throw new Error(`El extracto ${clip} no tiene el suceso ${tipo}`);
+  }
+  return found.t;
+}
+
+/** Comienzo de la voz de cada escena (s desde el principio de la escena). */
+const VOZ = { 2: 0.8, 3: 0.5, 4: 1.0, 5: 0.4, 6: 0.3, 7: 0.8 };
+
+/** Margen después de la última frase de una escena (s). */
+const COLA = { 2: 1.0, 3: 1.6, 4: 0, 5: 0, 6: 1.2, 7: 0 };
+
+/** Duración de cada evento en el montaje de la escena 5 (s). */
+const EVENTO_S = 2.95;
+
+/**
+ * Escenas del guion aprobado. Los tiempos se calculan a partir de la narración real
+ * (frases) y de los sucesos de las grabaciones, para que cada frase clave coincida con
+ * lo que se ve: el destello de 4 líneas con «¡Muchos más puntos!», el fin de la partida
+ * con «…se acabó», el 10 / 10 con el final de la frase del objetivo, etc.
  * @returns {Escena[]} Escenas.
  */
 function escenas() {
   const titulo = readJson(`${ROTULOS}rotulo_titulo.json`);
-  const v2 = 0.8;
-  const v3 = 0.5;
-  const v6 = 0.3;
+  /** Instante de una frase dentro de su escena (inicio o fin). */
+  const f = (escena, id, punto = 'inicio') => VOZ[escena] + frase(escena, id)[punto];
+  /** Duración de una escena: hasta el final de su última frase más su margen. */
+  const fin = (escena, ultima) => f(escena, ultima, 'fin') + COLA[escena];
+
+  // Escena 2: amanecer, corte a la partida en «¡Tetris!», día y atardecer.
+  const tetris = f(2, '2.3') - 0.1;
+  const dia = tetris + 2;
+  const atardecer = f(2, '2.5') - 0.1;
+  const d2 = fin(2, '2.5');
+
+  // Escena 3: cada tramo cambia justo antes de su frase.
+  const cuatro = f(3, '3.4') - 0.1;
+  const cuidado = f(3, '3.5') - 0.3;
+  const objetivo = f(3, '3.6') - 0.3;
+  const dificultad = f(3, '3.9') - 0.1;
+  const d3 = fin(3, '3.9');
+  // El fin de la partida aparece en «…se acabó»; el 10 / 10, al acabar la frase 3.6.
+  const finEn = f(3, '3.5', 'fin') - 0.6;
+  const finDesde = suceso('extracto_fin_partida', 'gameOver') - (finEn - cuidado);
+  const metaEn = f(3, '3.6', 'fin') - 0.2;
+  const metaDesde = suceso('extracto_objetivo_nivel', 'lineClear') - (metaEn - objetivo);
+
+  // Escena 4: dura lo que la grabación de controles necesita para enseñar todas las teclas.
+  const d4 = 16.5;
+
+  // Escena 5: tras la primera frase, los seis eventos.
   const eventos = ['desfile', 'pascua', 'navidad', 'fuegos', 'maslenitsa', 'olimpiadas'];
-  const eventoDur = 2.95;
-  const eventosEn = 5.6;
+  const eventosEn = f(5, '5.1', 'fin') + 0.15;
+  const d5 = Math.max(eventosEn + eventos.length * EVENTO_S, fin(5, '5.2') + 0.6);
+
+  // Escena 6: la I completa el nivel, el cosaco en la prisiadka, fundido y récords.
+  const d6 = fin(6, '6.4');
+
   return [
     {
       numero: 1,
@@ -137,91 +194,82 @@ function escenas() {
     },
     {
       numero: 2,
-      duracion: 22,
-      voz: v2,
+      duracion: d2,
+      voz: VOZ[2],
       tramos: [
-        { clip: 'extracto_plaza_dia_noche', desde: 0, en: 0, dur: 9.4 },
-        { clip: 'extracto_partida_en_curso', desde: 2, en: 9.4, dur: 2 },
-        { clip: 'extracto_plaza_dia_noche', desde: 11.4, en: 11.4, dur: 5 },
-        { clip: 'extracto_plaza_dia_noche', desde: 18, en: 16.4, dur: 5.6 },
+        { clip: 'extracto_plaza_dia_noche', desde: 0, en: 0, dur: tetris },
+        { clip: 'extracto_partida_en_curso', desde: 2, en: tetris, dur: 2 },
+        { clip: 'extracto_plaza_dia_noche', desde: 11.2, en: dia, dur: atardecer - dia },
+        { clip: 'extracto_plaza_dia_noche', desde: 18, en: atardecer, dur: d2 - atardecer },
       ],
       rotulos: [
-        { archivo: 'rotulo_fecha_1984.png', en: v2, hasta: v2 + frase(2, '2.2').fin },
-        {
-          archivo: 'rotulo_fecha_1989.png',
-          en: v2 + frase(2, '2.4').inicio,
-          hasta: v2 + frase(2, '2.4').fin + 0.3,
-        },
+        { archivo: 'rotulo_fecha_1984.png', en: VOZ[2], hasta: f(2, '2.2', 'fin') },
+        { archivo: 'rotulo_fecha_1989.png', en: f(2, '2.4'), hasta: f(2, '2.4', 'fin') + 0.3 },
       ],
     },
     {
       numero: 3,
-      duracion: 37,
-      voz: v3,
+      duracion: d3,
+      voz: VOZ[3],
       tramos: [
-        { clip: 'extracto_partida_en_curso', desde: 1.1, en: 0, dur: 9.3 },
-        { clip: 'extracto_limpieza_4_lineas', desde: 0.1, en: 9.3, dur: 3.2 },
-        { clip: 'extracto_fin_partida', desde: 1.8, en: 12.5, dur: 4 },
-        { clip: 'extracto_objetivo_nivel', desde: 1.2, en: 16.5, dur: 12.5 },
-        { clip: 'extracto_nivel_15', desde: 0.5, en: 29, dur: 8 },
+        { clip: 'extracto_partida_en_curso', desde: 0, en: 0, dur: cuatro },
+        { clip: 'extracto_limpieza_4_lineas', desde: 0, en: cuatro, dur: cuidado - cuatro },
+        { clip: 'extracto_fin_partida', desde: finDesde, en: cuidado, dur: objetivo - cuidado },
+        {
+          clip: 'extracto_objetivo_nivel',
+          desde: metaDesde,
+          en: objetivo,
+          dur: dificultad - objetivo,
+        },
+        { clip: 'extracto_nivel_15', desde: 0.3, en: dificultad, dur: d3 - dificultad },
       ],
       rotulos: [
-        { archivo: 'rotulo_piezas.png', en: v3, hasta: v3 + 2.2 },
-        {
-          archivo: 'rotulo_objetivo.png',
-          en: v3 + frase(3, '3.6').inicio,
-          hasta: v3 + frase(3, '3.6').fin,
-        },
+        { archivo: 'rotulo_piezas.png', en: VOZ[3], hasta: f(3, '3.1', 'fin') + 0.5 },
+        { archivo: 'rotulo_objetivo.png', en: f(3, '3.6'), hasta: f(3, '3.6', 'fin') },
       ],
     },
     {
       numero: 4,
-      duracion: 15,
-      voz: 1.0,
-      tramos: [{ clip: 'extracto_controles', desde: 0, en: 0, dur: 15 }],
-      rotulos: [{ archivo: 'rotulo_controles', en: 0, hasta: 15 }],
+      duracion: d4,
+      voz: VOZ[4],
+      tramos: [{ clip: 'extracto_controles', desde: 0, en: 0, dur: d4 }],
+      rotulos: [{ archivo: 'rotulo_controles', en: 0, hasta: d4 }],
     },
     {
       numero: 5,
-      duracion: eventosEn + eventos.length * eventoDur,
-      voz: 0.4,
+      duracion: d5,
+      voz: VOZ[5],
       tramos: [
         { clip: 'extracto_plaza_dia_noche', desde: 24.2, en: 0, dur: eventosEn },
         ...eventos.map((nombre, i) => ({
           clip: `extracto_evento_${nombre}`,
           desde: 1,
-          en: eventosEn + i * eventoDur,
-          dur: eventoDur,
+          en: eventosEn + i * EVENTO_S,
+          dur: i === eventos.length - 1 ? d5 - eventosEn - i * EVENTO_S : EVENTO_S,
         })),
       ],
       rotulos: eventos.map((nombre, i) => ({
         archivo: `rotulo_evento_${nombre}.png`,
-        en: eventosEn + i * eventoDur + 0.15,
-        hasta: eventosEn + (i + 1) * eventoDur - 0.15,
+        en: eventosEn + i * EVENTO_S + 0.15,
+        hasta: i === eventos.length - 1 ? d5 - 0.2 : eventosEn + (i + 1) * EVENTO_S - 0.15,
       })),
     },
     {
       numero: 6,
-      duracion: v6 + frase(6, '6.4').fin + 1.2,
-      voz: v6,
+      duracion: d6,
+      voz: VOZ[6],
       tramos: [
         { clip: 'extracto_baile_cosaco', desde: 0.3, en: 0, dur: 1.4 },
         { clip: 'extracto_baile_cosaco', desde: 3.0, en: 1.4, dur: 3.6, fundidoSalida: true },
         { en: 5.0, desde: 0, dur: 0.4 },
-        {
-          clip: 'extracto_records',
-          desde: 0.5,
-          en: 5.4,
-          dur: v6 + frase(6, '6.4').fin + 1.2 - 5.4,
-          fundidoEntrada: true,
-        },
+        { clip: 'extracto_records', desde: 0.5, en: 5.4, dur: d6 - 5.4, fundidoEntrada: true },
       ],
       rotulos: [],
     },
     {
       numero: 7,
       duracion: 8,
-      voz: 0.8,
+      voz: VOZ[7],
       tramos: [{ clip: 'extracto_cierre_plaza', desde: 0.5, en: 0, dur: 8 }],
       rotulos: [{ archivo: 'rotulo_cierre.png', en: 0.3, hasta: 8 }],
     },
@@ -241,6 +289,12 @@ function montarEscena(escena) {
     if (tramo.clip === undefined) {
       args.push('-f', 'lavfi', '-i', `color=c=black:s=${WIDTH}x${HEIGHT}:r=${FPS}:d=${tramo.dur}`);
     } else {
+      const disponible = readJson(`${CLIPS}${tramo.clip}.json`).duracion;
+      if (tramo.desde < 0 || tramo.desde + tramo.dur > disponible + 0.01) {
+        throw new Error(
+          `Escena ${escena.numero}: el tramo de ${tramo.clip} (${tramo.desde.toFixed(2)} s + ${tramo.dur.toFixed(2)} s) se sale de la grabación (${disponible.toFixed(2)} s)`,
+        );
+      }
       args.push(
         '-ss',
         String(tramo.desde),
@@ -364,10 +418,13 @@ function efectosDeEscena(escena, inicio) {
  */
 function musica(inicios, total) {
   const at = (escena, t) => (inicios.get(escena) ?? 0) + t;
-  const rapidaEn = at(3, 29);
-  const rapidaFin = at(3, 34.6);
-  const pausaIni = at(4, 6.43);
-  const pausaFin = at(4, 8.8);
+  const rapidaEn = at(3, VOZ[3] + frase(3, '3.9').inicio - 0.1);
+  const rapidaFin = at(4, 0);
+  const [pausa, reanuda] = readJson(`${CLIPS}extracto_controles.json`)
+    .eventos.filter((e) => e.tipo === 'tecla' && e.detalle === 'KeyP')
+    .map((e) => e.t);
+  const pausaIni = at(4, pausa ?? 0);
+  const pausaFin = at(4, reanuda ?? 0);
   const kalinkaEn = at(6, -0.6);
   const kalinkaFin = at(6, 5.0);
   const vueltaEn = at(6, 5.4);

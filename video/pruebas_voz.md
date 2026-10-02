@@ -38,3 +38,7 @@ Frase de prueba: «Caen piezas de siete formas. Gíralas, y encájalas para comp
 El autor escuchó `narracion_03.aiff` y pidió que, entre frases, hubiera algo más de pausa además de la del guion. Se añaden **200 ms** a cada pausa entre frases (`EXTRA_PAUSE_MS` en `video/scripts/narrar.mjs`).
 
 **Pronunciación:** el autor dio por buenas las grafías del guion: «Alexéi Páshitnov», «Guéim Boi y Nes», «Korobéiniki», «zeta» y «pe».
+
+## Velocidad única
+
+Tras ver la primera versión montada, el autor pidió que todas las frases fueran a la misma velocidad, la de la primera frase del vídeo, porque las distintas velocidades rompían la continuidad. Todas se generan ahora con `say -r 170` (`VELOCIDAD` en `video/narracion.mjs`). El montaje recalcula sus puntos de sincronía a partir de los tiempos reales de cada frase.
