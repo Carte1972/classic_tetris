@@ -7,9 +7,9 @@ import {
 } from '../../../src/celebration/celebration_renderer';
 import { seekCelebration, startCelebration } from '../../../src/celebration/celebration_state';
 import { MATRYOSHKA_SMALL } from '../../../src/celebration/dancers/matryoshka';
-import { drawOlympicRings } from '../../../src/celebration/stages/arena_1980';
+import { drawOlympicRings } from '../../../src/scene/olympic_rings';
 import { LAUNCHPAD } from '../../../src/celebration/stages/launchpad';
-import { drawPixelText, pixelTextWidth } from '../../../src/celebration/stages/pixel_text';
+import { drawPixelText, pixelTextWidth } from '../../../src/scene/pixel_text';
 import { STAGE_SIZE } from '../../../src/celebration/stages/stage_types';
 import { createFakeContext } from '../render/fake_context';
 
