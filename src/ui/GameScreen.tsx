@@ -87,7 +87,7 @@ export function GameScreen(props: GameScreenProps): React.JSX.Element {
       {snapshot.screen === 'celebrating' && snapshot.celebrationLevel !== null && (
         <CelebrationOverlay
           level={snapshot.celebrationLevel}
-          dance={snapshot.celebrationKind === 'dance'}
+          caption={snapshot.celebrationCaption}
           targets={targets}
         />
       )}

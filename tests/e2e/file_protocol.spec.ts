@@ -16,7 +16,11 @@ test('el index.html autocontenido funciona abierto desde file://', async ({ page
   await tap(page, 'Enter');
   await expect(page.getByTestId('hud-level')).toHaveText('1');
 
+  await expect
+    .poll(() => page.evaluate(() => localStorage.getItem('bloques.preferences')))
+    .toContain('"startLevel":1');
   await page.reload();
+  await expect(page.getByText('PULSA CUALQUIER TECLA')).toBeVisible();
   await tap(page, 'Space');
   await expect(page.getByRole('menuitem').nth(1)).toHaveText(/NIVEL INICIAL\s*1/);
   expect(errors).toEqual([]);

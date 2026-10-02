@@ -222,19 +222,54 @@ h2 {
 .celebration {
   position: fixed;
   inset: 0;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
+  justify-content: space-between;
+  padding: 18px;
   background: color-mix(in srgb, var(--color-background) 80%, transparent);
+}
+
+.celebration-heading {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-shadow:
+    2px 2px 0 #000,
+    -1px -1px 0 #000;
+  /* Presenta al bailarín y se desvanece para dejar ver el escenario entero. */
+  animation: celebration-heading 0.6s ease-in 3s forwards;
+}
+
+@keyframes celebration-heading {
+  to {
+    opacity: 0;
+  }
 }
 
 .celebration-title {
   font-size: 40px;
 }
 
+.celebration-caption {
+  font-size: 18px;
+}
+
+.celebration .hint {
+  position: relative;
+  z-index: 1;
+  color: var(--color-text);
+  text-shadow: 2px 2px 0 #000;
+}
+
 .celebration-stage {
-  width: min(100vw, calc((100vh - 140px) * var(--stage-ratio)));
-  height: auto;
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
 }

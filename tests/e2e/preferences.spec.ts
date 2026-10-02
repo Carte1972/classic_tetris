@@ -19,7 +19,12 @@ test('las preferencias persisten tras recargar la página', async ({ page }) => 
   await expect(items.nth(2)).toHaveText(/MÚSICA\s*DESACTIVADA/);
   await expect(items.nth(3)).toHaveText(/CELEBRACIONES\s*DESACTIVADAS/);
 
+  // Recargar solo cuando el guardado haya llegado a localStorage (en WebKit es asíncrono).
+  await expect
+    .poll(() => page.evaluate(() => localStorage.getItem('bloques.preferences')))
+    .toMatch(/"startLevel":4.*"muted":true/);
   await page.reload();
+  await expect(page.getByText('PULSA CUALQUIER TECLA')).toBeVisible();
   await tap(page, 'Space');
   await expect(items.nth(1)).toHaveText(/NIVEL INICIAL\s*4/);
   await expect(items.nth(2)).toHaveText(/MÚSICA\s*DESACTIVADA/);

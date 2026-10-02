@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { noteToFrequency } from '../../../src/audio/notes';
 import { getTrackLength } from '../../../src/audio/song';
 import { KALINKA } from '../../../src/audio/songs/kalinka';
-import { CELEBRATION_DURATION_MS } from '../../../src/config/celebration_config';
 
 /** Milisegundos por minuto. */
 const MS_PER_MINUTE = 60_000;
@@ -13,10 +12,10 @@ describe('KALINKA', () => {
     expect(new Set(lengths).size).toBe(1);
   });
 
-  it('el fragmento dura lo mismo que la celebración', () => {
+  it('una vuelta (estribillo y estrofa) dura 12 segundos, más que la celebración', () => {
     const steps = getTrackLength(KALINKA.tracks[0] ?? { waveform: 'square', volume: 0, notes: [] });
     const durationMs = (steps / KALINKA.stepsPerBeat) * (MS_PER_MINUTE / KALINKA.bpm);
-    expect(durationMs).toBe(CELEBRATION_DURATION_MS);
+    expect(durationMs).toBe(12_000);
   });
 
   it('la melodía empieza con el motivo "Ka-lin-ka": La, Sol, Mi, Fa', () => {

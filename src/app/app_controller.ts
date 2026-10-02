@@ -6,6 +6,7 @@ import {
   isCelebrationFinished,
   seekCelebration,
   skipCelebration,
+  getPerformer,
   startCelebration,
   type CelebrationKind,
   type CelebrationState,
@@ -81,6 +82,8 @@ export interface AppSnapshot {
   readonly celebrationLevel: number | null;
   /** Si la celebración tiene baile o es solo el rótulo del nivel. */
   readonly celebrationKind: CelebrationKind | null;
+  /** Bailarín y lugar de la celebración (p. ej. "EL COSACO EN LA ESTEPA"), o `null`. */
+  readonly celebrationCaption: string | null;
 }
 
 /** Parte del motor de audio que usa la aplicación. */
@@ -168,6 +171,7 @@ export function createAppController(deps: AppDependencies): AppController {
       lastResult,
       celebrationLevel: celebration?.level ?? null,
       celebrationKind: celebration?.kind ?? null,
+      celebrationCaption: celebration === null ? null : describeCelebration(celebration),
       hud:
         state === null
           ? null
@@ -427,6 +431,7 @@ function snapshotsEqual(a: AppSnapshot, b: AppSnapshot): boolean {
     a.lastResult === b.lastResult &&
     a.celebrationLevel === b.celebrationLevel &&
     a.celebrationKind === b.celebrationKind &&
+    a.celebrationCaption === b.celebrationCaption &&
     hudEqual(a.hud, b.hud)
   );
 }
@@ -451,4 +456,17 @@ function hudEqual(a: HudData | null, b: HudData | null): boolean {
     a.levelGoal === b.levelGoal &&
     a.best === b.best
   );
+}
+
+/**
+ * Texto con el bailarín y el lugar de una celebración con baile.
+ * @param celebration Celebración.
+ * @returns El texto, o `null` si es solo el rótulo del nivel.
+ */
+function describeCelebration(celebration: CelebrationState): string | null {
+  if (celebration.kind !== 'dance') {
+    return null;
+  }
+  const performer = getPerformer(celebration);
+  return `${performer.dancer.name} ${performer.stage.place}`;
 }

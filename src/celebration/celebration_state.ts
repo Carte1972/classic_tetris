@@ -1,6 +1,5 @@
 import { CELEBRATION_DURATION_MS, LEVEL_BANNER_DURATION_MS } from '../config/celebration_config';
-import { DANCERS } from './characters';
-import type { CharacterDefinition } from './sprites/sprite_types';
+import { PERFORMERS, type Performer } from './characters';
 
 /** Tipo de transición entre niveles: baile completo o solo el rótulo del nivel. */
 export type CelebrationKind = 'dance' | 'banner';
@@ -10,7 +9,7 @@ export interface CelebrationState {
   /** Nivel alcanzado. */
   readonly level: number;
   readonly kind: CelebrationKind;
-  /** Índice del bailarín en `DANCERS`. */
+  /** Índice del bailarín en `PERFORMERS`. */
   readonly dancerIndex: number;
   /** Tiempo transcurrido (ms), entre 0 y la duración total. */
   readonly elapsedMs: number;
@@ -36,7 +35,10 @@ export interface CelebrationStart {
  * @param count Número de bailarines.
  * @returns Índice del bailarín.
  */
-export function selectDancerIndex(levelsCompleted: number, count: number = DANCERS.length): number {
+export function selectDancerIndex(
+  levelsCompleted: number,
+  count: number = PERFORMERS.length,
+): number {
   return (((levelsCompleted - 1) % count) + count) % count;
 }
 
@@ -97,14 +99,14 @@ export function isCelebrationFinished(state: CelebrationState): boolean {
 }
 
 /**
- * Bailarín de la celebración.
+ * Bailarín (con su escenario) de la celebración.
  * @param state Estado actual.
- * @returns Definición del personaje.
+ * @returns El bailarín y su escenario.
  */
-export function getDancer(state: CelebrationState): CharacterDefinition {
-  const dancer = DANCERS[state.dancerIndex];
-  if (dancer === undefined) {
+export function getPerformer(state: CelebrationState): Performer {
+  const performer = PERFORMERS[state.dancerIndex];
+  if (performer === undefined) {
     throw new RangeError(`Bailarín inexistente: ${state.dancerIndex}`);
   }
-  return dancer;
+  return performer;
 }
