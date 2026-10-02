@@ -30,7 +30,7 @@ jobs:
       - run: npm run build
       - run: npm run package
       - name: Comprobar el paquete
-        run: unzip -t release/bloques-${GITHUB_REF_NAME}.zip
+        run: unzip -t "release/bloques-${GITHUB_REF_NAME}.zip"
       - name: Crear la GitHub Release con el paquete
         env:
           GH_TOKEN: ${{ github.token }}
