@@ -442,6 +442,7 @@ El juego y el vídeo explicativo se desarrollaron en una sola sesión de desarro
 | Tokens generados            | 1,04 M      | 0,23 M            | 1,27 M       |
 | **Precio estimado**         | **97,41 $** | **45,97 $**       | **143,38 $** |
 
+- **M** = millones de tokens.
 - El **vídeo** se cuenta desde que se pidió, incluidos sus ajustes y su documentación. Lo anterior es el **juego**: especificación, tres iteraciones, tests, capturas y release.
 - El **tiempo con actividad** suma solo los intervalos de menos de 15 minutos sin actividad, así que no cuenta las pausas largas. Sí incluye el tiempo de revisar, escuchar y responder.
 - **Tokens nuevos leídos:** todo el texto que el asistente lee por primera vez (mensajes, archivos, resultados de comandos y tests, imágenes). Se guarda en caché para no tener que procesarlo de nuevo.
