@@ -1,6 +1,6 @@
 # Pruebas de la voz de narración
 
-Fecha: 2 de octubre de 2026. Equipo: macOS 15.7.3. Voz: la del sistema (Voz 1 de Siri, según el autor), con `say` **sin `-v`**.
+Fecha: 2 de octubre de 2026. Equipo: macOS 15.7.3. Voz: la del sistema, con `say` **sin `-v`**. El autor confirmó al escuchar la muestra que es la Voz 1 de Siri.
 
 ## Prueba de voz
 
@@ -32,3 +32,9 @@ Frase de prueba: «Caen piezas de siete formas. Gíralas, y encájalas para comp
   - dentro de una frase, se usa `[[slnc N]]` donde haga falta.
 - **Énfasis:** `[[emph]]` no se usa porque no tiene efecto. El énfasis sale de la puntuación (exclamaciones, interrogaciones, puntos suspensivos) y del ritmo.
 - **Tratamiento de audio:** filtro de paso alto a 80 Hz, realce suave de presencia (+2 dB a 3 kHz) y compresión suave (ratio 2,5:1). Después se convierte a 48 kHz. No se cambia el timbre.
+
+## Muestra de la escena 3 y ajustes
+
+El autor escuchó `narracion_03.aiff` y pidió que, entre frases, hubiera algo más de pausa además de la del guion. Se añaden **200 ms** a cada pausa entre frases (`EXTRA_PAUSE_MS` en `video/scripts/narrar.mjs`).
+
+**Pronunciación:** el autor dio por buenas las grafías del guion: «Alexéi Páshitnov», «Guéim Boi y Nes», «Korobéiniki», «zeta» y «pe».

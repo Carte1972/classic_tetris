@@ -15,6 +15,12 @@ const clipsDir = new URL('video/audio/frases/', root);
 const SAMPLE_RATE = 48000;
 
 /**
+ * Pausa mínima que se añade entre dos frases seguidas, además de la del guion (ms).
+ * El autor la pidió tras escuchar la muestra de la escena 3.
+ */
+const EXTRA_PAUSE_MS = 200;
+
+/**
  * Tratamiento ligero de la voz: quita graves inútiles, da algo de presencia y comprime
  * suavemente, sin cambiar el timbre.
  */
@@ -115,17 +121,19 @@ function narrarEscena(escena) {
   const partes = [];
   const tiempos = [];
   let t = 0;
-  for (const frase of escena.frases) {
+  escena.frases.forEach((frase, index) => {
     const clip = narrarFrase(frase);
     const dur = duration(clip);
     tiempos.push({ id: frase.id, inicio: Number(t.toFixed(3)), fin: Number((t + dur).toFixed(3)) });
     partes.push(clip);
     t += dur;
-    if (frase.pausaMs > 0) {
-      partes.push(silencio(frase.pausaMs));
-      t += frase.pausaMs / 1000;
+    const last = index === escena.frases.length - 1;
+    const pausa = last ? frase.pausaMs : frase.pausaMs + EXTRA_PAUSE_MS;
+    if (pausa > 0) {
+      partes.push(silencio(pausa));
+      t += pausa / 1000;
     }
-  }
+  });
   const numero = String(escena.escena).padStart(2, '0');
   const lista = new URL(`lista_${numero}.txt`, clipsDir);
   writeFileSync(lista, partes.map((p) => `file '${p.pathname}'`).join('\n') + '\n');
