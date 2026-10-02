@@ -2,11 +2,11 @@
 
 [![CI](https://github.com/Carte1972/classic_tetris/actions/workflows/ci.yml/badge.svg)](https://github.com/Carte1972/classic_tetris/actions/workflows/ci.yml)
 
-![Partida de ТЕТРИС en movimiento: las piezas caen y se completan líneas en un pozo semitransparente, con la Plaza Roja de fondo y sus paseantes](docs/screenshots/partida_demo.gif)
+![Partida de ТЕТРИС en movimiento: las piezas caen y se completan líneas en el pozo, con la Plaza Roja de fondo y sus paseantes](docs/screenshots/partida_demo.gif)
 
 **ТЕТРИС** (Tetris) es un juego de bloques que caen, fiel a las reglas del clásico de NES (1989), hecho con TypeScript, React y Canvas. Se juega en el navegador. Todo el juego cabe en un único archivo `index.html` que funciona abierto con doble clic, sin servidor ni conexión, y viene con lanzadores para macOS, Linux y Windows.
 
-Se juega delante de una **Plaza Roja viva** en pixel-art, con paseantes, palomas, ciclo de día y noche y tiempo cambiante. Cada nivel tiene un **objetivo de líneas**; al superarlo, uno de los 9 personajes sale a bailar la danza cosaca durante 10 segundos en su propio escenario ruso. Incluye música chiptune sintetizada en tiempo real, efectos de sonido, récords y preferencias guardadas.
+Se juega delante de una **Plaza Roja viva** en pixel-art, vista desde San Basilio como en las postales, con paseantes, palomas, ciclo de día y noche, tiempo cambiante y **eventos típicos** que van ocupando la plaza: el desfile de la Victoria, la Pascua ortodoxa, el mercadillo de Navidad, los fuegos artificiales, Maslenitsa y la fiesta de los campeones olímpicos. Cada nivel tiene un **objetivo de líneas**; al superarlo, uno de los 9 personajes sale a bailar la danza cosaca durante 10 segundos en su propio escenario ruso. Incluye música chiptune sintetizada en tiempo real, efectos de sonido, récords y preferencias guardadas.
 
 ## Índice
 
@@ -14,6 +14,7 @@ Se juega delante de una **Plaza Roja viva** en pixel-art, con paseantes, palomas
 - [Jugar](#jugar)
 - [Controles](#controles)
 - [Reglas y puntuación](#reglas-y-puntuación)
+- [La Plaza Roja](#la-plaza-roja)
 - [Desarrollo](#desarrollo)
 - [Lanzadores y publicación de una release](#lanzadores-y-publicación-de-una-release)
 - [Arquitectura](#arquitectura)
@@ -27,14 +28,23 @@ Se juega delante de una **Plaza Roja viva** en pixel-art, con paseantes, palomas
 | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 |               ![Pantalla de inicio con el título ТЕТРИС dibujado con bloques de colores y el menú principal sobre la Plaza Roja](docs/screenshots/pantalla_inicio.png)                |         ![Partida a media pila con una T cayendo, el marcador con el objetivo del nivel a la izquierda y la siguiente pieza a la derecha](docs/screenshots/partida_en_curso.png)          |
 |                                                                          Pantalla de inicio: título y menú.                                                                           |                                                       Partida en curso: marcador con el objetivo del nivel, pozo y siguiente pieza.                                                       |
-|                   ![Limpieza de cuatro líneas: el fondo del pozo destella y las filas completas desaparecen desde el centro](docs/screenshots/limpieza_lineas.png)                    |                            ![Partida de noche con la Plaza Roja nevada, ventanas y farolas encendidas y copos cayendo](docs/screenshots/plaza_roja_noche.png)                             |
-|                                                                   Limpieza de 4 líneas a la vez: el pozo destella.                                                                    |                                                         De noche y nevando: la plaza cambia de hora y de tiempo mientras juegas.                                                          |
-|                                                ![Partida en pausa con el tablero oculto y el texto PAUSA](docs/screenshots/pausa.png)                                                 |                             ![Pantalla de fin de partida con la puntuación, las líneas, el nivel y el aviso de nuevo récord](docs/screenshots/game_over.png)                              |
-|                                                                       Pausa: el tablero se oculta, como en NES.                                                                       |                                                                        Fin de la partida con la puntuación final.                                                                         |
+|                   ![Limpieza de cuatro líneas: el fondo del pozo destella y las filas completas desaparecen desde el centro](docs/screenshots/limpieza_lineas.png)                    |                                                  ![Partida en pausa con el tablero oculto y el texto PAUSA](docs/screenshots/pausa.png)                                                   |
+|                                                                   Limpieza de 4 líneas a la vez: el pozo destella.                                                                    |                                                                         Pausa: el tablero se oculta, como en NES.                                                                         |
+|                           ![Pantalla de fin de partida con la puntuación, las líneas, el nivel y el aviso de nuevo récord](docs/screenshots/game_over.png)                            |                                                     ![Tabla de controles con cada tecla y su acción](docs/screenshots/controles.png)                                                      |
+|                                                                      Fin de la partida con la puntuación final.                                                                       |                                                                                  Pantalla de controles.                                                                                   |
 | ![Celebración del primer nivel: un cosaco con bigote y botas rojas lanza una patada en plena prisiadka en la estepa, entre isbas y girasoles](docs/screenshots/celebracion_nivel.png) | ![Celebración del séptimo nivel: el gigante del baloncesto hace el salto abierto en el pabellón de Moscú-80, con los aros olímpicos y Misha](docs/screenshots/celebracion_moscu_1980.png) |
 |                                                                      El cosaco en plena prisiadka, en la estepa.                                                                      |                                                                   El gigante del baloncesto en el pabellón de Moscú-80.                                                                   |
-|                                                   ![Tabla de controles con cada tecla y su acción](docs/screenshots/controles.png)                                                    |                                                                                                                                                                                           |
-|                                                                                Pantalla de controles.                                                                                 |                                                                                                                                                                                           |
+
+### Eventos de la Plaza Roja
+
+|                                                                                                                                                                      |                                                                                                                                                                               |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+|   ![Desfile de la Victoria durante la partida: columnas de soldados con la bandera roja, tanques T-34 y público con banderas](docs/screenshots/evento_desfile.png)   | ![Procesión de Pascua de noche: sacerdotes, estandartes y fieles con velas delante de San Basilio iluminado, y huevos de Pascua gigantes](docs/screenshots/evento_pascua.png) |
+|                                                                       Desfile de la Victoria.                                                                        |                                                                               Pascua ortodoxa.                                                                                |
+| ![Mercadillo de Navidad nevado de noche: casetas de madera con guirnaldas, el abeto con la estrella roja y luces en la muralla](docs/screenshots/evento_navidad.png) |                          ![Fuegos artificiales de noche sobre el Kremlin y San Basilio, con el público mirando](docs/screenshots/evento_fuegos.png)                           |
+|                                                                         Navidad y Año Nuevo.                                                                         |                                                                             Fuegos artificiales.                                                                              |
+|         ![Maslenitsa: arde el muñeco de paja mientras el corro baila alrededor, con casetas de blinis y una troika](docs/screenshots/evento_maslenitsa.png)          |      ![Fiesta olímpica: podio con los campeones, cartel con los aros olímpicos y aficionados con banderas rusas bajo el confeti](docs/screenshots/evento_olimpiadas.png)      |
+|                                                                             Maslenitsa.                                                                              |                                                                             Campeones olímpicos.                                                                              |
 
 Las capturas se generan automáticamente con `npm run screenshots` (ver [Capturas reproducibles](#capturas-reproducibles)).
 
@@ -177,6 +187,24 @@ Cada vez que superas un nivel, la partida se congela y sale a bailar un personaj
 
 La coreografía dura unos 10 segundos: entrada, _prisiadka_ con patadas alternas, giro, salto abierto tocándose las puntas de los pies, otra tanda de patadas con palmas, reverencia y salida, mientras suena _Kalinka_ con estribillo y estrofa. Enter o Espacio la saltan.
 
+## La Plaza Roja
+
+El fondo es la Plaza Roja vista desde San Basilio, con el encuadre de las postales: a la izquierda, la muralla del Kremlin con las torres Nabátnaya, Tsárskaya y Spásskaya (cuyo reloj marca la hora del juego); a la derecha, la catedral de San Basilio con su campanario; al fondo, el Museo Histórico y los almacenes GUM. El pozo, el marcador y la siguiente pieza son opacos y crecen con la ventana (a múltiplos enteros, para que el pixel-art siga nítido), así que la plaza se ve a los lados mientras juegas.
+
+- **Vida normal**: paseantes de distintos tipos (con paraguas cuando llueve) y palomas que echan a volar si alguien se acerca.
+- **Día y noche**: una vuelta completa cada 3 minutos, con amanecer, atardecer, estrellas, farolas y ventanas encendidas.
+- **Tiempo**: despejado, nublado, lluvia (con charcos) o nieve (que cuaja en el suelo y en los tejados); cambia más o menos cada minuto.
+- **Eventos**: cada 2–3 minutos la plaza se llena con uno de estos, a la hora y con el tiempo que le corresponden, junto a parte de los paseantes:
+
+| Evento                 | Cuándo            | Qué se ve                                                                                                                                                         |
+| ---------------------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Desfile de la Victoria | De día            | Columnas de soldados, marinos y cadetes con la Bandera de la Victoria, tanques T-34, lanzacohetes Katiusha, aviones con estelas tricolores y público con banderas |
+| Pascua ortodoxa        | De noche          | Procesión con cruz, estandartes, iconos y fieles con velas, campanas repicando, San Basilio iluminado y huevos de Pascua gigantes                                 |
+| Navidad y Año Nuevo    | Con nieve         | Mercadillo de casetas de madera, abeto con la estrella roja, guirnaldas en la muralla, el GUM y San Basilio, y Ded Moroz con Snegúrochka                          |
+| Fuegos artificiales    | De noche          | Cohetes y palmeras de colores sobre el Kremlin y San Basilio, con destellos que iluminan la plaza                                                                 |
+| Maslenitsa             | De día, con nieve | Muñeco de paja que acaba ardiendo, corro con trajes tradicionales, casetas de blinis con samovar y una troika                                                     |
+| Campeones olímpicos    | De día            | Podio con los medallistas, cartel con los aros olímpicos, aficionados con banderas y confeti                                                                      |
+
 ## Desarrollo
 
 ### Requisitos previos
@@ -232,7 +260,7 @@ npx playwright test tests/e2e/menu.spec.ts --project=chromium
 Para los tests e2e y las capturas, el juego admite dos parámetros en la URL:
 
 - `?seed=123` fija la semilla del generador aleatorio y de la escena de fondo, así todas las partidas son reproducibles.
-- `?test=1` expone `window.__tetris`, que permite leer el estado y preparar situaciones como un tablero casi lleno, un nivel a punto de superarse, un fotograma concreto de la celebración o una hora y un tiempo concretos en la Plaza Roja.
+- `?test=1` expone `window.__tetris`, que permite leer el estado y preparar situaciones como un tablero casi lleno, un nivel a punto de superarse, un fotograma concreto de la celebración, o una hora, un tiempo y un evento concretos en la Plaza Roja.
 
 Sin esos parámetros el juego funciona con normalidad.
 
@@ -298,7 +326,7 @@ flowchart LR
 1. `requestAnimationFrame` llama al bucle (`src/app/game_loop.ts`) en cada refresco de pantalla con el tiempo transcurrido, limitado a 250 ms para no dar saltos al volver de otra pestaña.
 2. El controlador (`src/app/app_controller.ts`) lee las teclas que tocan en la pantalla actual: menú, partida, pausa, celebración o fin de partida.
 3. Durante la partida, `game_session` reparte el tiempo en **frames fijos de 1/60 s**. En cada frame lee el teclado (desplazamiento con DAS y rotaciones) y llama a `step(state, input, dt)` del motor. Así el juego va igual de rápido en pantallas de 60, 120 o 144 Hz y no se pierden pulsaciones.
-4. La escena de fondo (`src/scene/`) avanza su propio reloj: hora del día, tiempo atmosférico y gente.
+4. La escena de fondo (`src/scene/`) avanza su propio reloj: hora del día, tiempo atmosférico, gente y calendario de eventos.
 5. Después se dibujan el fondo, el pozo y, si toca, la celebración en sus canvas, y React actualiza menús y marcador solo cuando cambia algo visible.
 
 ### Flujo de estado
@@ -311,7 +339,7 @@ flowchart LR
 ### Audio, fondo y celebraciones
 
 - La música y los efectos se sintetizan con osciladores de onda cuadrada y triangular. No hay archivos de audio. Un secuenciador programa las notas por adelantado sobre el reloj de audio para que el ritmo sea estable. Las canciones están escritas como texto (`NOTA:pasos`) en `src/audio/songs/`. El audio arranca con la primera tecla ("PULSA CUALQUIER TECLA") porque los navegadores lo bloquean hasta que hay interacción.
-- La Plaza Roja (`src/scene/`) se dibuja con formas de píxeles nítidos a 320 × 180 píxeles lógicos y se escala a pantalla completa. Los edificios se pintan una vez en capas de día, de noche y con nieve, y cada fotograma las mezcla según la hora; el cielo, las nubes, la gente, las palomas y la lluvia o la nieve se calculan en cada fotograma. Un día dura 3 minutos y el tiempo cambia más o menos cada minuto.
+- La Plaza Roja (`src/scene/`) se dibuja con formas de píxeles nítidos a 640 × 360 píxeles lógicos y se escala a pantalla completa. Los edificios se pintan una vez en capas de día y de noche (San Basilio en una capa aparte, para tapar a quien pasa por detrás) y cada fotograma las mezcla según la hora; el cielo, la gente, las palomas, las farolas y la lluvia o la nieve se calculan en cada fotograma y se ordenan por profundidad. Un calendario puro (`src/scene/events/event_schedule.ts`) alterna la vida normal con los eventos según la hora del día; cada evento (`src/scene/events/`) aporta sus figurantes y decorados, dibujos en el cielo y adornos en los edificios, y pide el tiempo atmosférico que le corresponde.
 - Los bailarines (`src/celebration/`) son pixel-art de alta resolución animado con un **esqueleto**: la coreografía da los ángulos de cada articulación en cada instante, un cálculo de cinemática directa coloca huesos y manos, y cada personaje viste ese esqueleto con su ropa, su cabeza y sus accesorios, con contorno y sombreado. Cada escenario es una función de dibujo con sus propias animaciones (el cohete que despega, el público del pabellón…). Una máquina de estados pura decide qué personaje sale y en qué momento del baile va.
 
 ## Estructura de carpetas
@@ -326,7 +354,7 @@ flowchart LR
 │   ├── input/                 Teclado: teclas mantenidas y pulsadas, DAS
 │   ├── render/                Dibujo en Canvas: pozo, siguiente pieza, animación de limpieza, título
 │   ├── audio/                 Sintetizador, secuenciador, efectos y canciones (Korobeiniki, Kalinka)
-│   ├── scene/                 Plaza Roja de fondo: edificios, cielo, gente, día y noche, tiempo
+│   ├── scene/                 Plaza Roja de fondo: edificios, cielo, gente, día y noche, tiempo y eventos
 │   ├── celebration/           Celebraciones: esqueleto y coreografía, 9 bailarines y sus escenarios
 │   ├── storage/               Preferencias y récords en localStorage
 │   ├── app/                   Bucle de juego, controlador de pantallas, sesión de partida, modo test
@@ -378,6 +406,6 @@ El CI ejecuta las mismas comprobaciones, los e2e y la prueba de los lanzadores e
 
 - **"Korobeiniki"**: melodía tradicional rusa del siglo XIX, de dominio público. El arreglo chiptune (segunda voz y bajo) es original de este proyecto.
 - **"Kalinka"**: canción popular rusa de 1860, de dominio público. El arreglo chiptune (bajo y rasgueos) es original de este proyecto. La melodía se transcribió de una versión en [notación ABC](https://abcnotation.com/tunePage?a=trillian.mit.edu%2F%7Ejc%2Fmusic%2Fabc%2FRussia%2FKalinka%2F0000).
-- Gráficos, personajes, escenarios, paleta de colores, efectos de sonido y código son originales del proyecto. Rasputín aparece como caricatura del personaje histórico. Los aros olímpicos y Misha, la mascota de los Juegos Olímpicos de Moscú 1980, aparecen como homenaje en el escenario del pabellón; sus titulares no están afiliados a este proyecto ni lo respaldan.
+- Gráficos, personajes, escenarios, paleta de colores, efectos de sonido y código son originales del proyecto. La Plaza Roja y sus eventos se inspiran en sus edificios y celebraciones reales, dibujados de nuevo en pixel-art. Rasputín aparece como caricatura del personaje histórico. Los aros olímpicos y Misha, la mascota de los Juegos Olímpicos de Moscú 1980, aparecen como homenaje en el escenario del pabellón; sus titulares no están afiliados a este proyecto ni lo respaldan.
 
 ТЕТРИС es un homenaje independiente, sin ánimo de lucro, al Tetris clásico de NES. «Tetris» es una marca registrada de The Tetris Company; este proyecto no está afiliado ni respaldado por ella ni por los titulares de ninguna otra marca comercial.
