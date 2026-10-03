@@ -309,5 +309,5 @@ Estos cambios prevalecen sobre todo lo anterior.
 ### Licencia
 - El autor quiere que cualquiera pueda usar y mejorar el proyecto, así que pasa a publicarse con la **licencia MIT** a nombre de Carte1972 (sustituye a «sin licencia» de la segunda iteración). Se añade `LICENSE` (texto oficial en inglés), `package.json` usa `"license": "MIT"`, el zip de la release incluye `LICENSE` y los créditos del README lo explican.
 - La licencia solo cubre lo original del proyecto; los aros olímpicos y Misha siguen siendo de sus titulares.
-- **Aviso final** de los créditos, por decisión del autor: «ТЕТРИС es un homenaje independiente, sin ánimo de lucro, a los videojuegos clásicos.», sin mencionar marcas ni a sus titulares.
+- **Aviso final** de los créditos, por decisión del autor: «ТЕТРИС es un homenaje independiente, sin ánimo de lucro, a los videojuegos clásicos. No está afiliado ni respaldado por los titulares de las marcas que se mencionan en este proyecto.», sin nombrar ninguna marca ni a sus titulares.
 - Los créditos reconocen que el algoritmo del piloto (los seis rasgos y sus pesos) es de Pierre Dellacherie.
