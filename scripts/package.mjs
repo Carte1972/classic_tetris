@@ -1,6 +1,6 @@
 // Genera release/tetris-v<versión>.zip con el juego (index.html autocontenido), los
-// lanzadores de macOS, Linux y Windows, el servidor local de récords de cada sistema y el
-// LEEME. Requiere haber ejecutado `npm run build`.
+// lanzadores de macOS, Linux y Windows, el servidor local de récords de cada sistema, el
+// LEEME y la licencia. Requiere haber ejecutado `npm run build`.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createZip } from './zip.mjs';
 
@@ -40,6 +40,7 @@ const files = [
     mode: MODE_FILE,
   },
   { from: new URL('launchers/LEEME.txt', root), name: 'LEEME.txt', mode: MODE_FILE },
+  { from: new URL('LICENSE', root), name: 'LICENSE', mode: MODE_FILE },
 ];
 
 const zip = createZip(

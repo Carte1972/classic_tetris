@@ -39,3 +39,6 @@ blanco.
 Controles: flechas izquierda/derecha mover, abajo bajar, arriba / Z rotar,
 P pausa, M silenciar, Esc menú, Enter empezar / reiniciar. El botón
 PILOTO AUTOMÁTICO, bajo el marcador, hace que el juego juegue solo.
+
+Licencia: MIT (archivo LICENSE). Puedes usar, copiar, modificar y compartir el
+juego libremente, conservando el aviso de la licencia.

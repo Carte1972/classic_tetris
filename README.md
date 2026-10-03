@@ -515,6 +515,7 @@ flowchart LR
 ├── docs/video/                Vídeo explicativo publicado y su miniatura
 ├── video/                     Vídeo explicativo: guion, fuentes, narración, grabaciones, rótulos y montaje
 ├── .github/workflows/         CI (comprobaciones, e2e, lanzadores) y release
+├── LICENSE                    Licencia MIT
 ├── prompt_tetris.md           Especificación original del proyecto y cambios acordados
 ├── algoritmo_dellacherie_tetris.md  Especificación del piloto automático
 └── prompt_video.md            Especificación del vídeo explicativo y cambios acordados
@@ -582,10 +583,11 @@ Unos 2.100 tokens nuevos no pasaron por la caché y se cobran a 4 $ por millón;
 
 ## Créditos
 
-© 2026 Carte1972. Todos los derechos reservados.
+El proyecto se publica con la **[licencia MIT](LICENSE)** (© 2026 Carte1972): cualquiera puede usarlo, copiarlo, modificarlo, mejorarlo y redistribuirlo, también con fines comerciales, siempre que conserve el aviso de la licencia. Cubre lo que es original del proyecto (código, gráficos, personajes, escenarios, arreglos musicales, efectos de sonido y vídeo), no las marcas de terceros que se citan abajo.
 
 - **"Korobeiniki"**: melodía tradicional rusa del siglo XIX, de dominio público. El arreglo chiptune (segunda voz y bajo) es original de este proyecto.
 - **"Kalinka"**: canción popular rusa de 1860, de dominio público. El arreglo chiptune (bajo y rasgueos) es original de este proyecto. La melodía se transcribió de una versión en [notación ABC](https://abcnotation.com/tunePage?a=trillian.mit.edu%2F%7Ejc%2Fmusic%2Fabc%2FRussia%2FKalinka%2F0000).
 - Gráficos, personajes, escenarios, paleta de colores, efectos de sonido y código son originales del proyecto. La Plaza Roja y sus eventos se inspiran en sus edificios y celebraciones reales, dibujados de nuevo en pixel-art. Rasputín aparece como caricatura del personaje histórico. Los aros olímpicos y Misha, la mascota de los Juegos Olímpicos de Moscú 1980, aparecen como homenaje en el escenario del pabellón; sus titulares no están afiliados a este proyecto ni lo respaldan.
+- El piloto automático usa el algoritmo de **Pierre Dellacherie**: los seis rasgos del tablero y sus pesos son suyos. La implementación es original de este proyecto (ver [El algoritmo de Dellacherie](#el-algoritmo-de-dellacherie)).
 
 ТЕТРИС es un homenaje independiente, sin ánimo de lucro, al Tetris clásico de NES. «Tetris» es una marca registrada de Tetris Holding, con licencia a The Tetris Company; este proyecto no está afiliado ni respaldado por ellas ni por los titulares de ninguna otra marca comercial.

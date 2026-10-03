@@ -269,7 +269,7 @@ Tras probar la versión 1.0.0 (aún sin publicar), el autor pide mejorar los gr�
 - Se levanta la prohibición de personas reales y personajes con copyright para Rasputín, los aros olímpicos y Misha, por decisión del autor.
 
 ### Licencia
-- El repositorio **no lleva licencia** (todos los derechos reservados): se elimina `LICENSE` y `package.json` usa `"license": "UNLICENSED"`.
+- ~~El repositorio **no lleva licencia** (todos los derechos reservados): se elimina `LICENSE` y `package.json` usa `"license": "UNLICENSED"`.~~ Sustituido en la cuarta iteración: licencia MIT (ver abajo).
 
 
 ## Cambios acordados — tercera iteración (2 de octubre de 2026)
@@ -305,3 +305,8 @@ Estos cambios prevalecen sobre todo lo anterior.
 - El ranking se guarda en **`records.json`** en el disco del ordenador: junto a `index.html` en el zip de la release y en la raíz del repositorio clonado (en `.gitignore`). Los lanzadores arrancan un **servidor local mínimo** que sirve el juego en `127.0.0.1`/`localhost` y lee y escribe ese archivo: `records_server.pl` (Perl, que viene con macOS y Linux) y `records_server.ps1` (PowerShell, en Windows). Solo atiende peticiones locales. La ventana del terminal debe quedar abierta mientras se juega.
 - Si se abre `index.html` directamente (o no hay Perl), el ranking se guarda en el navegador como antes. Los récords antiguos, sin nombre, aparecen como «---».
 - `npm run test:server` comprueba el servidor del sistema en que se ejecuta; el job de lanzadores del CI lo ejecuta en macOS, Linux y Windows, desde el repositorio y desde el zip. Los e2e añaden el servidor de Perl para probar el ranking en el disco.
+
+### Licencia
+- El autor quiere que cualquiera pueda usar y mejorar el proyecto, así que pasa a publicarse con la **licencia MIT** a nombre de Carte1972 (sustituye a «sin licencia» de la segunda iteración). Se añade `LICENSE` (texto oficial en inglés), `package.json` usa `"license": "MIT"`, el zip de la release incluye `LICENSE` y los créditos del README lo explican.
+- La licencia solo cubre lo original del proyecto. Las marcas de terceros (Tetris, los aros olímpicos y Misha) siguen siendo de sus titulares y se mantiene el aviso.
+- Los créditos reconocen que el algoritmo del piloto (los seis rasgos y sus pesos) es de Pierre Dellacherie.
