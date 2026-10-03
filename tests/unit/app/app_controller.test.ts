@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createAppController, type AppDependencies } from '../../../src/app/app_controller';
+import { findBestPlacement } from '../../../src/ai/dellacherie';
 import { KALINKA } from '../../../src/audio/songs/kalinka';
 import { KOROBEINIKI } from '../../../src/audio/songs/korobeiniki';
 import {
@@ -8,6 +9,8 @@ import {
 } from '../../../src/config/celebration_config';
 import { MENU_ITEMS } from '../../../src/config/menu_config';
 import { PREFERENCES_STORAGE_KEY, RECORDS_STORAGE_KEY } from '../../../src/config/storage_config';
+import { lockPiece } from '../../../src/engine/board';
+import type { Board } from '../../../src/engine/types';
 import { createKeyboardState, type KeyboardState } from '../../../src/input/keyboard_state';
 import { createMemoryStorage } from '../storage/memory_storage';
 
@@ -218,7 +221,13 @@ describe('fin de la partida', () => {
     forceGameOver(ctx);
     const snapshot = ctx.controller.getSnapshot();
     expect(snapshot.screen).toBe('gameOver');
-    expect(snapshot.lastResult).toEqual({ score: 1234, lines: 7, level: 0, rank: 0 });
+    expect(snapshot.lastResult).toEqual({
+      score: 1234,
+      lines: 7,
+      level: 0,
+      rank: 0,
+      autopilotUsed: false,
+    });
     expect(snapshot.records).toEqual([{ score: 1234, lines: 7, level: 0, date: '2026-10-01' }]);
     expect(ctx.storage.data.get(RECORDS_STORAGE_KEY)).toContain('1234');
     expect(ctx.audio.playSfx).toHaveBeenCalledWith('gameOver');
@@ -384,5 +393,164 @@ describe('celebraciones', () => {
     expect(ctx.controller.getSnapshot().screen).toBe('playing');
     ctx.controller.freezeCelebration(100);
     expect(ctx.controller.getCelebration()).toBeNull();
+  });
+});
+
+/**
+ * Juega la pieza activa de la partida en curso a fotogramas de 17 ms hasta que se fija y
+ * comprueba que ha caído donde la coloca el algoritmo de Dellacherie.
+ */
+function expectPieceByAutopilot(ctx: ReturnType<typeof setup>): void {
+  const state = ctx.controller.getGameState();
+  const piece = state?.activePiece ?? null;
+  const choice = state && piece && findBestPlacement(state.board, piece);
+  expect(choice).not.toBeNull();
+  let board: Board | undefined;
+  for (let i = 0; i < 2000 && board === undefined; i++) {
+    ctx.controller.update(17);
+    const current = ctx.controller.getGameState();
+    if (current !== null && current.board !== state?.board) {
+      board = current.board;
+    }
+  }
+  expect(state && choice && board).toEqual(
+    state && choice && lockPiece(state.board, choice.landed),
+  );
+}
+
+describe('piloto automático', () => {
+  it('toggleAutopilot no hace nada fuera de las pantallas de partida', () => {
+    const ctx = setup();
+    const toggleAndCheck = () => {
+      ctx.controller.toggleAutopilot();
+      expect(ctx.controller.getSnapshot().autopilotEnabled).toBe(false);
+    };
+    toggleAndCheck();
+    ctx.press('Space');
+    expect(ctx.controller.getSnapshot().screen).toBe('menu');
+    toggleAndCheck();
+    ctx.press('ArrowUp');
+    ctx.press('Enter');
+    expect(ctx.controller.getSnapshot().screen).toBe('records');
+    toggleAndCheck();
+    ctx.press('Escape');
+    ctx.press('ArrowUp');
+    ctx.press('Enter');
+    expect(ctx.controller.getSnapshot().screen).toBe('controls');
+    toggleAndCheck();
+  });
+
+  it('se activa y desactiva en partida, pausa, celebración y game over', () => {
+    const ctx = setup();
+    startPlaying(ctx);
+    const toggleTo = (enabled: boolean) => {
+      ctx.controller.toggleAutopilot();
+      expect(ctx.controller.getSnapshot().autopilotEnabled).toBe(enabled);
+    };
+    toggleTo(true);
+    toggleTo(false);
+    ctx.press('KeyP');
+    expect(ctx.controller.getSnapshot().screen).toBe('paused');
+    toggleTo(true);
+    toggleTo(false);
+    ctx.press('KeyP');
+    forceLevelUp(ctx, 1);
+    expect(ctx.controller.getSnapshot().screen).toBe('celebrating');
+    toggleTo(true);
+    toggleTo(false);
+    ctx.press('Enter');
+    forceGameOver(ctx);
+    expect(ctx.controller.getSnapshot().screen).toBe('gameOver');
+    toggleTo(true);
+    toggleTo(false);
+  });
+
+  it('juega la pieza que está cayendo; las flechas, ↓ y Z se ignoran', () => {
+    const ctx = setup();
+    startPlaying(ctx);
+    ctx.controller.toggleAutopilot();
+    ctx.keyboard.keyDown('ArrowLeft', false);
+    ctx.keyboard.keyDown('ArrowDown', false);
+    tap(ctx.keyboard, 'KeyZ');
+    expectPieceByAutopilot(ctx);
+    expect(ctx.audio.playSfx).not.toHaveBeenCalledWith('rotate');
+  });
+
+  it('con el piloto activo siguen funcionando P, M y Esc', () => {
+    const ctx = setup();
+    startPlaying(ctx);
+    ctx.controller.toggleAutopilot();
+    ctx.press('KeyP');
+    expect(ctx.controller.getSnapshot().screen).toBe('paused');
+    ctx.press('KeyP');
+    expect(ctx.controller.getSnapshot().screen).toBe('playing');
+    ctx.press('KeyM');
+    expect(ctx.controller.getSnapshot().preferences.muted).toBe(true);
+    ctx.press('Escape');
+    expect(ctx.controller.getSnapshot().screen).toBe('menu');
+  });
+
+  it('tras la celebración sigue activo y juega la primera pieza del nivel nuevo', () => {
+    const ctx = setup();
+    startPlaying(ctx);
+    ctx.controller.toggleAutopilot();
+    // El piloto ve la I vertical junto al hueco y completa la línea que falta.
+    forceLevelUp(ctx, 1);
+    expect(ctx.controller.getSnapshot().screen).toBe('celebrating');
+    expect(ctx.controller.getSnapshot().autopilotEnabled).toBe(true);
+    ctx.controller.update(CELEBRATION_DURATION_MS);
+    expect(ctx.controller.getSnapshot().screen).toBe('playing');
+    expect(ctx.controller.getGameState()?.level).toBe(1);
+    expect(ctx.controller.getSnapshot().autopilotEnabled).toBe(true);
+    expectPieceByAutopilot(ctx);
+  });
+
+  it('una partida que ha usado el piloto no entra en récords ni cuenta para el récord del marcador', () => {
+    const stored = [{ score: 800, lines: 5, level: 0, date: '2026-01-01' }];
+    const ctx = setup({ [RECORDS_STORAGE_KEY]: JSON.stringify(stored) });
+    startPlaying(ctx);
+    ctx.controller.patchGame({ score: 5000 });
+    expect(ctx.controller.getSnapshot().hud?.best).toBe(5000);
+    ctx.controller.toggleAutopilot();
+    expect(ctx.controller.getSnapshot().hud?.best).toBe(800);
+    // Aunque se desactive, la partida ya lo ha usado.
+    ctx.controller.toggleAutopilot();
+    expect(ctx.controller.getSnapshot().hud?.best).toBe(800);
+    forceGameOver(ctx);
+    const snapshot = ctx.controller.getSnapshot();
+    expect(snapshot.lastResult).toEqual({
+      score: 1234,
+      lines: 7,
+      level: 0,
+      rank: null,
+      autopilotUsed: true,
+    });
+    expect(snapshot.records).toEqual(stored);
+    expect(ctx.storage.data.get(RECORDS_STORAGE_KEY)).toBe(JSON.stringify(stored));
+  });
+
+  it('ENTER tras un game over con el piloto activo empieza otra partida con el piloto', () => {
+    const ctx = setup();
+    startPlaying(ctx);
+    ctx.controller.toggleAutopilot();
+    forceGameOver(ctx);
+    ctx.press('Enter');
+    expect(ctx.controller.getSnapshot().screen).toBe('playing');
+    expect(ctx.controller.getSnapshot().autopilotEnabled).toBe(true);
+    expectPieceByAutopilot(ctx);
+    forceGameOver(ctx);
+    expect(ctx.controller.getSnapshot().lastResult?.autopilotUsed).toBe(true);
+  });
+
+  it('activarlo en game over no cambia la partida terminada, pero la siguiente ya lo usa', () => {
+    const ctx = setup();
+    startPlaying(ctx);
+    forceGameOver(ctx);
+    expect(ctx.controller.getSnapshot().lastResult?.rank).toBe(0);
+    ctx.controller.toggleAutopilot();
+    expect(ctx.controller.getSnapshot().lastResult?.autopilotUsed).toBe(false);
+    expect(ctx.controller.getSnapshot().records).toHaveLength(1);
+    ctx.press('Enter');
+    expectPieceByAutopilot(ctx);
   });
 });

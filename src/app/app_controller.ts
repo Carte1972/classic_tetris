@@ -57,7 +57,10 @@ export interface HudData {
   readonly levelLines: number;
   /** Líneas que pide el nivel actual. */
   readonly levelGoal: number;
-  /** Mejor puntuación conocida, incluida la partida en curso. */
+  /**
+   * Mejor puntuación conocida, incluida la partida en curso salvo si ha usado el piloto
+   * automático (entonces solo cuentan los récords guardados).
+   */
   readonly best: number;
 }
 
@@ -68,6 +71,8 @@ export interface GameResult {
   readonly level: number;
   /** Posición en el top 10 (0 = nuevo récord), o `null` si no entra. */
   readonly rank: number | null;
+  /** Si el piloto automático se activó en algún momento (la partida no cuenta para récords). */
+  readonly autopilotUsed: boolean;
 }
 
 /** Lo que la interfaz necesita para pintarse. Cambia de identidad solo si cambia algo. */
@@ -84,6 +89,8 @@ export interface AppSnapshot {
   readonly celebrationKind: CelebrationKind | null;
   /** Bailarín y lugar de la celebración (p. ej. "EL COSACO EN LA ESTEPA"), o `null`. */
   readonly celebrationCaption: string | null;
+  /** Si el piloto automático está activo. */
+  readonly autopilotEnabled: boolean;
 }
 
 /** Parte del motor de audio que usa la aplicación. */
@@ -129,7 +136,20 @@ export interface AppController {
    * capturas); con `null` vuelve a avanzar con normalidad.
    */
   readonly freezeCelebration: (elapsedMs: number | null) => void;
+  /**
+   * Activa o desactiva el piloto automático (lo llama el botón de la pantalla de partida).
+   * Solo tiene efecto en las pantallas de partida.
+   */
+  readonly toggleAutopilot: () => void;
 }
+
+/** Pantallas de partida, las únicas donde se puede activar o desactivar el piloto. */
+const GAME_SCREENS: ReadonlySet<ScreenName> = new Set([
+  'playing',
+  'paused',
+  'celebrating',
+  'gameOver',
+]);
 
 /** Entradas del menú en el orden en que se procesan, con la acción de teclado de cada una. */
 const MENU_KEYS: readonly (readonly [MenuInput, GameAction])[] = [
@@ -155,6 +175,10 @@ export function createAppController(deps: AppDependencies): AppController {
   let lastResult: GameResult | null = null;
   let celebration: CelebrationState | null = null;
   let celebrationFrozen = false;
+  // El piloto dura lo que la sesión de la aplicación (no se guarda); `autopilotUsed` es de
+  // la partida en curso.
+  let autopilotEnabled = false;
+  let autopilotUsed = false;
   let snapshot = buildSnapshot();
   const listeners = new Set<() => void>();
 
@@ -172,6 +196,7 @@ export function createAppController(deps: AppDependencies): AppController {
       celebrationLevel: celebration?.level ?? null,
       celebrationKind: celebration?.kind ?? null,
       celebrationCaption: celebration === null ? null : describeCelebration(celebration),
+      autopilotEnabled,
       hud:
         state === null
           ? null
@@ -183,7 +208,9 @@ export function createAppController(deps: AppDependencies): AppController {
               nextVisible: isNextPieceVisible(state.level),
               levelLines: state.levelLines,
               levelGoal: state.levelGoal,
-              best: Math.max(records[0]?.score ?? 0, state.score),
+              best: autopilotUsed
+                ? (records[0]?.score ?? 0)
+                : Math.max(records[0]?.score ?? 0, state.score),
             },
     };
   }
@@ -210,7 +237,9 @@ export function createAppController(deps: AppDependencies): AppController {
     session = createGameSession(
       { seed: deps.createSeed(), startLevel: preferences.startLevel },
       keyboard,
+      autopilotEnabled,
     );
+    autopilotUsed = autopilotEnabled;
     lastResult = null;
     audio.setTempoMultiplier(1);
     audio.playMusic(KOROBEINIKI);
@@ -226,6 +255,17 @@ export function createAppController(deps: AppDependencies): AppController {
   }
 
   function finishGame(state: GameState): void {
+    if (autopilotUsed) {
+      lastResult = {
+        score: state.score,
+        lines: state.lines,
+        level: state.level,
+        rank: null,
+        autopilotUsed: true,
+      };
+      goTo('gameOver');
+      return;
+    }
     const insertion = insertRecord(records, {
       score: state.score,
       lines: state.lines,
@@ -241,6 +281,7 @@ export function createAppController(deps: AppDependencies): AppController {
       lines: state.lines,
       level: state.level,
       rank: insertion.rank,
+      autopilotUsed: false,
     };
     goTo('gameOver');
   }
@@ -413,6 +454,18 @@ export function createAppController(deps: AppDependencies): AppController {
         celebration = seekCelebration(celebration, elapsedMs);
       }
     },
+    toggleAutopilot: () => {
+      if (!GAME_SCREENS.has(screen)) {
+        return;
+      }
+      autopilotEnabled = !autopilotEnabled;
+      session?.setAutopilot(autopilotEnabled);
+      // En game over la partida ya ha terminado: activarlo solo afecta a la siguiente.
+      if (autopilotEnabled && screen !== 'gameOver') {
+        autopilotUsed = true;
+      }
+      publish();
+    },
   };
 }
 
@@ -432,6 +485,7 @@ function snapshotsEqual(a: AppSnapshot, b: AppSnapshot): boolean {
     a.celebrationLevel === b.celebrationLevel &&
     a.celebrationKind === b.celebrationKind &&
     a.celebrationCaption === b.celebrationCaption &&
+    a.autopilotEnabled === b.autopilotEnabled &&
     hudEqual(a.hud, b.hud)
   );
 }
