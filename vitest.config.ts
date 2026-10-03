@@ -1,7 +1,15 @@
 import { defineConfig } from 'vitest/config';
 
-/** Umbral mínimo de cobertura (%) exigido en el motor. */
-const ENGINE_COVERAGE_THRESHOLD = 90;
+/** Umbral mínimo de cobertura (%) exigido en el motor y en el piloto automático. */
+const COVERAGE_THRESHOLD = 90;
+
+/** Umbral aplicado a las cuatro medidas de cobertura. */
+const FULL_THRESHOLD = {
+  statements: COVERAGE_THRESHOLD,
+  branches: COVERAGE_THRESHOLD,
+  functions: COVERAGE_THRESHOLD,
+  lines: COVERAGE_THRESHOLD,
+};
 
 export default defineConfig({
   test: {
@@ -11,12 +19,8 @@ export default defineConfig({
       include: ['src/**/*.{ts,tsx}'],
       reporter: ['text', 'html', 'json-summary'],
       thresholds: {
-        'src/engine/**': {
-          statements: ENGINE_COVERAGE_THRESHOLD,
-          branches: ENGINE_COVERAGE_THRESHOLD,
-          functions: ENGINE_COVERAGE_THRESHOLD,
-          lines: ENGINE_COVERAGE_THRESHOLD,
-        },
+        'src/engine/**': FULL_THRESHOLD,
+        'src/ai/**': FULL_THRESHOLD,
       },
     },
   },
