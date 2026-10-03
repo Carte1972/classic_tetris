@@ -84,9 +84,13 @@ test.describe('ranking (guardado en el navegador)', () => {
     );
     await enterRecordName(page, 'Пётр');
     await page.reload();
+    // Hay que esperar a que el juego vuelva a estar listo antes de pulsar nada.
+    await expect(page.getByText('PULSA CUALQUIER TECLA')).toBeVisible();
     await tap(page, 'Space');
+    await expectScreen(page, 'menu');
     await tap(page, 'ArrowUp');
     await tap(page, 'Enter');
+    await expectScreen(page, 'records');
     const names = page.getByRole('table').getByRole('row').locator('td:nth-child(2)');
     await expect(names.nth(0)).toHaveText('ПЁТР');
     await expect(names.nth(1)).toHaveText('LUIS');
