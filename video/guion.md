@@ -133,7 +133,7 @@ _Las grafías «Páshitnov» y «Guéim Boi» se probarán en la prueba de voz. 
 
 > ТЕТРИС es un homenaje independiente.
 
-Antes incluía la mención a la marca («Tetris es una marca registrada de Tetris Holding, con licencia a The Tetris Company»). El autor pidió quitarla del vídeo; el README la mantiene.
+Antes incluía la mención a la marca («Tetris es una marca registrada de Tetris Holding, con licencia a The Tetris Company»). El autor pidió quitarla del vídeo, y después también del README, cuyo aviso quedó en «ТЕТРИС es un homenaje independiente, sin ánimo de lucro, a los videojuegos clásicos.».
 
 ## Grabaciones necesarias
 

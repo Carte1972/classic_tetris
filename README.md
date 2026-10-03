@@ -590,4 +590,4 @@ El proyecto se publica con la **[licencia MIT](LICENSE)** (© 2026 Carte1972): c
 - Gráficos, personajes, escenarios, paleta de colores, efectos de sonido y código son originales del proyecto. La Plaza Roja y sus eventos se inspiran en sus edificios y celebraciones reales, dibujados de nuevo en pixel-art. Rasputín aparece como caricatura del personaje histórico. Los aros olímpicos y Misha, la mascota de los Juegos Olímpicos de Moscú 1980, aparecen como homenaje en el escenario del pabellón; sus titulares no están afiliados a este proyecto ni lo respaldan.
 - El piloto automático usa el algoritmo de **Pierre Dellacherie**: los seis rasgos del tablero y sus pesos son suyos. La implementación es original de este proyecto (ver [El algoritmo de Dellacherie](#el-algoritmo-de-dellacherie)).
 
-ТЕТРИС es un homenaje independiente, sin ánimo de lucro, al Tetris clásico de NES. «Tetris» es una marca registrada de Tetris Holding, con licencia a The Tetris Company; este proyecto no está afiliado ni respaldado por ellas ni por los titulares de ninguna otra marca comercial.
+ТЕТРИС es un homenaje independiente, sin ánimo de lucro, a los videojuegos clásicos.
