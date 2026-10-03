@@ -410,7 +410,7 @@ En unos minutos la release aparece en [Releases](https://github.com/Carte1972/cl
 
 [![Miniatura del vídeo explicativo: el título ТЕТРИС sobre la Plaza Roja, con un pozo con piezas](docs/video/miniatura.png)](docs/video/tetris_video_explicativo.mp4)
 
-**[Ver el vídeo explicativo](docs/video/tetris_video_explicativo.mp4)** (2 min 21 s; también se puede descargar desde la [release v1.1.0](https://github.com/Carte1972/classic_tetris/releases/tag/v1.1.0)).
+**[Ver el vídeo explicativo](docs/video/tetris_video_explicativo.mp4)** (2 min 21 s; también se puede descargar desde la [release v1.1.1](https://github.com/Carte1972/classic_tetris/releases/tag/v1.1.1)).
 
 El proyecto incluye un vídeo explicativo de unos 2 minutos, narrado en español, para quien nunca ha jugado. Cuenta de dónde viene el juego, cómo se juega, los controles y el piloto automático, la Plaza Roja y sus eventos, las celebraciones y los récords. Todo lo que se ve son grabaciones reales del juego y rótulos con su misma estética.
 

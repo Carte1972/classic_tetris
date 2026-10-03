@@ -1,7 +1,7 @@
 {
   "name": "tetris",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Juego de bloques clásico estilo NES hecho con TypeScript y React, jugable en el navegador",
   "license": "MIT",
   "author": "Carte1972",
