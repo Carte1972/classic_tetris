@@ -52,6 +52,12 @@ const TETRIS_BOARD = [
 /** Frames que quedan de la animación de 4 líneas en el capturado: fondo destellando y las columnas centrales ya borradas. */
 const TETRIS_FLASH_FRAMES_REMAINING = 14;
 
+/** Nombre que se escribe al entrar en el ranking. */
+const RECORD_NAME = 'Пётр';
+
+/** Frames que juega el piloto antes de la captura: la J ya está bajando hacia su hueco. */
+const AUTOPILOT_SHOT_FRAMES = 16;
+
 /** Líneas al empezar el GIF: lejos del objetivo para que no salte la celebración. */
 const DEMO_START_LINES = 3;
 
@@ -199,7 +205,9 @@ test('limpieza_lineas.png: momento de limpiar varias líneas', async ({ page }) 
   await save(page, 'limpieza_lineas.png');
 });
 
-test('game_over.png: pantalla final con la puntuación', async ({ page }) => {
+test('ranking_nombre.png y game_over.png: nombre para el ranking y pantalla final', async ({
+  page,
+}) => {
   await startGame(page, 4);
   await patchGame(page, {
     boardRows: Array.from({ length: 20 }, (_, i) => (i % 3 === 0 ? 'OOOO.OOOOO' : 'OOOOOOOOO.')),
@@ -212,8 +220,31 @@ test('game_over.png: pantalla final con la puntuación', async ({ page }) => {
   });
   await runUntil(page, (state) => state.phase === 'gameOver');
   await runFrames(page, 2);
+  expect(await screen(page)).toBe('nameEntry');
+  await page.keyboard.type(RECORD_NAME);
+  await runFrames(page, 2);
+  await save(page, 'ranking_nombre.png');
+  await tap(page, 'Enter');
   expect(await screen(page)).toBe('gameOver');
   await save(page, 'game_over.png');
+});
+
+test('partida_piloto.png: el piloto automático colocando una pieza', async ({ page }) => {
+  await startGame(page, 3);
+  await patchGame(page, {
+    boardRows: MID_GAME_BOARD,
+    activePiece: { type: 'J', rotation: 0, x: 5, y: 2 },
+    nextPiece: 'S',
+    score: 21_940,
+    level: 5,
+    lines: 33,
+    levelLines: 11,
+    levelGoal: 14,
+  });
+  await page.getByRole('button', { name: /PILOTO AUTOMÁTICO/ }).click();
+  await runFrames(page, AUTOPILOT_SHOT_FRAMES);
+  expect((await page.evaluate(() => window.__tetris?.getSnapshot()))?.autopilotEnabled).toBe(true);
+  await save(page, 'partida_piloto.png');
 });
 
 /**

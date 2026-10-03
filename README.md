@@ -4,15 +4,16 @@
 
 ![Partida de ТЕТРИС en movimiento: las piezas caen y se completan líneas en el pozo, con la Plaza Roja de fondo y sus paseantes](docs/screenshots/partida_demo.gif)
 
-**ТЕТРИС** (Tetris) es un juego de bloques que caen, fiel a las reglas del clásico de NES (1989), hecho con TypeScript, React y Canvas. Se juega en el navegador. Todo el juego cabe en un único archivo `index.html` que funciona abierto con doble clic, sin servidor ni conexión, y viene con lanzadores para macOS, Linux y Windows.
+**ТЕТРИС** (Tetris) es un juego de bloques que caen, fiel a las reglas del clásico de NES (1989), hecho con TypeScript, React y Canvas. Se juega en el navegador. Todo el juego cabe en un único archivo `index.html` que funciona incluso abierto con doble clic, sin conexión, y viene con lanzadores para macOS, Linux y Windows que lo sirven desde un pequeño servidor local para guardar el ranking en el disco.
 
-Se juega delante de una **Plaza Roja viva** en pixel-art, vista desde San Basilio como en las postales, con paseantes, palomas, ciclo de día y noche, tiempo cambiante y **eventos típicos** que van ocupando la plaza: el desfile de la Victoria, la Pascua ortodoxa, el mercadillo de Navidad, los fuegos artificiales, Maslenitsa y la fiesta de los campeones olímpicos. Cada nivel tiene un **objetivo de líneas**; al superarlo, uno de los 9 personajes sale a bailar la danza cosaca durante 10 segundos en su propio escenario ruso. Incluye música chiptune sintetizada en tiempo real, efectos de sonido, récords y preferencias guardadas.
+Se juega delante de una **Plaza Roja viva** en pixel-art, vista desde San Basilio como en las postales, con paseantes, palomas, ciclo de día y noche, tiempo cambiante y **eventos típicos** que van ocupando la plaza: el desfile de la Victoria, la Pascua ortodoxa, el mercadillo de Navidad, los fuegos artificiales, Maslenitsa y la fiesta de los campeones olímpicos. Cada nivel tiene un **objetivo de líneas**; al superarlo, uno de los 9 personajes sale a bailar la danza cosaca durante 10 segundos en su propio escenario ruso. Incluye música chiptune sintetizada en tiempo real, efectos de sonido, un **ranking de 10 puestos con nombre** que se conserva entre sesiones, preferencias guardadas y un **piloto automático** que juega solo con el algoritmo de Pierre Dellacherie.
 
 ## Índice
 
 - [Capturas de pantalla](#capturas-de-pantalla)
 - [Jugar](#jugar)
 - [Controles](#controles)
+- [Piloto automático](#piloto-automático)
 - [Reglas y puntuación](#reglas-y-puntuación)
 - [La Plaza Roja](#la-plaza-roja)
 - [Desarrollo](#desarrollo)
@@ -34,6 +35,8 @@ Se juega delante de una **Plaza Roja viva** en pixel-art, vista desde San Basili
 |                                                                   Limpieza de 4 líneas a la vez: el pozo destella.                                                                    |                                                                         Pausa: el tablero se oculta, como en NES.                                                                         |
 |                           ![Pantalla de fin de partida con la puntuación, las líneas, el nivel y el aviso de nuevo récord](docs/screenshots/game_over.png)                            |                                                     ![Tabla de controles con cada tecla y su acción](docs/screenshots/controles.png)                                                      |
 |                                                                      Fin de la partida con la puntuación final.                                                                       |                                                                                  Pantalla de controles.                                                                                   |
+|              ![Partida con el piloto automático activado: el botón resaltado bajo el marcador y una J bajando sola hacia su hueco](docs/screenshots/partida_piloto.png)               |                ![Fin de partida que entra en el ranking: el juego pide el nombre, escrito en cirílico, con el puesto y la puntuación](docs/screenshots/ranking_nombre.png)                |
+|                                                                        Piloto automático: el juego juega solo.                                                                        |                                                                     Al entrar en el ranking, el juego pide el nombre.                                                                     |
 | ![Celebración del primer nivel: un cosaco con bigote y botas rojas lanza una patada en plena prisiadka en la estepa, entre isbas y girasoles](docs/screenshots/celebracion_nivel.png) | ![Celebración del séptimo nivel: el gigante del baloncesto hace el salto abierto en el pabellón de Moscú-80, con los aros olímpicos y Misha](docs/screenshots/celebracion_moscu_1980.png) |
 |                                                                      El cosaco en plena prisiadka, en la estepa.                                                                      |                                                                   El gigante del baloncesto en el pabellón de Moscú-80.                                                                   |
 
@@ -64,13 +67,17 @@ Para jugar solo necesitas un **navegador moderno** (Chrome, Edge, Firefox o Safa
 | Linux   | `tetris.sh`      | Ver [permiso de ejecución](#linux-permiso-de-ejecución) |
 | Windows | `Tetris.bat`     | Ver [SmartScreen](#windows-smartscreen)                 |
 
-También puedes abrir `index.html` directamente con el navegador.
+El lanzador arranca un pequeño **servidor local** (con Perl en macOS y Linux, que ya vienen con él, y con PowerShell en Windows) y abre el juego en el navegador. Deja abierta la ventana del terminal mientras juegas; ciérrala para terminar.
 
-> Los récords y las preferencias se guardan en el `localStorage` del navegador, asociados a la ruta del archivo. Si mueves la carpeta, empezarás con los récords en blanco.
+### Ranking
+
+El ranking tiene siempre **10 puestos**, que la primera vez que abres el juego en un ordenador están todos a 0 puntos. Si una partida supera la puntuación del décimo, el juego te pide el nombre (hasta 10 caracteres, en cualquier alfabeto) y guarda nombre, puntuación, líneas, nivel y fecha en **`records.json`**, en el disco: junto a `index.html` en la carpeta del zip, o en la raíz del repositorio si juegas desde ahí. Así los récords se conservan de una sesión a otra y cada partida nueva los actualiza. Las partidas con el [piloto automático](#piloto-automático) no cuentan.
+
+También puedes abrir `index.html` directamente con el navegador, sin lanzador. En ese caso no hay servidor, y el ranking y las preferencias se guardan en el `localStorage` del navegador, asociados a la ruta del archivo: si mueves la carpeta, empezarás con el ranking a 0.
 
 ### Lanzadores sin firmar
 
-Los lanzadores no están firmados digitalmente (firmarlos requiere certificados de pago), así que la primera vez el sistema puede avisarte. Son scripts de texto de pocas líneas: puedes abrirlos con un editor y comprobar que solo abren `index.html` en tu navegador.
+Los lanzadores no están firmados digitalmente (firmarlos requiere certificados de pago), así que la primera vez el sistema puede avisarte. Son scripts de texto: puedes abrirlos con un editor y comprobar que solo arrancan el servidor local (`records_server.pl` o `records_server.ps1`, que solo atiende peticiones de tu propio equipo) y abren el juego en tu navegador.
 
 #### macOS (Gatekeeper)
 
@@ -83,7 +90,7 @@ Si aparece _"no se puede abrir porque es de un desarrollador no identificado"_:
   xattr -d com.apple.quarantine Tetris.command
   ```
 
-Al ejecutarse se abre una ventana de Terminal que puedes cerrar en cuanto aparezca el juego en el navegador.
+Al ejecutarse se abre una ventana de Terminal con el servidor local: déjala abierta mientras juegas y ciérrala para terminar.
 
 #### Windows (SmartScreen)
 
@@ -98,7 +105,7 @@ chmod +x tetris.sh
 ./tetris.sh
 ```
 
-O activa _"Permitir ejecutar el archivo como un programa"_ en sus propiedades. El lanzador usa `xdg-open`, que viene en casi todas las distribuciones de escritorio.
+O activa _"Permitir ejecutar el archivo como un programa"_ en sus propiedades. Si lo abres desde un terminal, verás el servidor local; ciérralo con Ctrl+C al terminar. El lanzador usa Perl y `xdg-open`, que vienen en casi todas las distribuciones de escritorio.
 
 ## Controles
 
@@ -113,6 +120,7 @@ O activa _"Permitir ejecutar el archivo como un programa"_ en sus propiedades. E
 | Esc             | Volver al menú (o atrás en las pantallas del menú)                          |
 | Enter           | Empezar / reiniciar (y aceptar en el menú)                                  |
 | Enter o Espacio | Saltar la celebración al superar un nivel                                   |
+| Botón (ratón)   | **PILOTO AUTOMÁTICO**, bajo el marcador: el juego juega solo                |
 
 En el menú: ↑ ↓ para elegir, ← → para cambiar el valor de una opción y Enter para aceptar.
 
@@ -123,9 +131,20 @@ En el menú: ↑ ↓ para elegir, ← → para cambiar el valor de una opción y
 - **Música**: activada o desactivada (los efectos siguen sonando).
 - **Celebraciones**: activa o desactiva los bailarines al superar un nivel (si están desactivadas, solo aparece el rótulo «¡NIVEL N!» durante 2 segundos).
 - **Controles**: la tabla de teclas.
-- **Récords**: las 10 mejores partidas con puntuación, líneas, nivel y fecha.
+- **Récords**: el ranking de 10 puestos con nombre, puntuación, líneas, nivel y fecha (ver [Ranking](#ranking)).
 
 El nivel inicial, la música, las celebraciones y el silencio (M) se guardan entre sesiones.
+
+## Piloto automático
+
+Durante la partida, el botón **PILOTO AUTOMÁTICO** que hay bajo el marcador hace que el juego juegue solo. Se puede pulsar en cualquier momento: jugando, en pausa, durante la celebración y en el fin de partida. Es la única forma de activarlo y desactivarlo, porque no tiene tecla.
+
+- Al activarlo, toma el control de la pieza que está cayendo; al desactivarlo, la pieza se queda donde está y vuelve a responder al teclado.
+- Mientras está activo, las flechas, ↓ y Z no hacen nada; P, M, Esc, Enter y Espacio siguen funcionando.
+- Sigue jugando al cambiar de nivel y, si reinicias tras perder, también juega la partida nueva. No se guarda entre sesiones.
+- **Una partida en la que se ha activado no cuenta para el ranking** ni para el récord del marcador. El fin de partida lo indica.
+
+Juega con el **algoritmo de Pierre Dellacherie**: para cada pieza prueba todas las posiciones y giros a los que puede llegar y se queda con la que mejor puntúa según la altura a la que cae, las líneas que hace, los huecos tapados, los pozos y lo irregular que queda la pila. Con las semillas de los tests juega más de 3000 piezas seguidas sin perder, hasta el nivel 29, y tarda menos de 1 ms en decidir cada jugada.
 
 ## Reglas y puntuación
 
@@ -216,6 +235,7 @@ El fondo es la Plaza Roja vista desde San Basilio, con el encuadre de las postal
   - Windows: `winget install OpenJS.NodeJS.LTS` o el instalador de [nodejs.org](https://nodejs.org).
   - Linux: el gestor de paquetes de tu distribución o [nvm](https://github.com/nvm-sh/nvm) (`nvm install --lts`).
 - **Git**.
+- **Perl** para los tests e2e del ranking en el disco y para `npm run test:server` en macOS y Linux (ya viene con el sistema).
 
 No hace falta Rust ni ninguna otra herramienta nativa: el juego es solo web.
 
@@ -229,20 +249,21 @@ npm ci
 
 ### Comandos
 
-| Comando                 | Qué hace                                                                                                      |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`           | Servidor de desarrollo con recarga en caliente (abre la URL que muestra, normalmente `http://localhost:5173`) |
-| `npm run build`         | Typecheck y build de producción: un único `dist/index.html` autocontenido                                     |
-| `npm run preview`       | Sirve el build de `dist/`                                                                                     |
-| `npm run typecheck`     | Comprueba los tipos (`tsc --noEmit`)                                                                          |
-| `npm run lint`          | ESLint sin errores ni avisos permitidos                                                                       |
-| `npm run format`        | Formatea con Prettier (para comprobar sin cambiar: `npx prettier --check .`)                                  |
-| `npm test`              | Tests unitarios (Vitest)                                                                                      |
-| `npm run test:coverage` | Tests unitarios con cobertura; falla si el motor (`src/engine/`) baja del 90 %                                |
-| `npm run test:e2e`      | Tests end-to-end (Playwright) en Chromium y WebKit, contra el build de producción                             |
-| `npm run package`       | Genera `release/tetris-vX.Y.Z.zip` con el juego y los lanzadores (requiere `npm run build`)                   |
-| `npm run screenshots`   | Regenera las capturas y el GIF de `docs/screenshots/`                                                         |
-| `npm run video`         | Regenera desde cero el vídeo explicativo (ver [Vídeo explicativo](#vídeo-explicativo))                        |
+| Comando                 | Qué hace                                                                                                                          |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`           | Servidor de desarrollo con recarga en caliente (abre la URL que muestra, normalmente `http://localhost:5173`)                     |
+| `npm run build`         | Typecheck y build de producción: un único `dist/index.html` autocontenido                                                         |
+| `npm run preview`       | Sirve el build de `dist/`                                                                                                         |
+| `npm run typecheck`     | Comprueba los tipos (`tsc --noEmit`)                                                                                              |
+| `npm run lint`          | ESLint sin errores ni avisos permitidos                                                                                           |
+| `npm run format`        | Formatea con Prettier (para comprobar sin cambiar: `npx prettier --check .`)                                                      |
+| `npm test`              | Tests unitarios (Vitest)                                                                                                          |
+| `npm run test:coverage` | Tests unitarios con cobertura; falla si el motor (`src/engine/`) o el piloto (`src/ai/`) bajan del 90 %                           |
+| `npm run test:e2e`      | Tests end-to-end (Playwright) en Chromium y WebKit, contra el build de producción (con Vite y con el servidor de récords de Perl) |
+| `npm run test:server`   | Comprueba el servidor de récords de los lanzadores en tu sistema (Perl en macOS y Linux, PowerShell en Windows)                   |
+| `npm run package`       | Genera `release/tetris-vX.Y.Z.zip` con el juego, los lanzadores y el servidor de récords (requiere `npm run build`)               |
+| `npm run screenshots`   | Regenera las capturas y el GIF de `docs/screenshots/`                                                                             |
+| `npm run video`         | Regenera desde cero el vídeo explicativo (ver [Vídeo explicativo](#vídeo-explicativo))                                            |
 
 Antes de ejecutar los tests e2e o las capturas por primera vez, instala los navegadores de Playwright:
 
@@ -275,8 +296,10 @@ Sin esos parámetros el juego funciona con normalidad.
 
 Como el juego es un único `index.html`, "compilar para cada sistema" se reduce a acompañarlo de un lanzador por sistema:
 
-- `launchers/Tetris.command` (macOS), `launchers/tetris.sh` (Linux) y `launchers/Tetris.bat` (Windows) abren el juego en el navegador predeterminado. Buscan `index.html` junto a ellos (en el zip de la release) o en `../dist/` (en el repositorio clonado, después de `npm run build`). Si no lo encuentran, explican qué hacer.
-- `npm run package` crea `release/tetris-vX.Y.Z.zip` con `index.html`, los tres lanzadores (con permiso de ejecución en macOS y Linux) y un `LEEME.txt`.
+- `launchers/Tetris.command` (macOS), `launchers/tetris.sh` (Linux) y `launchers/Tetris.bat` (Windows) buscan `index.html` junto a ellos (en el zip de la release) o en `../dist/` (en el repositorio clonado, después de `npm run build`). Si no lo encuentran, explican qué hacer.
+- Después arrancan el **servidor de récords**: `launchers/records_server.pl` (Perl, solo con los módulos que trae) o `launchers/records_server.ps1` (PowerShell con `HttpListener`). Sirve el juego en `http://127.0.0.1` (o `localhost` en Windows), con el primer puerto libre a partir del 47321, y lee y escribe el ranking en `records.json` (`GET` y `PUT` en `/api/records`, con escritura atómica). Solo atiende peticiones dirigidas a tu propio equipo, para que ninguna web de fuera pueda escribir en el disco. Si no hay Perl, el lanzador abre `index.html` directamente.
+- `npm run package` crea `release/tetris-vX.Y.Z.zip` con `index.html`, los tres lanzadores (con permiso de ejecución en macOS y Linux), los dos servidores de récords y un `LEEME.txt`.
+- El CI ejecuta cada lanzador en modo de prueba y `npm run test:server` en macOS, Linux y Windows, desde el repositorio y desde el zip extraído.
 
 Para jugar desde el repositorio clonado:
 
@@ -338,13 +361,15 @@ flowchart LR
   raf([requestAnimationFrame]) --> loop["src/app/game_loop<br/>bucle de juego"]
   loop --> controller["src/app/app_controller<br/>pantallas y partida"]
   input --> session["src/app/game_session<br/>frames de 1/60 s"]
+  ai["src/ai<br/>piloto Dellacherie"] -- "entrada del piloto" --> session
   controller --> session
   session --> engine["src/engine<br/>step(state, input, dt)"]
   engine -- "estado + eventos" --> controller
   controller -- eventos --> audio["src/audio<br/>Web Audio chiptune"]
   controller -- levelUp --> celebration["src/celebration<br/>bailarines y escenarios"]
   loop --> scene["src/scene<br/>Plaza Roja de fondo"]
-  controller <--> storage["src/storage<br/>localStorage"]
+  controller <--> storage["src/storage<br/>localStorage o records.json"]
+  storage <--> server(["launchers/records_server<br/>servidor local"])
   controller -- snapshot --> ui["src/ui<br/>React: menús y HUD"]
   loop --> render["src/render<br/>Canvas"]
   engine -. estado .-> render
@@ -357,14 +382,14 @@ flowchart LR
 
 1. `requestAnimationFrame` llama al bucle (`src/app/game_loop.ts`) en cada refresco de pantalla con el tiempo transcurrido, limitado a 250 ms para no dar saltos al volver de otra pestaña.
 2. El controlador (`src/app/app_controller.ts`) lee las teclas que tocan en la pantalla actual: menú, partida, pausa, celebración o fin de partida.
-3. Durante la partida, `game_session` reparte el tiempo en **frames fijos de 1/60 s**. En cada frame lee el teclado (desplazamiento con DAS y rotaciones) y llama a `step(state, input, dt)` del motor. Así el juego va igual de rápido en pantallas de 60, 120 o 144 Hz y no se pierden pulsaciones.
+3. Durante la partida, `game_session` reparte el tiempo en **frames fijos de 1/60 s**. En cada frame lee el teclado (desplazamiento con DAS y rotaciones) y llama a `step(state, input, dt)` del motor; con el piloto automático activo, el teclado se sigue leyendo pero la entrada del frame la da el piloto. Así el juego va igual de rápido en pantallas de 60, 120 o 144 Hz y no se pierden pulsaciones.
 4. La escena de fondo (`src/scene/`) avanza su propio reloj: hora del día, tiempo atmosférico, gente y calendario de eventos.
 5. Después se dibujan el fondo, el pozo y, si toca, la celebración en sus canvas, y React actualiza menús y marcador solo cuando cambia algo visible.
 
 ### Flujo de estado
 
 - **El motor (`src/engine/`) es puro**: no sabe nada de React, del DOM ni del audio. `step` recibe el estado anterior y devuelve un estado nuevo, inmutable, junto con una lista de **eventos** (`pieceMoved`, `pieceRotated`, `pieceLocked`, `linesCleared`, `levelUp`, `gameOver`). Una partida pasa por las fases `falling` → `lineClear` → `entryDelay` → `falling`… Al alcanzar el objetivo pasa a `levelComplete`, y `startNextLevel` empieza el nivel siguiente con el tablero vacío; así hasta `gameOver`. La semilla del generador forma parte del estado, así que la misma semilla da siempre la misma partida.
-- **El controlador reparte los eventos**: los efectos de sonido, la aceleración de la música, la celebración al recibir `levelUp` y el récord al recibir `gameOver`. La pausa y la celebración congelan la partida dejando de llamar a `step`; al terminar la celebración, el controlador empieza el nivel siguiente.
+- **El controlador reparte los eventos**: los efectos de sonido, la aceleración de la música, la celebración al recibir `levelUp` y, al recibir `gameOver`, el ranking (si la partida entra y no ha usado el piloto, pide el nombre antes de guardarla). La pausa y la celebración congelan la partida dejando de llamar a `step`; al terminar la celebración, el controlador empieza el nivel siguiente.
 - **La interfaz solo pinta**: los componentes de `src/ui/` reciben una "foto" (`snapshot`) del controlador mediante `useSyncExternalStore` y no contienen lógica de juego. La navegación del menú es una función pura (`menu_navigation.ts`).
 - **Todo lo configurable está en `src/config/`**: tablero, piezas y rotaciones, tablas de gravedad y puntuación, retardos, teclas, colores, textos, sonido y celebraciones.
 
@@ -373,6 +398,12 @@ flowchart LR
 - La música y los efectos se sintetizan con osciladores de onda cuadrada y triangular. No hay archivos de audio. Un secuenciador programa las notas por adelantado sobre el reloj de audio para que el ritmo sea estable. Las canciones están escritas como texto (`NOTA:pasos`) en `src/audio/songs/`. El audio arranca con la primera tecla ("PULSA CUALQUIER TECLA") porque los navegadores lo bloquean hasta que hay interacción.
 - La Plaza Roja (`src/scene/`) se dibuja con formas de píxeles nítidos a 640 × 360 píxeles lógicos y se escala a pantalla completa. Los edificios se pintan una vez en capas de día y de noche (San Basilio en una capa aparte, para tapar a quien pasa por detrás) y cada fotograma las mezcla según la hora; el cielo, la gente, las palomas, las farolas y la lluvia o la nieve se calculan en cada fotograma y se ordenan por profundidad. Un calendario puro (`src/scene/events/event_schedule.ts`) alterna la vida normal con los eventos según la hora del día; cada evento (`src/scene/events/`) aporta sus figurantes y decorados, dibujos en el cielo y adornos en los edificios, y pide el tiempo atmosférico que le corresponde.
 - Los bailarines (`src/celebration/`) son pixel-art de alta resolución animado con un **esqueleto**: la coreografía da los ángulos de cada articulación en cada instante, un cálculo de cinemática directa coloca huesos y manos, y cada personaje viste ese esqueleto con su ropa, su cabeza y sus accesorios, con contorno y sombreado. Cada escenario es una función de dibujo con sus propias animaciones (el cohete que despega, el público del pabellón…). Una máquina de estados pura decide qué personaje sale y en qué momento del baile va.
+
+### Piloto automático
+
+- `src/ai/dellacherie.ts` es puro y solo usa funciones del motor (`tryMove`, `tryRotate`, `collides`, `lockPiece`, `findFullRows`, `removeRows`). Genera las colocaciones alcanzables desde la posición actual (cada giro posible en el sitio, sin _wall kicks_, y desde él cada columna a la que se llega desplazando) y las deja caer. Después puntúa cada una con la fórmula de Dellacherie, cuyos pesos están en `src/config/autopilot_config.ts`: −1 × altura de aterrizaje + 1 × celdas erosionadas − 1 × transiciones de filas − 1 × transiciones de columnas − 4 × huecos − 1 × pozos acumulados. A igual puntuación, gana la que pide menos movimientos.
+- `src/ai/autopilot.ts` convierte esa colocación en un `FrameInput` por frame: gira y desplaza (comprobando antes que el motor lo aceptará), espera un frame sin soft drop al empezar cada pieza (el motor exige soltar ↓) y, ya alineada, baja con soft drop. Si en niveles rápidos la gravedad hace imposible el plan, vuelve a calcularlo desde donde está la pieza.
+- `game_session` recibe la entrada del piloto en lugar de la del teclado, y el controlador lleva el estado del botón y si la partida lo ha usado.
 
 ## Estructura de carpetas
 
@@ -383,25 +414,27 @@ flowchart LR
 │   ├── main.tsx               Punto de entrada de React
 │   ├── config/                Constantes: tablero, piezas, gravedad, puntuación, teclas, colores, textos…
 │   ├── engine/                Motor puro: tablero, piezas, rotación NES, colisiones, gravedad, puntuación, step()
+│   ├── ai/                    Piloto automático: algoritmo de Dellacherie y generador de entradas
 │   ├── input/                 Teclado: teclas mantenidas y pulsadas, DAS
 │   ├── render/                Dibujo en Canvas: pozo, siguiente pieza, animación de limpieza, título
 │   ├── audio/                 Sintetizador, secuenciador, efectos y canciones (Korobeiniki, Kalinka)
 │   ├── scene/                 Plaza Roja de fondo: edificios, cielo, gente, día y noche, tiempo y eventos
 │   ├── celebration/           Celebraciones: esqueleto y coreografía, 9 bailarines y sus escenarios
-│   ├── storage/               Preferencias y récords en localStorage
+│   ├── storage/               Preferencias y ranking (localStorage o records.json con el servidor local)
 │   ├── app/                   Bucle de juego, controlador de pantallas, sesión de partida, modo test
 │   └── ui/                    Componentes React: inicio, menú, HUD, pausa, fin de partida, celebración
 ├── tests/
 │   ├── unit/                  Tests unitarios (Vitest), con la misma estructura que src/
 │   ├── e2e/                   Tests end-to-end (Playwright)
 │   └── screenshots/           Generación de las capturas y del GIF del README
-├── launchers/                 Lanzadores para macOS, Linux y Windows, y el LEEME del zip
-├── scripts/                   Empaquetado del zip de la release (sin dependencias)
+├── launchers/                 Lanzadores, servidores de récords (Perl y PowerShell) y el LEEME del zip
+├── scripts/                   Empaquetado del zip de la release y prueba del servidor de récords
 ├── docs/screenshots/          Capturas generadas para este README
 ├── docs/video/                Vídeo explicativo publicado y su miniatura
 ├── video/                     Vídeo explicativo: guion, fuentes, narración, grabaciones, rótulos y montaje
 ├── .github/workflows/         CI (comprobaciones, e2e, lanzadores) y release
 ├── prompt_tetris.md           Especificación original del proyecto y cambios acordados
+├── algoritmo_dellacherie_tetris.md  Especificación del piloto automático
 └── prompt_video.md            Especificación del vídeo explicativo y cambios acordados
 ```
 
@@ -426,6 +459,7 @@ flowchart LR
    npx prettier --check .
    npm run test:coverage
    npm run test:e2e
+   npm run test:server
    npm run build
    ```
 

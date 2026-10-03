@@ -286,3 +286,22 @@ Estos cambios prevalecen sobre todo lo anterior.
 ### Plaza Roja
 - **Vista más alejada**, con el encuadre típico de la plaza (según la foto que aportó el autor): muralla del Kremlin y torre Spásskaya a la izquierda, catedral de San Basilio a la derecha, Museo Histórico y GUM al fondo, y la explanada en perspectiva con gente.
 - **Eventos típicos** que van rotando durante la partida (uno cada 2–3 minutos, alternando con la vida normal y combinados con los paseantes): desfile de la Victoria, Pascua ortodoxa, Navidad y Año Nuevo (mercadillo, pista de hielo, abeto y luces), fuegos artificiales, Maslenitsa y celebración de victorias olímpicas. Cada evento aparece a la hora y con el tiempo que le corresponden (por ejemplo, los fuegos y la procesión de Pascua de noche, la Navidad con nieve).
+
+## Cambios acordados — cuarta iteración (3 de octubre de 2026)
+
+Estos cambios prevalecen sobre todo lo anterior.
+
+### Piloto automático
+- Especificación completa en `algoritmo_dellacherie_tetris.md`: el juego puede jugar solo con el algoritmo de Pierre Dellacherie (`src/ai/dellacherie.ts`, con los pesos en `src/config/autopilot_config.ts`), que elige la mejor colocación alcanzable de la pieza activa, y un generador de entradas (`src/ai/autopilot.ts`) que la convierte en `FrameInput` frame a frame. El motor no se modifica.
+- **Botón** «PILOTO AUTOMÁTICO: NO / SÍ» bajo el marcador, visible y pulsable en todas las pantallas de partida (también por encima de la celebración y mientras se pide el nombre). Es la única forma de activarlo y desactivarlo, y no se queda con el foco, para que ENTER y ESPACIO no lo cambien.
+- Con el piloto activo se ignoran las teclas de juego (flechas, ↓ y Z); siguen funcionando P, M, Esc, ENTER en el game over y las teclas de saltar la celebración. Sigue jugando al cambiar de nivel. Al activarlo toma la pieza que cae desde donde está; al desactivarlo, la pieza se queda donde está.
+- El estado del piloto vive en el controlador durante la sesión (no se guarda). Si está activo al empezar una partida, también desde el menú, la partida empieza con piloto.
+- Una partida en la que se ha activado el piloto en algún momento **no cuenta para récords** ni para el récord del marcador; el game over lo indica. CONTROLES añade la fila «BOTÓN PILOTO → EL JUEGO JUEGA SOLO».
+- `findBestPlacement` solo devuelve `null` si la pieza ya choca en su posición (siempre se puede dejar caer donde está). Umbral de cobertura del 90 % también en `src/ai/**`.
+
+### Ranking persistente en el disco
+- Sustituye a «Récords: sin pedir nombre». El ranking tiene siempre **10 puestos**, que empiezan a 0 puntos la primera vez que se abre el juego en un ordenador. Para entrar hay que superar la puntuación del décimo (una partida de 0 puntos nunca entra; a igual puntuación queda delante la más antigua).
+- Al entrar, el juego **pide el nombre** en un campo de texto (hasta 10 caracteres: letras de cualquier alfabeto, cifras, espacio, punto y guion; se guarda en mayúsculas; vacío queda «---») y guarda nombre, puntuación, líneas, nivel y fecha. Mientras se escribe, el teclado del juego no actúa. Las partidas con piloto no piden nombre.
+- El ranking se guarda en **`records.json`** en el disco del ordenador: junto a `index.html` en el zip de la release y en la raíz del repositorio clonado (en `.gitignore`). Los lanzadores arrancan un **servidor local mínimo** que sirve el juego en `127.0.0.1`/`localhost` y lee y escribe ese archivo: `records_server.pl` (Perl, que viene con macOS y Linux) y `records_server.ps1` (PowerShell, en Windows). Solo atiende peticiones locales. La ventana del terminal debe quedar abierta mientras se juega.
+- Si se abre `index.html` directamente (o no hay Perl), el ranking se guarda en el navegador como antes. Los récords antiguos, sin nombre, aparecen como «---».
+- `npm run test:server` comprueba el servidor del sistema en que se ejecuta; el job de lanzadores del CI lo ejecuta en macOS, Linux y Windows, desde el repositorio y desde el zip. Los e2e añaden el servidor de Perl para probar el ranking en el disco.
