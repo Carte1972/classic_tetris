@@ -21,6 +21,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
+    "test:server": "node scripts/check_records_server.mjs",
     "screenshots": "playwright test -c playwright.screenshots.config.ts",
     "video": "node video/scripts/video.mjs"
   },

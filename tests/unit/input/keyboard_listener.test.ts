@@ -30,6 +30,28 @@ describe('attachKeyboard', () => {
     expect(other.defaultPrevented).toBe(false);
   });
 
+  it('las pulsaciones en un campo de texto no llegan al juego, pero las sueltas sí', () => {
+    const target = new EventTarget() as unknown as Window;
+    const keyboard = createKeyboardState();
+    attachKeyboard(target, keyboard);
+    target.dispatchEvent(keyEvent('keydown', 'ArrowLeft'));
+    const typed = keyEvent('keydown', 'KeyM');
+    Object.defineProperty(typed, 'target', { value: { tagName: 'INPUT' } });
+    target.dispatchEvent(typed);
+    expect(typed.defaultPrevented).toBe(false);
+    expect(keyboard.consumePressed('mute')).toBe(false);
+    const editable = keyEvent('keydown', 'KeyP');
+    Object.defineProperty(editable, 'target', {
+      value: { tagName: 'DIV', isContentEditable: true },
+    });
+    target.dispatchEvent(editable);
+    expect(keyboard.consumePressed('pause')).toBe(false);
+    const released = keyEvent('keyup', 'ArrowLeft');
+    Object.defineProperty(released, 'target', { value: { tagName: 'INPUT' } });
+    target.dispatchEvent(released);
+    expect(keyboard.isHeld('moveLeft')).toBe(false);
+  });
+
   it('suelta todas las teclas al perder el foco', () => {
     const target = new EventTarget() as unknown as Window;
     const keyboard = createKeyboardState();

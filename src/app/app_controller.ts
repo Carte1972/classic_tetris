@@ -17,9 +17,12 @@ import type { GameState, PieceType } from '../engine/types';
 import type { KeyboardState } from '../input/keyboard_state';
 import type { KeyValueStorage } from '../storage/key_value_storage';
 import { loadPreferences, savePreferences, type Preferences } from '../storage/preferences_store';
+import type { RecordsFile } from '../storage/records_file';
 import {
+  getRecordRank,
   insertRecord,
   loadRecords,
+  normalizeRecordName,
   saveRecords,
   toIsoDate,
   type RecordEntry,
@@ -43,6 +46,7 @@ export type ScreenName =
   | 'playing'
   | 'paused'
   | 'celebrating'
+  | 'nameEntry'
   | 'gameOver';
 
 /** Datos del marcador durante la partida. */
@@ -111,6 +115,11 @@ export interface AppDependencies {
   readonly keyboard: KeyboardState;
   readonly audio: AppAudio;
   readonly storage: KeyValueStorage | null;
+  /**
+   * Ranking en el disco (`records.json`), si el juego se ha abierto con un lanzador. Si no
+   * hay servidor de récords, el ranking se guarda en `storage`.
+   */
+  readonly recordsFile: RecordsFile | null;
   /** Semilla de cada partida nueva. */
   readonly createSeed: () => number;
   /** Reloj para fechar los récords. */
@@ -141,6 +150,11 @@ export interface AppController {
    * Solo tiene efecto en las pantallas de partida.
    */
   readonly toggleAutopilot: () => void;
+  /**
+   * Guarda en el ranking la partida que acaba de entrar, con el nombre escrito por el
+   * jugador (lo llama el formulario de la pantalla `nameEntry`).
+   */
+  readonly submitRecordName: (name: string) => void;
 }
 
 /** Pantallas de partida, las únicas donde se puede activar o desactivar el piloto. */
@@ -148,6 +162,7 @@ const GAME_SCREENS: ReadonlySet<ScreenName> = new Set([
   'playing',
   'paused',
   'celebrating',
+  'nameEntry',
   'gameOver',
 ]);
 
@@ -179,11 +194,22 @@ export function createAppController(deps: AppDependencies): AppController {
   // la partida en curso.
   let autopilotEnabled = false;
   let autopilotUsed = false;
+  // Partida que ha entrado en el ranking y espera el nombre del jugador.
+  let pendingRecord: Omit<RecordEntry, 'name'> | null = null;
+  // Si el ranking vive en `records.json` (con el servidor de los lanzadores).
+  let recordsOnDisk = false;
   let snapshot = buildSnapshot();
   const listeners = new Set<() => void>();
 
   audio.setMusicEnabled(preferences.musicEnabled);
   audio.setMuted(preferences.muted);
+  void deps.recordsFile?.load().then((stored) => {
+    if (stored !== null) {
+      recordsOnDisk = true;
+      records = stored;
+      publish();
+    }
+  });
 
   function buildSnapshot(): AppSnapshot {
     const state = session?.getState() ?? null;
@@ -233,6 +259,20 @@ export function createAppController(deps: AppDependencies): AppController {
     savePreferences(storage, preferences);
   }
 
+  function persistRecords(): void {
+    if (!recordsOnDisk || deps.recordsFile === null) {
+      saveRecords(storage, records);
+      return;
+    }
+    const saved = records;
+    void deps.recordsFile.save(saved).then((ok) => {
+      // Si el servidor se ha cerrado, al menos queda en el navegador.
+      if (!ok) {
+        saveRecords(storage, saved);
+      }
+    });
+  }
+
   function startGame(): void {
     session = createGameSession(
       { seed: deps.createSeed(), startLevel: preferences.startLevel },
@@ -266,24 +306,38 @@ export function createAppController(deps: AppDependencies): AppController {
       goTo('gameOver');
       return;
     }
-    const insertion = insertRecord(records, {
-      score: state.score,
-      lines: state.lines,
-      level: state.level,
-      date: toIsoDate(deps.now()),
-    });
-    if (insertion.rank !== null) {
-      records = insertion.records;
-      saveRecords(storage, records);
-    }
+    const rank = getRecordRank(records, state.score);
     lastResult = {
       score: state.score,
       lines: state.lines,
       level: state.level,
-      rank: insertion.rank,
+      rank,
       autopilotUsed: false,
     };
+    if (rank === null) {
+      goTo('gameOver');
+      return;
+    }
+    pendingRecord = {
+      score: state.score,
+      lines: state.lines,
+      level: state.level,
+      date: toIsoDate(deps.now()),
+    };
+    goTo('nameEntry');
+  }
+
+  function submitRecordName(name: string): void {
+    if (screen !== 'nameEntry' || pendingRecord === null || lastResult === null) {
+      return;
+    }
+    const insertion = insertRecord(records, { ...pendingRecord, name: normalizeRecordName(name) });
+    records = insertion.records;
+    lastResult = { ...lastResult, rank: insertion.rank };
+    pendingRecord = null;
+    persistRecords();
     goTo('gameOver');
+    publish();
   }
 
   function runMenuCommand(command: MenuCommand): void {
@@ -416,6 +470,9 @@ export function createAppController(deps: AppDependencies): AppController {
           goTo('playing');
         }
         return;
+      case 'nameEntry':
+        // El nombre se escribe en un campo de texto: el teclado del juego no interviene.
+        return;
       case 'gameOver':
         if (keyboard.consumePressed('confirm')) {
           startGame();
@@ -466,6 +523,7 @@ export function createAppController(deps: AppDependencies): AppController {
       }
       publish();
     },
+    submitRecordName,
   };
 }
 

@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { MAX_RECORDS, RECORDS_STORAGE_KEY } from '../../../src/config/storage_config';
 import {
+  getRecordRank,
   insertRecord,
   loadRecords,
+  normalizeRecordName,
+  parseRecords,
   saveRecords,
   toIsoDate,
   type RecordEntry,
@@ -11,6 +14,7 @@ import { createMemoryStorage } from './memory_storage';
 
 /** Récord de prueba con la puntuación indicada. */
 const entry = (score: number, date = '2026-10-01'): RecordEntry => ({
+  name: 'ANA',
   score,
   lines: 1,
   level: 0,
@@ -45,6 +49,31 @@ describe('insertRecord', () => {
     expect(accepted.records).toHaveLength(MAX_RECORDS);
     expect(accepted.records.at(-1)?.score).toBe(920);
   });
+
+  it('las posiciones vacías valen 0: una partida de 0 puntos nunca entra', () => {
+    expect(getRecordRank([], 0)).toBeNull();
+    expect(insertRecord([], entry(0))).toEqual({ records: [], rank: null });
+    expect(getRecordRank([], 1)).toBe(0);
+    expect(getRecordRank([entry(500)], 10)).toBe(1);
+  });
+});
+
+describe('normalizeRecordName', () => {
+  it('pasa a mayúsculas, también con tildes y en cirílico', () => {
+    expect(normalizeRecordName('ana maría')).toBe('ANA MARÍA');
+    expect(normalizeRecordName('пётр')).toBe('ПЁТР');
+  });
+
+  it('quita los caracteres no admitidos y los espacios sobrantes', () => {
+    expect(normalizeRecordName('  la   <b>ana</b>! ')).toBe('LA BANAB');
+    expect(normalizeRecordName('jose-luis.2')).toBe('JOSE-LUIS.');
+  });
+
+  it('corta a 10 caracteres y usa --- si queda vacío', () => {
+    expect(normalizeRecordName('abcdefghijklmn')).toBe('ABCDEFGHIJ');
+    expect(normalizeRecordName('')).toBe('---');
+    expect(normalizeRecordName('¡¿?!')).toBe('---');
+  });
 });
 
 describe('loadRecords / saveRecords', () => {
@@ -69,6 +98,22 @@ describe('loadRecords / saveRecords', () => {
     expect(records).toHaveLength(MAX_RECORDS);
     expect(records[0]?.score).toBe(111);
     expect(records.every((r, i) => i === 0 || (records[i - 1]?.score ?? 0) >= r.score)).toBe(true);
+  });
+
+  it('los récords guardados antes de pedir el nombre quedan como ---', () => {
+    const legacy = { score: 300, lines: 3, level: 1, date: '2026-09-01' };
+    expect(parseRecords([legacy])).toEqual([{ ...legacy, name: '---' }]);
+  });
+
+  it('descarta los nombres no válidos', () => {
+    const base = { score: 300, lines: 3, level: 1, date: '2026-09-01' };
+    const raw = [
+      { ...base, name: 'ana' },
+      { ...base, name: 'ABCDEFGHIJK' },
+      { ...base, name: 7 },
+      { ...base, name: 'ПЁТР' },
+    ];
+    expect(parseRecords(raw)).toEqual([{ ...base, name: 'ПЁТР' }]);
   });
 
   it('sin datos o con datos corruptos devuelve una lista vacía', () => {

@@ -20,10 +20,22 @@ Cómo abrirlo (haz doble clic en el lanzador de tu sistema):
            Si aparece SmartScreen ("Windows protegió su PC"), pulsa
            "Más información" > "Ejecutar de todas formas".
 
-También puedes abrir index.html directamente con tu navegador.
+El lanzador arranca un pequeño servidor local (Perl en macOS y Linux, que ya
+vienen con él, y PowerShell en Windows) y abre el juego en el navegador. La
+ventana del terminal tiene que seguir abierta mientras juegas: ciérrala para
+terminar.
 
-Los récords y las preferencias se guardan en el navegador asociados a la ruta
-de esta carpeta: si la mueves de sitio, empezarás con los récords en blanco.
+Ranking: siempre tiene 10 puestos y empieza con 0 puntos en todos. Si una
+partida supera al décimo, el juego te pide el nombre y guarda nombre,
+puntuación y fecha en el archivo records.json de esta carpeta, así que los
+récords se conservan de una sesión a otra. Las partidas con el piloto
+automático no cuentan.
+
+También puedes abrir index.html directamente con tu navegador, pero entonces
+los récords y las preferencias se guardan en el navegador, asociados a la
+ruta de esta carpeta: si la mueves de sitio, empezarás con los récords en
+blanco.
 
 Controles: flechas izquierda/derecha mover, abajo bajar, arriba / Z rotar,
-P pausa, M silenciar, Esc menú, Enter empezar / reiniciar.
+P pausa, M silenciar, Esc menú, Enter empezar / reiniciar. El botón
+PILOTO AUTOMÁTICO, bajo el marcador, hace que el juego juegue solo.

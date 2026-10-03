@@ -64,7 +64,10 @@ export async function startGame(page: Page): Promise<void> {
   await expectScreen(page, 'playing');
 }
 
-/** Lleva la partida a game over llenando el tablero. */
+/**
+ * Lleva la partida a game over llenando el tablero. Si la puntuación entra en el ranking,
+ * la partida se queda pidiendo el nombre (ver `enterRecordName`).
+ */
 export async function forceGameOver(page: Page, score: number): Promise<void> {
   await patchGame(page, {
     boardRows: FULL_BOARD,
@@ -72,6 +75,14 @@ export async function forceGameOver(page: Page, score: number): Promise<void> {
     score,
     lines: 7,
   });
+  await expect.poll(async () => (await snapshot(page)).screen).toMatch(/^(gameOver|nameEntry)$/);
+}
+
+/** Escribe el nombre para el ranking en el campo (que ya tiene el foco) y lo acepta con ENTER. */
+export async function enterRecordName(page: Page, name: string): Promise<void> {
+  await expect(page.getByLabel('TU NOMBRE')).toBeFocused();
+  await page.keyboard.type(name);
+  await tap(page, 'Enter');
   await expectScreen(page, 'gameOver');
 }
 

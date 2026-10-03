@@ -31,12 +31,14 @@ export const TEXTS = {
   },
   records: {
     title: 'RÉCORDS',
-    empty: 'TODAVÍA NO HAY RÉCORDS',
     rank: '#',
+    name: 'NOMBRE',
     score: 'PUNTOS',
     lines: 'LÍNEAS',
     level: 'NIVEL',
     date: 'FECHA',
+    /** Fecha de las posiciones del ranking que aún están vacías. */
+    emptyDate: '--/--/----',
   },
   back: 'ESC VOLVER',
   hud: {
@@ -60,6 +62,13 @@ export const TEXTS = {
   celebration: {
     levelUp: (level: number): string => `¡NIVEL ${level}!`,
     skip: 'ENTER / ESPACIO SALTAR',
+  },
+  nameEntry: {
+    title: '¡ENTRAS EN EL RANKING!',
+    position: (position: number): string => `PUESTO ${position}`,
+    points: (score: number): string => `${score} PUNTOS`,
+    label: 'TU NOMBRE',
+    hint: 'ESCRIBE TU NOMBRE Y PULSA ENTER',
   },
   gameOver: {
     title: 'FIN DE LA PARTIDA',

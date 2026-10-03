@@ -1,5 +1,5 @@
 import { useEffect, useState, useSyncExternalStore, type CSSProperties } from 'react';
-import type { AppSnapshot } from '../app/app_controller';
+import type { AppController, AppSnapshot } from '../app/app_controller';
 import type { RenderTargets } from '../app/game_renderer';
 import { createAppRuntime } from '../app/runtime';
 import { UI_COLORS } from '../config/palette';
@@ -19,13 +19,13 @@ const COLOR_VARIABLES = Object.fromEntries(
  * Pantalla que corresponde al estado actual.
  * @param snapshot Estado de la interfaz.
  * @param targets Registro de canvas de la partida.
- * @param onToggleAutopilot Acción del botón del piloto automático.
+ * @param controller Controlador, para las acciones de los botones y formularios.
  * @returns La pantalla.
  */
 function renderScreen(
   snapshot: AppSnapshot,
   targets: RenderTargets,
-  onToggleAutopilot: () => void,
+  controller: AppController,
 ): React.JSX.Element | null {
   switch (snapshot.screen) {
     case 'pressAnyKey':
@@ -39,13 +39,15 @@ function renderScreen(
     case 'playing':
     case 'paused':
     case 'celebrating':
+    case 'nameEntry':
     case 'gameOver':
       return snapshot.hud === null ? null : (
         <GameScreen
           snapshot={snapshot}
           hud={snapshot.hud}
           targets={targets}
-          onToggleAutopilot={onToggleAutopilot}
+          onToggleAutopilot={controller.toggleAutopilot}
+          onSubmitRecordName={controller.submitRecordName}
         />
       );
   }
@@ -66,7 +68,7 @@ export function App(): React.JSX.Element {
     <main className="app" style={COLOR_VARIABLES}>
       <BackgroundCanvas targets={runtime.targets} />
       <div className="foreground">
-        {renderScreen(snapshot, runtime.targets, runtime.controller.toggleAutopilot)}
+        {renderScreen(snapshot, runtime.targets, runtime.controller)}
       </div>
     </main>
   );

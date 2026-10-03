@@ -3,6 +3,7 @@ import { attachKeyboard } from '../input/keyboard_listener';
 import { createKeyboardState } from '../input/keyboard_state';
 import { createRedSquareScene, type LayerFactory } from '../scene/red_square_scene';
 import { getBrowserStorage } from '../storage/key_value_storage';
+import { createRecordsFile, type RecordsFile } from '../storage/records_file';
 import { createAppController, type AppController } from './app_controller';
 import { createGameLoop } from './game_loop';
 import {
@@ -32,6 +33,20 @@ const createCanvasLayer: LayerFactory = (width, height) => {
   return { canvas, context };
 };
 
+/** Protocolos con los que el juego puede venir del servidor local de los lanzadores. */
+const SERVED_PROTOCOLS: ReadonlySet<string> = new Set(['http:', 'https:']);
+
+/**
+ * Cliente del ranking en el disco. Abierto con `file://` no hay servidor al que preguntar.
+ * @returns El cliente, o `null` si el juego no se está sirviendo por HTTP.
+ */
+function createBrowserRecordsFile(): RecordsFile | null {
+  if (!SERVED_PROTOCOLS.has(window.location.protocol)) {
+    return null;
+  }
+  return createRecordsFile((url, init) => window.fetch(url, init));
+}
+
 /** Aplicación montada sobre el navegador. */
 export interface AppRuntime {
   readonly controller: AppController;
@@ -45,7 +60,8 @@ export interface AppRuntime {
 
 /**
  * Compone la aplicación con las piezas reales del navegador: teclado de `window`,
- * Web Audio, `localStorage` y `requestAnimationFrame`. Lee el modo test de la URL.
+ * Web Audio, `localStorage`, el servidor de récords (si lo hay) y `requestAnimationFrame`.
+ * Lee el modo test de la URL.
  * @returns La aplicación, aún sin arrancar.
  */
 export function createAppRuntime(): AppRuntime {
@@ -57,6 +73,7 @@ export function createAppRuntime(): AppRuntime {
     keyboard,
     audio,
     storage: getBrowserStorage(),
+    recordsFile: createBrowserRecordsFile(),
     createSeed: () => options.seed ?? createRandomSeed(),
     now: () => new Date(),
   });

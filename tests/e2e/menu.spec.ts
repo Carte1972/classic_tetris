@@ -36,10 +36,14 @@ test.describe('menú', () => {
     await expectScreen(page, 'menu');
   });
 
-  test('RÉCORDS muestra que aún no hay récords', async ({ page }) => {
+  test('RÉCORDS muestra los 10 puestos del ranking a 0 la primera vez', async ({ page }) => {
     await tap(page, 'ArrowUp');
     await tap(page, 'Enter');
-    await expect(page.getByText('TODAVÍA NO HAY RÉCORDS')).toBeVisible();
+    const rows = page.getByRole('table').getByRole('row');
+    await expect(rows).toHaveCount(11);
+    const empty = ['---', '0', '0', '0', '--/--/----'];
+    await expect(rows.nth(1).getByRole('cell')).toHaveText(['1', ...empty]);
+    await expect(rows.nth(10).getByRole('cell')).toHaveText(['10', ...empty]);
     await tap(page, 'Escape');
     await expectScreen(page, 'menu');
   });

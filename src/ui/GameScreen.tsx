@@ -7,6 +7,7 @@ import { getBoardCanvasSize, getPreviewCanvasSize } from '../render/layout';
 import { AutopilotButton } from './AutopilotButton';
 import { CelebrationOverlay } from './CelebrationOverlay';
 import { Hud } from './Hud';
+import { NameEntry } from './NameEntry';
 import { PixelCanvas } from './PixelCanvas';
 import { useRenderScale } from './use_render_scale';
 
@@ -17,17 +18,19 @@ export interface GameScreenProps {
   readonly targets: RenderTargets;
   /** Activa o desactiva el piloto automático. */
   readonly onToggleAutopilot: () => void;
+  /** Guarda en el ranking la partida terminada con el nombre escrito. */
+  readonly onSubmitRecordName: (name: string) => void;
 }
 
 /**
  * Pantalla de partida: marcador con el botón del piloto automático debajo, pozo y siguiente
- * pieza, con las capas de pausa y de fin de partida encima del pozo y la de celebración a
- * pantalla completa (el botón queda por encima de ella).
+ * pieza, con las capas de pausa, de nombre para el ranking y de fin de partida encima del
+ * pozo y la de celebración a pantalla completa (el botón queda por encima de ella).
  * @param props Propiedades de la pantalla.
  * @returns La pantalla.
  */
 export function GameScreen(props: GameScreenProps): React.JSX.Element {
-  const { snapshot, hud, targets, onToggleAutopilot } = props;
+  const { snapshot, hud, targets, onToggleAutopilot, onSubmitRecordName } = props;
   const registerBoard = useCallback(
     (canvas: HTMLCanvasElement | null) =>
       targets.register('board', canvas?.getContext('2d') ?? null),
@@ -61,6 +64,9 @@ export function GameScreen(props: GameScreenProps): React.JSX.Element {
             <h2 className="blink">{TEXTS.pause.title}</h2>
             <p className="hint">{TEXTS.pause.hint}</p>
           </div>
+        )}
+        {snapshot.screen === 'nameEntry' && result !== null && result.rank !== null && (
+          <NameEntry rank={result.rank} score={result.score} onSubmit={onSubmitRecordName} />
         )}
         {snapshot.screen === 'gameOver' && result !== null && (
           <div className="overlay" role="dialog" aria-label={TEXTS.gameOver.title}>

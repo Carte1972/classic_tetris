@@ -47,6 +47,12 @@ $RECYCLE.BIN/
 !.vscode/extensions.json
 *.swp
 
+# Ranking guardado por el servidor de los lanzadores (y el de los e2e)
+records.json
+records.json.tmp
+.e2e-records.json
+.e2e-records.json.tmp
+
 # Claude Code (solo local)
 CLAUDE.md
 .claude/settings.local.json

@@ -65,6 +65,9 @@ jobs:
           cache: npm
       - run: npm ci
 
+      - name: Servidor de récords (Perl en macOS y Linux, PowerShell en Windows)
+        run: npm run test:server
+
       - name: Sin build, el lanzador avisa y falla (macOS y Linux)
         if: runner.os != 'Windows'
         shell: bash
@@ -92,24 +95,30 @@ jobs:
           if [ "$RUNNER_OS" = "macOS" ]; then launcher=Tetris.command; fi
           out=$("launchers/$launcher")
           echo "$out"
-          [[ "$out" == "$PWD/dist/index.html" ]]
+          [[ "$(echo "$out" | sed -n 1p)" == "$PWD/dist/index.html" ]]
+          [[ "$(echo "$out" | sed -n 2p)" == "$PWD/records.json" ]]
           mkdir -p "$RUNNER_TEMP/paquete"
           unzip -q release/tetris-v*.zip -d "$RUNNER_TEMP/paquete"
-          game_dir=$(echo "$RUNNER_TEMP"/paquete/tetris-v*)
+          game_dir=$(cd "$(echo "$RUNNER_TEMP"/paquete/tetris-v*)" && pwd)
           [ -x "$game_dir/$launcher" ]
           out=$("$game_dir/$launcher")
           echo "$out"
-          [[ "$out" == "$(cd "$game_dir" && pwd)/index.html" ]]
+          [[ "$(echo "$out" | sed -n 1p)" == "$game_dir/index.html" ]]
+          [[ "$(echo "$out" | sed -n 2p)" == "$game_dir/records.json" ]]
+          node scripts/check_records_server.mjs "$game_dir"
       - name: Lanzador desde el repositorio y desde el paquete (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $out = (& .\launchers\Tetris.bat | Out-String).Trim()
+          $out = @(& .\launchers\Tetris.bat)
           Write-Output $out
-          if ($out -ne (Resolve-Path dist\index.html).Path) { throw "Ruta inesperada: $out" }
+          if ($out[0] -ne (Resolve-Path dist\index.html).Path) { throw "Ruta inesperada: $($out[0])" }
+          if ($out[1] -ne (Join-Path (Get-Location) 'records.json')) { throw "Ranking inesperado: $($out[1])" }
           $zip = Get-ChildItem release\tetris-v*.zip | Select-Object -First 1
           Expand-Archive $zip.FullName -DestinationPath "$env:RUNNER_TEMP\paquete"
           $dir = Get-ChildItem "$env:RUNNER_TEMP\paquete" -Directory | Select-Object -First 1
-          $out = (& "$($dir.FullName)\Tetris.bat" | Out-String).Trim()
+          $out = @(& "$($dir.FullName)\Tetris.bat")
           Write-Output $out
-          if ($out -ne (Join-Path $dir.FullName 'index.html')) { throw "Ruta inesperada: $out" }
+          if ($out[0] -ne (Join-Path $dir.FullName 'index.html')) { throw "Ruta inesperada: $($out[0])" }
+          if ($out[1] -ne (Join-Path $dir.FullName 'records.json')) { throw "Ranking inesperado: $($out[1])" }
+          node scripts/check_records_server.mjs $dir.FullName

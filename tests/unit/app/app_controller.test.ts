@@ -12,6 +12,8 @@ import { PREFERENCES_STORAGE_KEY, RECORDS_STORAGE_KEY } from '../../../src/confi
 import { lockPiece } from '../../../src/engine/board';
 import type { Board } from '../../../src/engine/types';
 import { createKeyboardState, type KeyboardState } from '../../../src/input/keyboard_state';
+import type { RecordsFile } from '../../../src/storage/records_file';
+import type { RecordEntry } from '../../../src/storage/records_store';
 import { createMemoryStorage } from '../storage/memory_storage';
 
 /** Tiempo suficiente para que una pieza se fije y aparezca la siguiente en el nivel 0. */
@@ -21,7 +23,10 @@ const LONG_ENOUGH_MS = 3000;
 const FULL_BOARD = Array.from({ length: 20 }, () => 'OOOOOOOOO.');
 
 /** Crea el controlador con dependencias falsas. */
-function setup(initialStorage: Record<string, string> = {}) {
+function setup(
+  initialStorage: Record<string, string> = {},
+  recordsFile: RecordsFile | null = null,
+) {
   const keyboard = createKeyboardState();
   const audio = {
     playMusic: vi.fn(),
@@ -38,6 +43,7 @@ function setup(initialStorage: Record<string, string> = {}) {
     keyboard,
     audio,
     storage,
+    recordsFile,
     createSeed: () => 42,
     now: () => new Date(2026, 9, 1),
   };
@@ -62,12 +68,12 @@ function startPlaying(ctx: ReturnType<typeof setup>): void {
   ctx.press('Enter');
 }
 
-/** Provoca el fin de la partida en curso. */
-function forceGameOver(ctx: ReturnType<typeof setup>): void {
+/** Provoca el fin de la partida en curso con la puntuación indicada. */
+function forceGameOver(ctx: ReturnType<typeof setup>, score = 1234): void {
   ctx.controller.patchGame({
     boardRows: FULL_BOARD,
     activePiece: { type: 'O', rotation: 0, x: 1, y: 0 },
-    score: 1234,
+    score,
     lines: 7,
   });
   ctx.controller.update(LONG_ENOUGH_MS);
@@ -215,22 +221,56 @@ describe('partida', () => {
 });
 
 describe('fin de la partida', () => {
-  it('muestra el resultado y guarda el récord con la fecha', () => {
+  it('al entrar en el ranking pide el nombre y después guarda el récord con la fecha', () => {
     const ctx = setup();
     startPlaying(ctx);
     forceGameOver(ctx);
-    const snapshot = ctx.controller.getSnapshot();
-    expect(snapshot.screen).toBe('gameOver');
-    expect(snapshot.lastResult).toEqual({
+    const asking = ctx.controller.getSnapshot();
+    expect(asking.screen).toBe('nameEntry');
+    expect(asking.lastResult).toEqual({
       score: 1234,
       lines: 7,
       level: 0,
       rank: 0,
       autopilotUsed: false,
     });
-    expect(snapshot.records).toEqual([{ score: 1234, lines: 7, level: 0, date: '2026-10-01' }]);
-    expect(ctx.storage.data.get(RECORDS_STORAGE_KEY)).toContain('1234');
+    expect(asking.records).toEqual([]);
     expect(ctx.audio.playSfx).toHaveBeenCalledWith('gameOver');
+    ctx.controller.submitRecordName('  ana maría ');
+    const saved = ctx.controller.getSnapshot();
+    expect(saved.screen).toBe('gameOver');
+    expect(saved.lastResult?.rank).toBe(0);
+    expect(saved.records).toEqual([
+      { name: 'ANA MARÍA', score: 1234, lines: 7, level: 0, date: '2026-10-01' },
+    ]);
+    expect(ctx.storage.data.get(RECORDS_STORAGE_KEY)).toContain('ANA MARÍA');
+  });
+
+  it('mientras pide el nombre, el teclado del juego no hace nada', () => {
+    const ctx = setup();
+    startPlaying(ctx);
+    forceGameOver(ctx);
+    ctx.press('Enter');
+    ctx.press('Escape');
+    expect(ctx.controller.getSnapshot().screen).toBe('nameEntry');
+    ctx.controller.submitRecordName('ANA');
+    expect(ctx.controller.getSnapshot().screen).toBe('gameOver');
+  });
+
+  it('una partida de 0 puntos no pide nombre aunque el ranking esté vacío', () => {
+    const ctx = setup();
+    startPlaying(ctx);
+    forceGameOver(ctx, 0);
+    expect(ctx.controller.getSnapshot().screen).toBe('gameOver');
+    expect(ctx.controller.getSnapshot().lastResult?.rank).toBeNull();
+  });
+
+  it('submitRecordName no hace nada si no se está pidiendo el nombre', () => {
+    const ctx = setup();
+    startPlaying(ctx);
+    ctx.controller.submitRecordName('ANA');
+    expect(ctx.controller.getSnapshot().records).toEqual([]);
+    expect(ctx.controller.getSnapshot().screen).toBe('playing');
   });
 
   it('una partida que no entra en el top 10 no cambia los récords', () => {
@@ -251,11 +291,13 @@ describe('fin de la partida', () => {
     const ctx = setup();
     startPlaying(ctx);
     forceGameOver(ctx);
+    ctx.controller.submitRecordName('ANA');
     ctx.press('Enter');
     expect(ctx.controller.getSnapshot().screen).toBe('playing');
     expect(ctx.controller.getSnapshot().hud?.score).toBe(0);
     expect(ctx.controller.getSnapshot().lastResult).toBeNull();
     forceGameOver(ctx);
+    ctx.controller.submitRecordName('ANA');
     ctx.press('Escape');
     expect(ctx.controller.getSnapshot().screen).toBe('menu');
   });
@@ -264,7 +306,7 @@ describe('fin de la partida', () => {
     const ctx = setup();
     startPlaying(ctx);
     tap(ctx.keyboard, 'Enter');
-    forceGameOver(ctx);
+    forceGameOver(ctx, 0);
     ctx.controller.update(16);
     expect(ctx.controller.getSnapshot().screen).toBe('gameOver');
   });
@@ -506,7 +548,7 @@ describe('piloto automático', () => {
   });
 
   it('una partida que ha usado el piloto no entra en récords ni cuenta para el récord del marcador', () => {
-    const stored = [{ score: 800, lines: 5, level: 0, date: '2026-01-01' }];
+    const stored = [{ name: 'ПЁТР', score: 800, lines: 5, level: 0, date: '2026-01-01' }];
     const ctx = setup({ [RECORDS_STORAGE_KEY]: JSON.stringify(stored) });
     startPlaying(ctx);
     ctx.controller.patchGame({ score: 5000 });
@@ -547,10 +589,67 @@ describe('piloto automático', () => {
     startPlaying(ctx);
     forceGameOver(ctx);
     expect(ctx.controller.getSnapshot().lastResult?.rank).toBe(0);
+    // El botón también funciona mientras se pide el nombre, sin perder el récord.
     ctx.controller.toggleAutopilot();
+    expect(ctx.controller.getSnapshot().autopilotEnabled).toBe(true);
+    ctx.controller.submitRecordName('ANA');
     expect(ctx.controller.getSnapshot().lastResult?.autopilotUsed).toBe(false);
     expect(ctx.controller.getSnapshot().records).toHaveLength(1);
     ctx.press('Enter');
     expectPieceByAutopilot(ctx);
+  });
+});
+
+describe('ranking en el disco (records.json)', () => {
+  const ON_DISK: readonly RecordEntry[] = [
+    { name: 'ПЁТР', score: 900, lines: 9, level: 1, date: '2026-10-02' },
+  ];
+
+  /** Archivo de récords falso que responde con lo indicado. */
+  function fakeFile(stored: readonly RecordEntry[] | null, saveOk = true) {
+    return {
+      load: vi.fn(() => Promise.resolve(stored)),
+      save: vi.fn<RecordsFile['save']>(() => Promise.resolve(saveOk)),
+    };
+  }
+
+  it('con el servidor de los lanzadores, lee el ranking del archivo y guarda en él', async () => {
+    const file = fakeFile(ON_DISK);
+    const ctx = setup({}, file);
+    await vi.waitFor(() => expect(ctx.controller.getSnapshot().records).toEqual(ON_DISK));
+    startPlaying(ctx);
+    forceGameOver(ctx);
+    expect(ctx.controller.getSnapshot().lastResult?.rank).toBe(0);
+    ctx.controller.submitRecordName('ana');
+    const expected = [
+      { name: 'ANA', score: 1234, lines: 7, level: 0, date: '2026-10-01' },
+      ...ON_DISK,
+    ];
+    expect(ctx.controller.getSnapshot().records).toEqual(expected);
+    expect(file.save).toHaveBeenCalledWith(expected);
+    expect(ctx.storage.data.has(RECORDS_STORAGE_KEY)).toBe(false);
+  });
+
+  it('si el servidor no puede guardar, el ranking queda en el navegador', async () => {
+    const file = fakeFile([], false);
+    const ctx = setup({}, file);
+    await vi.waitFor(() => expect(file.load).toHaveBeenCalled());
+    startPlaying(ctx);
+    forceGameOver(ctx);
+    ctx.controller.submitRecordName('ANA');
+    await vi.waitFor(() => expect(ctx.storage.data.get(RECORDS_STORAGE_KEY)).toContain('ANA'));
+  });
+
+  it('sin servidor de récords usa el navegador', async () => {
+    const stored = [{ name: 'LUIS', score: 700, lines: 7, level: 0, date: '2026-09-30' }];
+    const file = fakeFile(null);
+    const ctx = setup({ [RECORDS_STORAGE_KEY]: JSON.stringify(stored) }, file);
+    await vi.waitFor(() => expect(file.load).toHaveBeenCalled());
+    expect(ctx.controller.getSnapshot().records).toEqual(stored);
+    startPlaying(ctx);
+    forceGameOver(ctx);
+    ctx.controller.submitRecordName('ANA');
+    expect(file.save).not.toHaveBeenCalled();
+    expect(ctx.storage.data.get(RECORDS_STORAGE_KEY)).toContain('ANA');
   });
 });

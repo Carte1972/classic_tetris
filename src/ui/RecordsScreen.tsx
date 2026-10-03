@@ -1,3 +1,4 @@
+import { MAX_RECORDS, UNNAMED_RECORD } from '../config/storage_config';
 import { TEXTS } from '../config/texts';
 import type { RecordEntry } from '../storage/records_store';
 
@@ -17,41 +18,39 @@ export function formatDate(isoDate: string): string {
 }
 
 /**
- * Pantalla con el top 10 de partidas.
+ * Pantalla con el ranking: siempre 10 posiciones; las que aún no tienen partida valen 0.
  * @param props Propiedades de la pantalla.
  * @returns La pantalla.
  */
 export function RecordsScreen(props: RecordsScreenProps): React.JSX.Element {
-  const { records } = props;
+  const positions = Array.from({ length: MAX_RECORDS }, (_, index) => props.records[index]);
   return (
     <section className="screen" aria-label={TEXTS.records.title}>
       <h2>{TEXTS.records.title}</h2>
-      {records.length === 0 ? (
-        <p className="panel">{TEXTS.records.empty}</p>
-      ) : (
-        <table className="panel table">
-          <thead>
-            <tr>
-              <th scope="col">{TEXTS.records.rank}</th>
-              <th scope="col">{TEXTS.records.score}</th>
-              <th scope="col">{TEXTS.records.lines}</th>
-              <th scope="col">{TEXTS.records.level}</th>
-              <th scope="col">{TEXTS.records.date}</th>
+      <table className="panel table">
+        <thead>
+          <tr>
+            <th scope="col">{TEXTS.records.rank}</th>
+            <th scope="col">{TEXTS.records.name}</th>
+            <th scope="col">{TEXTS.records.score}</th>
+            <th scope="col">{TEXTS.records.lines}</th>
+            <th scope="col">{TEXTS.records.level}</th>
+            <th scope="col">{TEXTS.records.date}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {positions.map((record, index) => (
+            <tr key={index} className={record === undefined ? 'empty-record' : undefined}>
+              <td className="accent">{index + 1}</td>
+              <td>{record?.name ?? UNNAMED_RECORD}</td>
+              <td>{record?.score ?? 0}</td>
+              <td>{record?.lines ?? 0}</td>
+              <td>{record?.level ?? 0}</td>
+              <td>{record === undefined ? TEXTS.records.emptyDate : formatDate(record.date)}</td>
             </tr>
-          </thead>
-          <tbody>
-            {records.map((record, index) => (
-              <tr key={`${index}-${record.score}-${record.date}`}>
-                <td className="accent">{index + 1}</td>
-                <td>{record.score}</td>
-                <td>{record.lines}</td>
-                <td>{record.level}</td>
-                <td>{formatDate(record.date)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+          ))}
+        </tbody>
+      </table>
       <p className="hint">{TEXTS.back}</p>
     </section>
   );
