@@ -110,7 +110,19 @@ export const NARRACION = [
     frases: [
       { id: '4.1', texto: 'Las flechas mueven y bajan la pieza.', pausaMs: 400 },
       { id: '4.2', texto: 'La flecha arriba y la zeta, la giran.', pausaMs: 400 },
-      { id: '4.3', texto: 'Y con la pe, pausas el juego.', pausaMs: 0 },
+      { id: '4.3', texto: 'Y con la pe, pausas el juego.', pausaMs: 500 },
+      {
+        id: '4.4',
+        texto: 'Y bajo el marcador tienes el botón de piloto automático.',
+        pausaMs: 300,
+      },
+      {
+        id: '4.5',
+        // «Delasherí»: grafía elegida por el autor de oído entre cuatro para «Dellacherie».
+        texto:
+          'Le da el control a una inteligencia artificial simbólica, gobernada por el algoritmo de Delasherí.',
+        pausaMs: 0,
+      },
     ],
   },
   {

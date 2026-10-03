@@ -2,6 +2,7 @@ import { test, type Page } from '@playwright/test';
 import { writeBytes } from '../../tests/screenshots/write_file.mjs';
 import { extractFrame, resetDir } from './codificar.mjs';
 import { FPS } from './grabacion';
+import { CONTROLS_CLIP_SECONDS } from './linea_controles';
 
 // Captura los rótulos (video/rotulos/) sobre fondo transparente: los fijos como PNG y los
 // animados como secuencias de fotogramas; y genera la miniatura del vídeo.
@@ -45,7 +46,7 @@ const STATIC_ROTULOS: readonly { file: string; query: string }[] = [
 /** Rótulos animados: nombre, parámetros y duración (s). */
 const ANIMATED_ROTULOS: readonly { file: string; query: string; seconds: number }[] = [
   { file: 'rotulo_titulo', query: 'nombre=titulo', seconds: 6 },
-  { file: 'rotulo_controles', query: 'nombre=controles', seconds: 18 },
+  { file: 'rotulo_controles', query: 'nombre=controles', seconds: CONTROLS_CLIP_SECONDS },
 ];
 
 /**

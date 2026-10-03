@@ -1,4 +1,5 @@
-import { test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
+import type { ActivePiece } from '../../src/engine/types';
 import { PREFERENCES_STORAGE_KEY, RECORDS_STORAGE_KEY } from '../../src/config/storage_config';
 import type { PlazaEventKind } from '../../src/config/plaza_events_config';
 import type { WeatherKind } from '../../src/config/scene_config';
@@ -14,7 +15,12 @@ import {
   startGame,
   tap,
 } from './grabacion';
-import { CONTROL_STEPS } from './linea_controles';
+import {
+  AUTOPILOT_BUTTON_BOX,
+  AUTOPILOT_CLICK_AT,
+  CONTROLS_CLIP_SECONDS,
+  CONTROL_STEPS,
+} from './linea_controles';
 
 // Extractos del juego del guion (video/guion.md), grabados fotograma a fotograma contra el
 // build de producción. Cada extracto dura algo más de lo que se usa en el montaje.
@@ -47,19 +53,25 @@ const FULL_BOARD = Array.from({ length: 17 }, (_, i) =>
   i % 3 === 0 ? 'OOOO.OOOOO' : 'OOOOOOOOO.',
 );
 
-/** Récords de ejemplo para la pantalla RÉCORDS (coherentes con los objetivos de nivel). */
+/**
+ * Récords de ejemplo para la pantalla RÉCORDS (coherentes con los objetivos de nivel), con
+ * nombres en español y en ruso.
+ */
 const SAMPLE_RECORDS = [
-  { score: 148_620, lines: 262, level: 12, date: '2026-09-28' },
-  { score: 121_340, lines: 231, level: 11, date: '2026-09-30' },
-  { score: 96_880, lines: 197, level: 10, date: '2026-09-21' },
-  { score: 74_150, lines: 168, level: 9, date: '2026-09-25' },
-  { score: 58_420, lines: 139, level: 8, date: '2026-09-18' },
-  { score: 41_960, lines: 113, level: 7, date: '2026-09-12' },
-  { score: 29_310, lines: 88, level: 6, date: '2026-09-15' },
-  { score: 18_740, lines: 71, level: 5, date: '2026-09-09' },
-  { score: 9_820, lines: 41, level: 3, date: '2026-09-04' },
-  { score: 4_160, lines: 26, level: 2, date: '2026-09-01' },
+  { name: 'ПЁТР', score: 148_620, lines: 262, level: 12, date: '2026-09-28' },
+  { name: 'ANA', score: 121_340, lines: 231, level: 11, date: '2026-09-30' },
+  { name: 'НАТАША', score: 96_880, lines: 197, level: 10, date: '2026-09-21' },
+  { name: 'LUIS', score: 74_150, lines: 168, level: 9, date: '2026-09-25' },
+  { name: 'ИВАН', score: 58_420, lines: 139, level: 8, date: '2026-09-18' },
+  { name: 'CARMEN', score: 41_960, lines: 113, level: 7, date: '2026-09-12' },
+  { name: 'ОЛЬГА', score: 29_310, lines: 88, level: 6, date: '2026-09-15' },
+  { name: 'JAVI', score: 18_740, lines: 71, level: 5, date: '2026-09-09' },
+  { name: 'МИША', score: 9_820, lines: 41, level: 3, date: '2026-09-04' },
+  { name: 'LUCÍA', score: 4_160, lines: 26, level: 2, date: '2026-09-01' },
 ];
+
+/** Los récords de ejemplo guardados, como los encuentra el juego al abrirse. */
+const STORED_RECORDS = { [RECORDS_STORAGE_KEY]: JSON.stringify(SAMPLE_RECORDS) };
 
 /**
  * Preferencias con las celebraciones desactivadas: en las partidas grabadas no puede
@@ -257,7 +269,9 @@ test('extracto_limpieza_4_lineas: una I limpia 4 líneas a la vez', async ({ pag
 });
 
 test('extracto_fin_partida: la pila llega arriba y se acaba la partida', async ({ page }) => {
-  await openRecording(page, NO_CELEBRATIONS);
+  // Con los récords de ejemplo la partida no entra en el ranking, así que sale directamente
+  // FIN DE LA PARTIDA en vez del formulario del nombre.
+  await openRecording(page, { ...NO_CELEBRATIONS, ...STORED_RECORDS });
   await startGame(page, 0);
   await patchGame(page, {
     boardRows: FULL_BOARD,
@@ -346,11 +360,44 @@ test('extracto_controles: cada tecla en acción', async ({ page }) => {
     activePiece: { type: 'T', rotation: 0, x: 5, y: 3 },
     nextPiece: 'L',
   });
+  const button = page.getByRole('button', { name: /PILOTO AUTOMÁTICO/ });
+  // El rótulo señala el botón con un recuadro fijo: tiene que estar donde se espera.
+  const box = await button.boundingBox();
+  const device = 1.5;
+  expect(Math.round((box?.x ?? 0) * device)).toBe(AUTOPILOT_BUTTON_BOX.x);
+  expect(Math.round((box?.y ?? 0) * device)).toBe(AUTOPILOT_BUTTON_BOX.y);
+  expect(Math.round((box?.width ?? 0) * device)).toBe(AUTOPILOT_BUTTON_BOX.width);
+  expect(Math.round((box?.height ?? 0) * device)).toBe(AUTOPILOT_BUTTON_BOX.height);
   const recorder = new Recorder(page, 'extracto_controles');
   const pending = [...CONTROL_STEPS];
   const releases: { at: number; key: string }[] = [];
-  await recorder.record(18, async () => {
+  let piloting = false;
+  let lastPiece: ActivePiece | null = null;
+  await recorder.record(CONTROLS_CLIP_SECONDS, async () => {
     const now = recorder.seconds;
+    if (!piloting && now >= AUTOPILOT_CLICK_AT) {
+      piloting = true;
+      recorder.mark('piloto');
+      await button.click();
+    }
+    if (piloting) {
+      // El piloto no pulsa teclas: los movimientos y giros se anotan al verlos, para que
+      // el montaje ponga sus efectos de sonido.
+      const piece = (await gameState(page))?.activePiece ?? null;
+      // Misma pieza: mismo tipo y no ha vuelto arriba (una nueva aparece en la fila 2).
+      const samePiece =
+        piece !== null &&
+        lastPiece !== null &&
+        piece.type === lastPiece.type &&
+        piece.y >= lastPiece.y;
+      if (samePiece && piece.x !== lastPiece?.x) {
+        recorder.mark('move');
+      }
+      if (samePiece && piece.rotation !== lastPiece?.rotation) {
+        recorder.mark('rotate');
+      }
+      lastPiece = piece;
+    }
     while (pending[0] !== undefined && pending[0].at <= now) {
       const step = pending.shift();
       if (step === undefined) {
@@ -414,7 +461,7 @@ test('extracto_baile_cosaco: se supera el nivel 1 y baila el cosaco', async ({ p
 });
 
 test('extracto_records: pantalla RÉCORDS con un top 10 de ejemplo', async ({ page }) => {
-  await openRecording(page, { [RECORDS_STORAGE_KEY]: JSON.stringify(SAMPLE_RECORDS) });
+  await openRecording(page, STORED_RECORDS);
   await tap(page, 'Space');
   await tap(page, 'ArrowUp');
   await tap(page, 'Enter');

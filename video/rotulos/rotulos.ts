@@ -8,7 +8,13 @@ import { TITLE_GLYPHS, TITLE_LETTER_SPACING } from '../../src/config/title_confi
 import { getPieceOffsets } from '../../src/engine/tetrominoes';
 import type { PieceType } from '../../src/engine/types';
 import { drawBlock } from '../../src/render/draw_block';
-import { CONTROL_STEPS, type ControlStep } from '../scripts/linea_controles';
+import {
+  AUTOPILOT_BUTTON_BOX,
+  AUTOPILOT_LABEL_AT,
+  AUTOPILOT_POINT_AT,
+  CONTROL_STEPS,
+  type ControlStep,
+} from '../scripts/linea_controles';
 
 /** Rótulo: crea su contenido y lo actualiza en cada instante. */
 interface Rotulo {
@@ -224,18 +230,77 @@ function rotuloObjetivo(root: HTMLElement): Rotulo {
   return { render: () => undefined };
 }
 
-/** Filas de la tabla de controles: teclas que la resaltan, símbolo y acción. */
+/**
+ * Filas de la tabla de controles: teclas que la resaltan, símbolo y acción. La del piloto
+ * automático no tiene tecla: se resalta desde que la narración habla del botón.
+ */
 const CONTROL_ROWS: readonly {
   keys: readonly ControlStep['key'][];
   label: string;
   action: string;
+  from?: number;
 }[] = [
   { keys: ['ArrowLeft', 'ArrowRight'], label: '← →', action: 'MOVER' },
   { keys: ['ArrowDown'], label: '↓', action: 'BAJAR' },
   { keys: ['ArrowUp'], label: '↑', action: 'GIRAR' },
   { keys: ['KeyZ'], label: 'Z', action: 'GIRAR AL REVÉS' },
   { keys: ['KeyP'], label: 'P', action: 'PAUSA' },
+  { keys: [], label: 'BOTÓN', action: 'PILOTO AUTOMÁTICO', from: AUTOPILOT_POINT_AT },
 ];
+
+/** Periodo del parpadeo del recuadro que señala el botón del piloto (s). */
+const POINTER_BLINK_S = 0.4;
+
+/** Margen del recuadro alrededor del botón del piloto (px). */
+const POINTER_MARGIN_PX = 8;
+
+/** Color de acento de la interfaz del juego. */
+const ACCENT = '#f2b134';
+
+/** Color de los paneles de la interfaz del juego. */
+const PANEL = '#0b0d17';
+
+/**
+ * Señales del piloto automático sobre la grabación: durante la frase 4.4, un recuadro y
+ * una flecha que parpadean alrededor del botón; durante la 4.5, una etiqueta debajo con
+ * qué es y qué algoritmo lo gobierna.
+ * @param root Contenedor.
+ * @returns Función que muestra u oculta las señales en cada instante.
+ */
+function autopilotPointer(root: HTMLElement): (t: number) => void {
+  const box = AUTOPILOT_BUTTON_BOX;
+  const frame = place(document.createElement('div'), {
+    position: 'absolute',
+    left: `${box.x - POINTER_MARGIN_PX}px`,
+    top: `${box.y - POINTER_MARGIN_PX}px`,
+    width: `${box.width + POINTER_MARGIN_PX * 2}px`,
+    height: `${box.height + POINTER_MARGIN_PX * 2}px`,
+    border: `6px solid ${ACCENT}`,
+    boxSizing: 'border-box',
+  });
+  const arrow = place(document.createElement('div'), {
+    position: 'absolute',
+    left: `${box.x - 110}px`,
+    top: `${box.y + box.height / 2 - 40}px`,
+    fontSize: '72px',
+    lineHeight: '80px',
+    color: ACCENT,
+    textShadow: `4px 4px 0 ${PANEL}`,
+  });
+  arrow.textContent = '▶';
+  const label = panel(
+    '<div class="acento" style="font-size:30px">IA SIMBÓLICA</div><div style="font-size:30px;margin-top:8px">ALGORITMO DE DELLACHERIE</div>',
+    { left: '120px', top: `${box.y + box.height + 36}px` },
+  );
+  root.append(frame, arrow, label);
+  return (t) => {
+    const pointing = t >= AUTOPILOT_POINT_AT && t < AUTOPILOT_LABEL_AT;
+    const lit = Math.floor((t - AUTOPILOT_POINT_AT) / POINTER_BLINK_S) % 2 === 0;
+    frame.style.visibility = pointing && lit ? 'visible' : 'hidden';
+    arrow.style.visibility = pointing && lit ? 'visible' : 'hidden';
+    label.style.visibility = t >= AUTOPILOT_LABEL_AT ? 'visible' : 'hidden';
+  };
+}
 
 /** Tiempo que una fila sigue resaltada tras pulsar su tecla (s). */
 const HIGHLIGHT_S = 0.45;
@@ -248,31 +313,34 @@ const HIGHLIGHT_S = 0.45;
 function rotuloControles(root: HTMLElement): Rotulo {
   const box = panel(
     '<div class="tenue" style="font-size:30px;margin-bottom:18px">CONTROLES</div>',
-    { left: '1270px', top: '360px', width: '520px' },
+    { left: '1262px', top: '340px', width: '540px' },
   );
   const rows = CONTROL_ROWS.map((row) => {
     const line = document.createElement('div');
     line.style.display = 'grid';
     line.style.gridTemplateColumns = '130px 1fr';
-    line.style.fontSize = '36px';
+    line.style.fontSize = '32px';
     line.style.padding = '10px 14px';
     line.innerHTML = `<span class="acento">${row.label}</span><span>${row.action}</span>`;
     box.append(line);
     return { row, line };
   });
   root.append(box);
+  const showPointer = autopilotPointer(root);
   return {
     render: (t) => {
+      showPointer(t);
       rows.forEach(({ row, line }) => {
-        const active = CONTROL_STEPS.some((step) => {
+        const pressed = CONTROL_STEPS.some((step) => {
           const end = step.at + Math.max(HIGHLIGHT_S, step.hold ?? 0);
           return row.keys.includes(step.key) && t >= step.at && t < end;
         });
-        line.style.background = active ? '#f2b134' : 'transparent';
-        line.style.color = active ? '#0b0d17' : '';
+        const active = pressed || (row.from !== undefined && t >= row.from);
+        line.style.background = active ? ACCENT : 'transparent';
+        line.style.color = active ? PANEL : '';
         const label = line.firstElementChild as HTMLElement | null;
         if (label !== null) {
-          label.style.color = active ? '#0b0d17' : '';
+          label.style.color = active ? PANEL : '';
         }
       });
     },

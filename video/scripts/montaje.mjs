@@ -178,9 +178,17 @@ function escenas() {
   const metaEn = f(3, '3.6', 'fin') - 0.2;
   const metaDesde = suceso('extracto_objetivo_nivel', 'lineClear') - (metaEn - objetivo);
 
-  // Escena 4: acaba poco después de la pausa, cuando termina la frase 4.3 (el autor
-  // pidió quitar el tramo sin narración que venía detrás).
-  const d4 = Math.max(f(4, '4.3', 'fin') + 0.6, suceso('extracto_controles', 'pausa') + 1.2);
+  // Escena 4: teclas, pausa y el botón del piloto automático. El clic tiene que caer al
+  // acabar la frase 4.4 («…el botón de piloto automático») y antes de la 4.5, para que el
+  // piloto empiece a jugar justo cuando se cuenta qué hace. La escena acaba con la 4.5.
+  const clic = suceso('extracto_controles', 'piloto');
+  if (clic < f(4, '4.4', 'fin') - 0.3 || clic > f(4, '4.5') + 0.3) {
+    throw new Error(
+      `El clic del piloto (${clic} s) no cae entre las frases 4.4 y 4.5 ` +
+        `(${f(4, '4.4', 'fin').toFixed(2)}–${f(4, '4.5').toFixed(2)} s): ajusta linea_controles.ts`,
+    );
+  }
+  const d4 = f(4, '4.5', 'fin') + 0.6;
 
   // Escena 5: tras la primera frase, los seis eventos.
   const eventos = ['desfile', 'pascua', 'navidad', 'fuegos', 'maslenitsa', 'olimpiadas'];

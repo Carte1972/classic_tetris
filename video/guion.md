@@ -1,6 +1,14 @@
 # Guion del vídeo explicativo de ТЕТРИС
 
-**Estado:** borrador 2, pendiente de aprobación.
+**Estado:** aprobado (borrador 2), con las frases 4.4 y 4.5 añadidas y aprobadas el 3 de octubre de 2026.
+
+**Cambios por el piloto automático y el ranking con nombre (3 de octubre de 2026, aprobados por el autor):**
+
+- **Escena 4:** tras la pausa, dos frases nuevas sobre el botón de piloto automático: dónde está (4.4) y qué hace (4.5). La escena pasa de unos 10 s a unos 20 s.
+- **«Delasherí»:** grafía de «Dellacherie» para la voz, elegida de oído entre cuatro. En pantalla se escribe «DELLACHERIE».
+- **El botón del piloto** aparece en todas las grabaciones de partida, como en el juego.
+- **Fin de la partida (3.5):** la grabación carga antes los récords de ejemplo, para que la partida no entre en el ranking y se vea FIN DE LA PARTIDA en vez del formulario del nombre.
+- **Récords (6.4):** los de ejemplo llevan nombres, en español y en ruso.
 
 **Cambios tras la primera versión montada (pedidos por el autor):**
 
@@ -84,13 +92,15 @@ _Las grafías «Páshitnov» y «Guéim Boi» se probarán en la prueba de voz. 
 | 3.8 | _[intriga · −r 170]_ No hay final: se juega hasta perder.                                                                                        | Sigue la partida en el nivel 2.                                                                                                                                               | —                                                                 | —                                                                       |
 | 3.9 | _[energía creciente · −r 170]_ Y cada nivel es más rápido, salen más piezas difíciles... y desde el nivel quince, ¡ya no ves la siguiente pieza! | Partida en el nivel 15, con caída rápida y el panel SIGUIENTE en «OCULTA» (`extracto_nivel_15`).                                                                              | —                                                                 | Korobéiniki acelerado, como cuando la pila está alta.                   |
 
-## Escena 4 — Controles (≈15 s)
+## Escena 4 — Controles y piloto automático (≈20 s)
 
-| #   | Narración                                               | Imagen                                                                                                      | Rótulos                                                                                                                                          | Música y sonido                            |
-| --- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------ |
-| 4.1 | _[ágil · −r 170]_ Las flechas mueven y bajan la pieza.  | Grabación guionizada (`extracto_controles`): la pieza va a la izquierda, a la derecha y baja con soft drop. | Tabla de teclas (`rotulo_controles`) a un lado; se resalta cada tecla cuando se usa: ← → MOVER · ↓ BAJAR · ↑ GIRAR · Z GIRAR AL REVÉS · P PAUSA. | Efectos de mover a −6 dB; música a −20 dB. |
-| 4.2 | _[ágil · −r 170]_ La flecha arriba y la zeta, la giran. | La pieza gira en un sentido y en el otro.                                                                   | Se resaltan ↑ y Z.                                                                                                                               | Efecto de girar.                           |
-| 4.3 | _[ágil · −r 170]_ Y con la pe, pausas el juego.         | El juego entra en PAUSA (el pozo se oculta) y vuelve.                                                       | Se resalta P.                                                                                                                                    | La música se corta en la pausa y vuelve.   |
+| #   | Narración                                                                                                               | Imagen                                                                                                                                                                     | Rótulos                                                                                                                                          | Música y sonido                                                            |
+| --- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
+| 4.1 | _[ágil · −r 170]_ Las flechas mueven y bajan la pieza.                                                                  | Grabación guionizada (`extracto_controles`): la pieza va a la izquierda, a la derecha y baja con soft drop.                                                                | Tabla de teclas (`rotulo_controles`) a un lado; se resalta cada tecla cuando se usa: ← → MOVER · ↓ BAJAR · ↑ GIRAR · Z GIRAR AL REVÉS · P PAUSA. | Efectos de mover a −6 dB; música a −20 dB.                                 |
+| 4.2 | _[ágil · −r 170]_ La flecha arriba y la zeta, la giran.                                                                 | La pieza gira en un sentido y en el otro.                                                                                                                                  | Se resaltan ↑ y Z.                                                                                                                               | Efecto de girar.                                                           |
+| 4.3 | _[ágil · −r 170]_ Y con la pe, pausas el juego.                                                                         | El juego entra en PAUSA (el pozo se oculta) y vuelve.                                                                                                                      | Se resalta P.                                                                                                                                    | La música se corta en la pausa y vuelve.                                   |
+| 4.4 | _[intriga · −r 170]_ Y bajo el marcador tienes el botón de piloto automático.                                           | La partida sigue; un recuadro y una flecha de color de acento parpadean alrededor del botón «PILOTO AUTOMÁTICO: NO», bajo el marcador.                                     | La tabla añade la fila «BOTÓN · PILOTO AUTOMÁTICO», resaltada desde aquí.                                                                        | Korobéiniki a −20 dB.                                                      |
+| 4.5 | _[asombro · −r 170]_ Le da el control a una inteligencia artificial simbólica, gobernada por el algoritmo de Delasherí. | Justo antes de la frase se pulsa el botón: pasa a «SÍ», en acento y parpadeando, y la partida se juega sola (el piloto mueve, gira y encaja las piezas y completa líneas). | Bajo el botón: «IA SIMBÓLICA · ALGORITMO DE DELLACHERIE».                                                                                        | Efectos de mover, girar, fijar y línea de las jugadas del piloto, a −6 dB. |
 
 ## Escena 5 — La Plaza Roja y su música (≈26 s)
 
@@ -129,22 +139,22 @@ Antes incluía la mención a la marca («Tetris es una marca registrada de Tetri
 
 Todas se graban fotograma a fotograma a 1920×1080 y 30 fps, contra el build, con `?seed=123&test=1` y el reloj simulado. Llevan algo de margen sobre lo que se usa.
 
-| Archivo en `video/extractos/`                                                 | Contenido y preparación                                                                                                             | Duración     |
-| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| `extracto_plaza_titulo.mp4`                                                   | Plaza limpia de día, vida normal.                                                                                                   | 8 s          |
-| `extracto_plaza_dia_noche.mp4`                                                | Plaza limpia: amanecer lento (escena 2), después día, atardecer y noche rápidos, con lluvia y nieve (`setScene` en cada fotograma). | 40 s         |
-| `extracto_partida_en_curso.mp4`                                               | Partida de nivel 1 con el jugador automático y una pila de media altura.                                                            | 25 s         |
-| `extracto_limpieza_4_lineas.mp4`                                              | Tablero con un hueco de 4 filas; la I cae y limpia 4 líneas.                                                                        | 8 s          |
-| `extracto_fin_partida.mp4`                                                    | Pila casi llena; la siguiente pieza no cabe y aparece FIN DE LA PARTIDA.                                                            | 7 s          |
-| `extracto_objetivo_nivel.mp4`                                                 | Celebraciones desactivadas, OBJETIVO en 8 / 10; se completan dos líneas, sale «¡NIVEL 2!» y el tablero vacío con 0 / 12.            | 14 s         |
-| `extracto_nivel_15.mp4`                                                       | Partida en el nivel 15 con el jugador automático y el panel SIGUIENTE oculto.                                                       | 10 s         |
-| `extracto_controles.mp4`                                                      | Pulsaciones guionizadas: ←, →, ↓, ↑, Z, P y P otra vez.                                                                             | 18 s         |
-| `extracto_evento_desfile.mp4` … `extracto_evento_olimpiadas.mp4` (6 archivos) | Plaza limpia con cada evento fijado con `setScene({ event, eventElapsedMs, timeOfDay, weather })`, a su hora y con su tiempo.       | 5 s cada uno |
-| `extracto_baile_cosaco.mp4`                                                   | Se supera el nivel 1 (`patchGame` como en las capturas) y se graba la celebración del cosaco desde la prisiadka (≈1,5 s).           | 6 s          |
-| `extracto_records.mp4`                                                        | Pantalla RÉCORDS con 10 récords de ejemplo cargados en `localStorage` antes de abrir el juego.                                      | 8 s          |
-| `extracto_cierre_plaza.mp4`                                                   | Plaza limpia al anochecer, con las farolas encendiéndose.                                                                           | 10 s         |
+| Archivo en `video/extractos/`                                                 | Contenido y preparación                                                                                                                   | Duración     |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| `extracto_plaza_titulo.mp4`                                                   | Plaza limpia de día, vida normal.                                                                                                         | 8 s          |
+| `extracto_plaza_dia_noche.mp4`                                                | Plaza limpia: amanecer lento (escena 2), después día, atardecer y noche rápidos, con lluvia y nieve (`setScene` en cada fotograma).       | 40 s         |
+| `extracto_partida_en_curso.mp4`                                               | Partida de nivel 1 con el jugador automático y una pila de media altura.                                                                  | 25 s         |
+| `extracto_limpieza_4_lineas.mp4`                                              | Tablero con un hueco de 4 filas; la I cae y limpia 4 líneas.                                                                              | 8 s          |
+| `extracto_fin_partida.mp4`                                                    | Pila casi llena; la siguiente pieza no cabe y aparece FIN DE LA PARTIDA. Con los récords de ejemplo cargados, para que no pida el nombre. | 8 s          |
+| `extracto_objetivo_nivel.mp4`                                                 | Celebraciones desactivadas, OBJETIVO en 8 / 10; se completan dos líneas, sale «¡NIVEL 2!» y el tablero vacío con 0 / 12.                  | 14 s         |
+| `extracto_nivel_15.mp4`                                                       | Partida en el nivel 15 con el jugador automático y el panel SIGUIENTE oculto.                                                             | 10 s         |
+| `extracto_controles.mp4`                                                      | Pulsaciones guionizadas: ←, →, ↓, ↑, Z, P y P otra vez; después, clic en el botón del piloto automático, que juega solo.                  | 22 s         |
+| `extracto_evento_desfile.mp4` … `extracto_evento_olimpiadas.mp4` (6 archivos) | Plaza limpia con cada evento fijado con `setScene({ event, eventElapsedMs, timeOfDay, weather })`, a su hora y con su tiempo.             | 5 s cada uno |
+| `extracto_baile_cosaco.mp4`                                                   | Se supera el nivel 1 (`patchGame` como en las capturas) y se graba la celebración del cosaco desde la prisiadka (≈1,5 s).                 | 6 s          |
+| `extracto_records.mp4`                                                        | Pantalla RÉCORDS con 10 récords de ejemplo, con nombres, cargados en `localStorage` antes de abrir el juego.                              | 12 s         |
+| `extracto_cierre_plaza.mp4`                                                   | Plaza limpia al anochecer, con las farolas encendiéndose.                                                                                 | 10 s         |
 
-**Rótulos** (HTML en `video/rotulos/`, capturados con Playwright): `rotulo_titulo` (animado), `rotulo_fecha` (1984 y 1989), `rotulo_piezas`, `rotulo_objetivo`, `rotulo_controles`, `rotulo_evento` (los 6 nombres) y `rotulo_cierre`.
+**Rótulos** (HTML en `video/rotulos/`, capturados con Playwright): `rotulo_titulo` (animado), `rotulo_fecha` (1984 y 1989), `rotulo_piezas`, `rotulo_objetivo`, `rotulo_controles` (animado, con la fila, el recuadro y la etiqueta del piloto), `rotulo_evento` (los 6 nombres) y `rotulo_cierre`.
 
 **Miniatura:** título ТЕТРИС sobre la plaza con la Spásskaya y San Basilio y un pozo con piezas; sin bailarines.
 
@@ -158,3 +168,4 @@ Detalle completo en [`fuentes.md`](fuentes.md).
 | En 1989, las versiones de Game Boy y NES lo llevaron a todo el mundo        | Wikipedia (Game Boy y NES), The Strong National Museum of Play, TetrisWiki                 |
 | Korobéiniki y Kalinka son canciones populares rusas                         | Wikipedia y Mfiles, para cada una                                                          |
 | Titular de la marca Tetris (aviso del cierre)                               | tetris.com y Wikipedia (The Tetris Company)                                                |
+| El piloto automático usa el algoritmo de Pierre Dellacherie                 | Algorta y Şimşek (arXiv, 2019); Chen y otros (arXiv, 2026), que cita a Fahey (2003)        |

@@ -210,7 +210,8 @@ export interface ClipEvent {
     | 'gameOver'
     | 'celebracion'
     | 'pausa'
-    | 'tecla';
+    | 'tecla'
+    | 'piloto';
   /** Detalle (por ejemplo, la tecla pulsada). */
   readonly detalle?: string;
 }

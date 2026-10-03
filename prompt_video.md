@@ -166,3 +166,17 @@ Estos cambios prevalecen sobre lo anterior:
 - **Vídeo en el repositorio:** a petición del autor, el vídeo final y su miniatura se suben a `docs/video/` (y se adjuntan a la release v1.0.0). Lo generado durante el proceso (`video/audio/`, `video/extractos/`, `video/salida/`, `video/tmp/`) sigue fuera del repositorio.
 - **Guion aprobado:** `video/guion.md`, borrador 2.
 - **Revisión de la primera versión:** el autor pidió que la voz fuera a una sola velocidad (170) salvo «¡Tetris!», más lenta y más fuerte; cambiar «Y con la P… ¡pausa!» por «Y con la P, pausas el juego»; quitar los puntos suspensivos leídos en «más sorpresas»; cambiar la pregunta final por «¡Atrévete a superarlas!»; y acortar la escena de controles tras la pausa. Todo está recogido en el guion.
+
+## Cambios acordados (3 de octubre de 2026): piloto automático y ranking con nombre
+
+Tras añadir al juego el piloto automático y el ranking con nombre (cuarta iteración de `prompt_tetris.md`), el autor pidió actualizar el vídeo. Estos cambios prevalecen sobre lo anterior:
+
+- **Escena 4:** tras «Y con la pe, pausas el juego.» se añaden dos frases, aprobadas por el autor:
+  - 4.4: «Y bajo el marcador tienes el botón de piloto automático.» Un recuadro y una flecha que parpadean señalan el botón, y la tabla de controles añade la fila «BOTÓN · PILOTO AUTOMÁTICO».
+  - 4.5: «Le da el control a una inteligencia artificial simbólica, gobernada por el algoritmo de Delasherí.» Al empezar la frase se pulsa el botón y la partida se juega sola; un rótulo bajo el botón dice «IA SIMBÓLICA · ALGORITMO DE DELLACHERIE».
+  - La escena de controles pasa a durar unos 20 s.
+- **Pronunciación:** «Delasherí», elegida por el autor de oído entre cuatro grafías («Dellacherie», «Delacherí», «Delashrí» y «Delasherí»). La atribución a Pierre Dellacherie tiene sus fuentes en `video/fuentes.md`.
+- **Grabaciones:**
+  - El botón del piloto aparece en todas las grabaciones de partida, como en el juego.
+  - La del fin de la partida carga antes los récords de ejemplo, para que la partida no entre en el ranking y se vea «FIN DE LA PARTIDA» en vez del formulario del nombre.
+  - Los récords de ejemplo llevan nombres, en español y en ruso.
