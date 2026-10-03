@@ -172,6 +172,46 @@ h2 {
   min-width: calc(220px * var(--ui-scale));
 }
 
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: calc(16px * var(--ui-scale));
+}
+
+.autopilot-button {
+  /* Por encima de la capa de celebración (z-index 2), para poder pulsarlo durante el baile. */
+  position: relative;
+  z-index: 3;
+  padding: calc(10px * var(--ui-scale)) calc(12px * var(--ui-scale));
+  background: var(--color-panel);
+  border: 4px solid var(--color-border);
+  color: var(--color-dim);
+  font: inherit;
+  font-size: calc(14px * var(--ui-scale));
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+.autopilot-button:hover {
+  color: var(--color-text);
+}
+
+.autopilot-button.active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-panel);
+  animation: autopilot-glow 1.2s ease-in-out infinite alternate;
+}
+
+/* Parpadeo suave del botón activo: el color de acento se apaga un poco y vuelve. */
+@keyframes autopilot-glow {
+  to {
+    background: color-mix(in srgb, var(--color-accent) 70%, var(--color-panel));
+    border-color: color-mix(in srgb, var(--color-accent) 70%, var(--color-panel));
+  }
+}
+
 .stat dt,
 .panel-title {
   color: var(--color-dim);

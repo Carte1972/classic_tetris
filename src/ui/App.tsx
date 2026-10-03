@@ -19,9 +19,14 @@ const COLOR_VARIABLES = Object.fromEntries(
  * Pantalla que corresponde al estado actual.
  * @param snapshot Estado de la interfaz.
  * @param targets Registro de canvas de la partida.
+ * @param onToggleAutopilot Acción del botón del piloto automático.
  * @returns La pantalla.
  */
-function renderScreen(snapshot: AppSnapshot, targets: RenderTargets): React.JSX.Element | null {
+function renderScreen(
+  snapshot: AppSnapshot,
+  targets: RenderTargets,
+  onToggleAutopilot: () => void,
+): React.JSX.Element | null {
   switch (snapshot.screen) {
     case 'pressAnyKey':
       return <PressAnyKey />;
@@ -36,7 +41,12 @@ function renderScreen(snapshot: AppSnapshot, targets: RenderTargets): React.JSX.
     case 'celebrating':
     case 'gameOver':
       return snapshot.hud === null ? null : (
-        <GameScreen snapshot={snapshot} hud={snapshot.hud} targets={targets} />
+        <GameScreen
+          snapshot={snapshot}
+          hud={snapshot.hud}
+          targets={targets}
+          onToggleAutopilot={onToggleAutopilot}
+        />
       );
   }
 }
@@ -55,7 +65,9 @@ export function App(): React.JSX.Element {
   return (
     <main className="app" style={COLOR_VARIABLES}>
       <BackgroundCanvas targets={runtime.targets} />
-      <div className="foreground">{renderScreen(snapshot, runtime.targets)}</div>
+      <div className="foreground">
+        {renderScreen(snapshot, runtime.targets, runtime.controller.toggleAutopilot)}
+      </div>
     </main>
   );
 }

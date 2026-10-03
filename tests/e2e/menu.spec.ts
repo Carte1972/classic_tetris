@@ -29,8 +29,9 @@ test.describe('menú', () => {
     }
     await tap(page, 'Enter');
     await expect(page.getByRole('heading', { name: 'CONTROLES' })).toBeVisible();
-    await expect(page.getByRole('row')).toHaveCount(8);
+    await expect(page.getByRole('row')).toHaveCount(9);
     await expect(page.getByText('ROTAR EN SENTIDO ANTIHORARIO')).toBeVisible();
+    await expect(page.getByRole('row', { name: 'BOTÓN PILOTO EL JUEGO JUEGA SOLO' })).toBeVisible();
     await tap(page, 'Escape');
     await expectScreen(page, 'menu');
   });

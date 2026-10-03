@@ -26,6 +26,7 @@ export const TEXTS = {
       ['M', 'SILENCIAR / ACTIVAR SONIDO'],
       ['ESC', 'VOLVER AL MENÚ'],
       ['ENTER', 'EMPEZAR / REINICIAR'],
+      ['BOTÓN PILOTO', 'EL JUEGO JUEGA SOLO'],
     ],
   },
   records: {
@@ -48,6 +49,10 @@ export const TEXTS = {
     goal: 'OBJETIVO',
     muted: 'SONIDO SILENCIADO (M)',
   },
+  autopilot: {
+    off: 'PILOTO AUTOMÁTICO: NO',
+    on: 'PILOTO AUTOMÁTICO: SÍ',
+  },
   pause: {
     title: 'PAUSA',
     hint: 'P CONTINUAR · ESC MENÚ',
@@ -60,6 +65,7 @@ export const TEXTS = {
     title: 'FIN DE LA PARTIDA',
     newRecord: '¡NUEVO RÉCORD!',
     ranked: 'ENTRA EN EL TOP 10',
+    autopilotUsed: 'PARTIDA CON PILOTO AUTOMÁTICO: NO CUENTA PARA RÉCORDS',
     hintRestart: 'ENTER JUGAR DE NUEVO',
     hintMenu: 'ESC MENÚ',
   },
