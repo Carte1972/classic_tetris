@@ -14,6 +14,7 @@ Se juega delante de una **Plaza Roja viva** en pixel-art, vista desde San Basili
 - [Jugar](#jugar)
 - [Controles](#controles)
 - [Piloto automático](#piloto-automático)
+- [El algoritmo de Dellacherie](#el-algoritmo-de-dellacherie)
 - [Reglas y puntuación](#reglas-y-puntuación)
 - [La Plaza Roja](#la-plaza-roja)
 - [Desarrollo](#desarrollo)
@@ -144,7 +145,88 @@ Durante la partida, el botón **PILOTO AUTOMÁTICO** que hay bajo el marcador ha
 - Sigue jugando al cambiar de nivel y, si reinicias tras perder, también juega la partida nueva. No se guarda entre sesiones.
 - **Una partida en la que se ha activado no cuenta para el ranking** ni para el récord del marcador. El fin de partida lo indica.
 
-Juega con el **algoritmo de Pierre Dellacherie**: para cada pieza prueba todas las posiciones y giros a los que puede llegar y se queda con la que mejor puntúa según la altura a la que cae, las líneas que hace, los huecos tapados, los pozos y lo irregular que queda la pila. Con las semillas de los tests juega más de 3000 piezas seguidas sin perder, hasta el nivel 29, y tarda menos de 1 ms en decidir cada jugada.
+![Partida con el piloto automático activado: el botón resaltado bajo el marcador y una J bajando sola hacia su hueco](docs/screenshots/partida_piloto.png)
+
+Lo gobierna una **inteligencia artificial simbólica**: el [algoritmo de Dellacherie](#el-algoritmo-de-dellacherie), que se explica a continuación.
+
+## El algoritmo de Dellacherie
+
+### Qué es
+
+Es una de las estrategias más conocidas para jugar a Tetris de forma automática. La ideó **Pierre Dellacherie**, un jugador aficionado, a principios de los años 2000. Eligió seis rasgos sencillos del tablero y ajustó a mano, por prueba y error, cuánto pesa cada uno. Se convirtió en la referencia de los controladores «de una pieza», los que solo miran la pieza que cae y no la siguiente. En las simulaciones de los artículos de investigación, que colocan las piezas sin gravedad, limpia de media unas **660.000 líneas** por partida.
+
+Es **inteligencia artificial simbólica** porque decide con reglas y números escritos por una persona, no con un modelo entrenado:
+
+- no aprende ni necesita datos ni redes neuronales;
+- es determinista: con el mismo tablero hace siempre la misma jugada;
+- es explicable: cada decisión se puede justificar mirando sus seis medidas.
+
+### Cómo elige cada jugada
+
+Para la pieza que cae, desde la posición en la que está:
+
+1. **Genera todas las colocaciones a las que puede llegar.** Prueba cada orientación a la que se llega girando en el sitio y, desde cada una, cada columna a la que se llega desplazando la pieza. Respeta la rotación de NES: si un giro choca, no se hace, porque no hay _wall kicks_. Por ejemplo, en el tablero vacío una T tiene 34 colocaciones posibles.
+2. **Deja caer cada una** hasta que choca y simula cómo quedaría el tablero, borrando las líneas completas.
+3. **Mide seis rasgos** de la jugada y del tablero resultante.
+4. **Puntúa** cada colocación con la fórmula de Dellacherie y **se queda con la mejor**. A igual puntuación, gana la que pide menos movimientos: menos columnas, luego menos giros y, si sigue el empate, la de la izquierda.
+
+| Rasgo                    | Qué mide                                                                                          | Peso   | Por qué                                        |
+| ------------------------ | ------------------------------------------------------------------------------------------------- | ------ | ---------------------------------------------- |
+| Altura de aterrizaje     | Altura media de la pieza ya caída (entre su celda más baja y la más alta)                         | −1     | Cuanto más arriba juegas, más cerca de perder  |
+| Celdas erosionadas       | Líneas que completa la jugada × celdas de la pieza que caen en esas líneas                        | **+1** | Premia hacer líneas, y más si son varias       |
+| Transiciones de filas    | Cambios entre lleno y vacío al recorrer cada fila (las paredes cuentan como llenas)               | −1     | Una superficie irregular es difícil de llenar  |
+| Transiciones de columnas | Cambios entre lleno y vacío al recorrer cada columna de arriba abajo (el suelo cuenta como lleno) | −1     | Detecta salientes y celdas tapadas             |
+| Huecos                   | Celdas vacías con algún bloque encima                                                             | **−4** | Lo peor que se puede hacer: cuesta destaparlos |
+| Pozos acumulados         | Celdas vacías con bloques a los dos lados; un pozo de profundidad _d_ suma 1 + 2 + … + _d_        | −1     | Los pozos hondos solo se llenan con una I      |
+
+```text
+puntuación = −1 × altura de aterrizaje + 1 × celdas erosionadas
+             −1 × transiciones de filas − 1 × transiciones de columnas
+             −4 × huecos − 1 × pozos acumulados
+```
+
+### Un ejemplo
+
+Hay cuatro filas completas salvo la última columna, y llega una I. De las 17 colocaciones posibles, estas son las mejores:
+
+| Colocación                         | Altura | Erosionadas | Trans. filas | Trans. columnas | Huecos | Pozos | Puntuación |
+| ---------------------------------- | ------ | ----------- | ------------ | --------------- | ------ | ----- | ---------- |
+| **Vertical en el pozo (4 líneas)** | 2,5    | 16          | 44           | 10              | 0      | 0     | **−40,5**  |
+| Horizontal encima, a la izquierda  | 5      | 0           | 44           | 10              | 0      | 10    | −69        |
+| Vertical en la columna izquierda   | 6,5    | 0           | 44           | 10              | 0      | 10    | −70,5      |
+
+Meter la I en el pozo limpia 4 líneas: suma 16 celdas erosionadas, deja el tablero vacío y elimina el pozo, así que gana con claridad.
+
+### Del plan a las teclas
+
+El algoritmo dice dónde debe acabar la pieza. El piloto (`src/ai/autopilot.ts`) la lleva hasta allí como lo haría un jugador, frame a frame y con las mismas reglas del motor:
+
+- gira y desplaza como mucho una columna por frame, y antes de pedir cada movimiento comprueba que el motor lo aceptará;
+- al empezar cada pieza envía un frame sin soft drop, porque el motor exige soltar ↓ entre pieza y pieza;
+- una vez alineada, baja con soft drop;
+- en los niveles más rápidos (desde el 29, la pieza cae una fila por frame), si la gravedad hace imposible el plan, lo recalcula desde donde está la pieza.
+
+### Rendimiento en ТЕТРИС
+
+Medido con el motor real del juego, con gravedad, retardos, soft drop, niveles por objetivo y nivel inicial 0:
+
+| Semilla | Piezas | Líneas | Niveles superados | Puntos    | Tiempo medio por decisión |
+| ------- | ------ | ------ | ----------------- | --------- | ------------------------- |
+| 42      | 500    | 183    | 9                 | 56.535    | 0,85 ms                   |
+| 123     | 500    | 175    | 9                 | 54.620    | 0,83 ms                   |
+| 2026    | 500    | 174    | 9                 | 52.828    | 0,75 ms                   |
+| 42      | 3.000  | 1.142  | 29                | 997.253   | 0,80 ms                   |
+| 123     | 3.000  | 1.144  | 29                | 1.007.025 | 0,81 ms                   |
+| 2026    | 3.000  | 1.138  | 29                | 988.752   | 0,80 ms                   |
+
+No perdió ninguna partida: llega al nivel 29, en el que la pieza cae una fila por frame, y sigue jugando. Cada decisión tarda menos de 1 ms, muy por debajo de los 16,7 ms de un frame. Los tests (`tests/unit/ai/`) comprueban estas partidas con las tres semillas.
+
+### Limitaciones
+
+- Solo mira la pieza actual, no la siguiente. Los controladores que también miran la siguiente pieza, o que ajustan los pesos automáticamente (como el método de entropía cruzada), llegan más lejos.
+- Los pesos son fijos, los del original. Están en `src/config/autopilot_config.ts`, por si alguien quiere experimentar.
+
+**Fuentes:** [Algorta y Şimşek, «The Game of Tetris in Machine Learning» (2019)](https://arxiv.org/abs/1905.01652) y [Chen y otros, «Bitboard version of Tetris AI» (2026)](https://arxiv.org/html/2603.26765). La especificación completa del piloto está en [`algoritmo_dellacherie_tetris.md`](algoritmo_dellacherie_tetris.md).
 
 ## Reglas y puntuación
 
@@ -471,18 +553,21 @@ El CI ejecuta las mismas comprobaciones, los e2e y la prueba de los lanzadores e
 
 ## Tiempo y tokens
 
-El juego y el vídeo explicativo se desarrollaron en una sola sesión de desarrollo asistido por IA, entre el 1 y el 2 de octubre de 2026. Las cifras salen del registro de esa sesión.
+El juego, el vídeo explicativo y el piloto automático con el ranking se desarrollaron en una sola sesión de desarrollo asistido por IA, entre el 1 y el 3 de octubre de 2026. Las cifras salen del registro de esa sesión, hasta el 3 de octubre a las 17:28 (hora peninsular).
 
-|                             | Juego       | Vídeo explicativo | Total        |
-| --------------------------- | ----------- | ----------------- | ------------ |
-| Tiempo con actividad        | 5,5 h       | 2,9 h             | 8,4 h        |
-| Tokens nuevos leídos        | 3,28 M      | 1,52 M            | 4,80 M       |
-| Tokens releídos de la caché | 251,9 M     | 146,0 M           | 397,9 M      |
-| Tokens generados            | 1,04 M      | 0,23 M            | 1,27 M       |
-| **Precio estimado**         | **97,41 $** | **45,97 $**       | **143,38 $** |
+|                             | Juego       | Vídeo explicativo | Piloto y ranking | Total        |
+| --------------------------- | ----------- | ----------------- | ---------------- | ------------ |
+| Tiempo con actividad        | 5,5 h       | 3,2 h             | 1,9 h            | 10,7 h       |
+| Tokens nuevos leídos        | 3,28 M      | 1,54 M            | 1,47 M           | 6,29 M       |
+| Tokens releídos de la caché | 251,9 M     | 161,0 M           | 71,4 M           | 484,3 M      |
+| Tokens generados            | 1,04 M      | 0,24 M            | 0,28 M           | 1,56 M       |
+| **Precio estimado**         | **97,41 $** | **49,32 $**       | **31,65 $**      | **178,38 $** |
 
 - **M** = millones de tokens.
-- El **vídeo** se cuenta desde que se pidió, incluidos sus ajustes y su documentación. Lo anterior es el **juego**: especificación, tres iteraciones, tests, capturas y release.
+- Cada columna empieza cuando se pidió esa parte:
+  - el **juego**: especificación, tres iteraciones, tests, capturas y release;
+  - el **vídeo**: incluye sus ajustes y su documentación, también esta sección del README;
+  - **piloto y ranking**: el algoritmo de Dellacherie, el piloto automático, el ranking con nombre en `records.json` con el servidor local, la actualización del vídeo y su documentación.
 - El **tiempo con actividad** suma solo los intervalos de menos de 15 minutos sin actividad, así que no cuenta las pausas largas. Sí incluye el tiempo de revisar, escuchar y responder.
 - **Tokens nuevos leídos:** todo el texto que el asistente lee por primera vez (mensajes, archivos, resultados de comandos y tests, imágenes). Se guarda en caché para no tener que procesarlo de nuevo.
 - **Tokens releídos de la caché:** en cada respuesta el asistente vuelve a leer la conversación entera hasta ese momento, pero desde la caché, que cuesta mucho menos.
@@ -493,7 +578,7 @@ El juego y el vídeo explicativo se desarrollaron en una sola sesión de desarro
 | ----------------------------------------- | --------------------------- | ---------------- |
 | 8 $                                       | 0,20 $                      | 20 $             |
 
-Unos 1.700 tokens nuevos no pasaron por la caché y se cobran a 4 $ por millón; no cambian el total.
+Unos 2.100 tokens nuevos no pasaron por la caché y se cobran a 4 $ por millón; no cambian el total.
 
 ## Créditos
 
